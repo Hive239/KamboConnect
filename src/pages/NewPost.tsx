@@ -37,11 +37,14 @@ export default function NewPost() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title.trim() || !content.trim() || !user) return;
+    // Length caps — prevent multi-MB payloads (storage/render abuse).
+    if (title.length > 200) { alert("Title must be 200 characters or fewer."); return; }
+    if (content.length > 20000) { alert("Post is too long (20,000 character limit)."); return; }
 
     setIsSubmitting(true);
     try {
       const newPost = await Post.create({
-        title,
+        title: title.trim().slice(0, 200),
         content,
         category,
         author_id: user.id,

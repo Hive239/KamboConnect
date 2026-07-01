@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Post, Reply, User, Notification, Practitioner } from "@/entities/all";
@@ -27,11 +27,14 @@ export default function PostPage() {
 
   const postId = new URLSearchParams(location.search).get("id");
 
+  const reqRef = useRef(0);
   const loadData = useCallback(async () => {
     if (!postId) {
       navigate(createPageUrl("Community"));
       return;
     }
+    // Ignore a stale response if a newer load (different postId) started meanwhile.
+    const myReq = ++reqRef.current;
     setIsLoading(true);
     try {
       const [currentUser, postData, postReplies] = await Promise.all([
@@ -39,18 +42,21 @@ export default function PostPage() {
         Post.get(postId),
         Reply.filter({ post_id: postId }, "created_date"),
       ]);
+      if (myReq !== reqRef.current) return;
       setUser(currentUser);
       setPost(postData);
       setReplies((postReplies || []).filter((r) => !r.is_hidden)); // moderated replies hidden
       try {
         const pracs = await Practitioner.list();
+        if (myReq !== reqRef.current) return;
         setPractitionerIds(new Set(pracs.map((p) => p.id)));
       } catch { /* author links are a non-critical enhancement */ }
     } catch (error) {
+      if (myReq !== reqRef.current) return;
       console.error("Failed to load post data:", error);
       navigate(createPageUrl("Community"));
     } finally {
-      setIsLoading(false);
+      if (myReq === reqRef.current) setIsLoading(false);
     }
   }, [postId, navigate]);
 

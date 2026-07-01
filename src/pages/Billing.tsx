@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { User, Practitioner, Booking, Payment, Review, Subscription, Notification } from "@/entities/all";
+import { resolvePractitionerForUser } from "@/lib/practitionerForUser";
 import { createCheckout } from "@/integrations/Payments";
 import { computeReputation } from "@/lib/reputation";
 import { formatCurrency } from "@/lib/format";
@@ -24,16 +25,19 @@ export default function Billing() {
   const [loading, setLoading] = useState(true);
   const [upgrading, setUpgrading] = useState<string | null>(null);
   const [stats, setStats] = useState({ bookings: 0, earnings: 0, rating: 0, reviews: 0, chart: [] as any[] });
+  const [sub, setSub] = useState<any>(null);
 
   const load = async () => {
     const me = await User.me().catch(() => null);
     if (!me) { navigate("/Directory"); return; }
-    const mine = (await Practitioner.filter({ email: me.email }))[0];
+    const mine = await resolvePractitionerForUser(me);
     if (!mine) { setLoading(false); return; }
     setPrac(mine);
-    const [bookings, payments, reviews] = await Promise.all([
+    const [bookings, payments, reviews, subs] = await Promise.all([
       Booking.filter({ practitioner_id: mine.id }), Payment.filter({ practitioner_id: mine.id }), Review.filter({ practitioner_id: mine.id }),
+      Subscription.filter({ practitioner_id: mine.id }, "-created_date").catch(() => []),
     ]);
+    setSub((subs as any[]).find((s) => s.status === "active") || subs[0] || null);
     const earnings = payments.reduce((s: number, p: any) => s + (p.amount || 0), 0);
     const rep = computeReputation(reviews as any);
     // last 6 months booking counts
@@ -99,7 +103,14 @@ export default function Billing() {
       </Card>
 
       {/* Plans */}
-      <h2 className="mb-4 text-lg font-semibold">Your plan</h2>
+      <h2 className="mb-2 text-lg font-semibold">Your plan</h2>
+      {sub && sub.status === "active" && (
+        <p className="mb-4 text-sm text-muted-foreground">
+          Current plan: <span className="font-medium capitalize text-foreground">{sub.tier}</span>
+          {sub.price ? ` · $${sub.price}/mo` : " · Free"}
+          {sub.current_period_end ? ` · renews ${new Date(sub.current_period_end).toLocaleDateString()}` : ""}
+        </p>
+      )}
       <div className="grid gap-5 md:grid-cols-3">
         {TIERS.map((t) => {
           const current = prac.listing_tier === t.id;

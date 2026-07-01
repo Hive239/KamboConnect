@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Group, GroupMembership, Post, User } from "@/entities/all";
 import { useCurrentUser } from "@/lib/useCurrentUser";
@@ -29,19 +29,28 @@ export default function GroupDetail() {
 
   useSeo(group ? { title: `${group.name} — KamboGuide`, description: group.description } : {});
 
+  const reqRef = useRef(0);
   const load = async () => {
     if (!groupId) { navigate(createPageUrl("Community")); return; }
-    const [g] = await Group.filter({ id: groupId });
-    if (!g) { navigate(createPageUrl("Community")); return; }
-    setGroup(g);
-    const [mem, ps] = await Promise.all([
-      GroupMembership.filter({ group_id: groupId }),
-      Post.filter({ group_id: groupId }, "-created_date"),
-    ]);
-    setMembers(mem);
-    setPosts(ps);
-    if (me) setMembershipId((mem.find((m: any) => m.user_id === me.id) || {}).id || null);
-    setLoading(false);
+    const myReq = ++reqRef.current; // ignore stale responses on fast group switches
+    try {
+      const [g] = await Group.filter({ id: groupId });
+      if (myReq !== reqRef.current) return;
+      if (!g) { navigate(createPageUrl("Community")); return; }
+      setGroup(g);
+      const [mem, ps] = await Promise.all([
+        GroupMembership.filter({ group_id: groupId }),
+        Post.filter({ group_id: groupId }, "-created_date"),
+      ]);
+      if (myReq !== reqRef.current) return;
+      setMembers(mem);
+      setPosts(ps);
+      if (me) setMembershipId((mem.find((m: any) => m.user_id === me.id) || {}).id || null);
+    } catch (e) {
+      if (myReq === reqRef.current) console.error("Failed to load group:", e);
+    } finally {
+      if (myReq === reqRef.current) setLoading(false);
+    }
   };
   useEffect(() => { load(); }, [groupId, me?.id]);
 

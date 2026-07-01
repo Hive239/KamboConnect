@@ -124,14 +124,19 @@ export default function PractitionerProfile() {
       return;
     }
 
+    // Prevents a slow earlier request from overwriting a newer one when the user
+    // clicks through profiles quickly (last-writer-wins stale-content race).
+    let cancelled = false;
     const fetchData = async () => {
       setIsLoading(true);
       try {
         const user = await User.me().catch(() => null);
+        if (cancelled) return;
         setCurrentUser(user);
 
         // Fetch practitioner data by ID
         const practitionerRecord = await Practitioner.get(practitionerId).catch(() => null);
+        if (cancelled) return;
 
         if (!practitionerRecord) {
           // If practitioner not found, navigate to directory
@@ -146,6 +151,7 @@ export default function PractitionerProfile() {
 
         // Fetch all reviews and filter by practitioner_id
         const allReviews = await Review.list();
+        if (cancelled) return;
         const practitionerReviews = allReviews.filter(r => r.practitioner_id === practitionerId);
         setReviews(practitionerReviews);
         try { setCredentials(await Credential.filter({ practitioner_id: practitionerId })); } catch { /* non-fatal */ }
@@ -179,15 +185,17 @@ export default function PractitionerProfile() {
         } catch { /* non-critical enrichment */ }
 
       } catch (error) {
+        if (cancelled) return;
         console.error("Failed to fetch practitioner data:", error);
         // On error, navigate to directory
         navigate(createPageUrl("Directory"));
       } finally {
-        setIsLoading(false);
+        if (!cancelled) setIsLoading(false);
       }
     };
 
     fetchData();
+    return () => { cancelled = true; };
   }, [practitionerId, navigate, enrichPractitionerData]);
 
   // SEO + JSON-LD for the public profile (shareable social cards).

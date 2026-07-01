@@ -33,7 +33,9 @@ export default function Profile() {
 
       const [userBookings, userReviews, practitionerRecords, allPractitioners] = await Promise.all([
         Booking.filter({ client_id: currentUser.id }),
-        Review.filter({ reviewer_name: currentUser.full_name }), // Note: this is a stand-in until reviewer_id is available
+        // Filter by stable id, not the display name — a rename previously made the
+        // user's own review history vanish (denormalized reviewer_name drift).
+        Review.filter({ reviewer_id: currentUser.id }),
         Practitioner.filter({ email: currentUser.email }),
         Practitioner.list()
       ]);

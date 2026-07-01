@@ -34,7 +34,11 @@ export default function Directory() {
   const [practitioners, setPractitioners] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [filteredPractitioners, setFilteredPractitioners] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  // Seed the search from a ?q= param so the global top-bar search and Landing
+  // modality pills actually apply their query when they land here.
+  const [searchTerm, setSearchTerm] = useState(
+    () => new URLSearchParams(window.location.search).get("q") || "",
+  );
   const [selectedPractitioner, setSelectedPractitioner] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);

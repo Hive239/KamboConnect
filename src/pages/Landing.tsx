@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Practitioner } from "@/entities/all";
+import { Practitioner, Review, Booking } from "@/entities/all";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -37,19 +37,15 @@ const FAQS = [
 const ROTATING = ["trusted", "verified", "caring", "local"];
 
 const STEPS = [
-  { icon: MapPin, title: "Find a guide", body: "Search verified Kambo practitioners near you on the directory and map — or let the Guide match you." },
-  { icon: MessageSquare, title: "Request a consultation", body: "Message and book a free consultation to make sure it's the right fit for you." },
-  { icon: ShieldCheck, title: "Book safely", body: "Complete a health screening and sign an informed-consent waiver before every session." },
+  { icon: MapPin, title: "Find a guide", body: "Search verified Kambo practitioners near you on the directory and map — or let the Guide match you.", page: "Directory" },
+  { icon: MessageSquare, title: "Request a consultation", body: "Message and book a free consultation to make sure it's the right fit for you.", page: "Guide" },
+  { icon: ShieldCheck, title: "Book safely", body: "Complete a health screening and sign an informed-consent waiver before every session.", page: "Education" },
 ];
 
-const STATS = [
-  { icon: Users, value: 480, suffix: "+", label: "Verified practitioners" },
-  { icon: CalendarCheck, value: 12000, suffix: "+", label: "Sessions guided" },
-  { icon: Star, value: 4.9, decimals: 1, label: "Average rating" },
-  { icon: MapPin, value: 60, suffix: "+", label: "Cities & regions" },
-];
+type StatItem = { icon: any; value: number; suffix?: string; decimals?: number; label: string };
 
-const TESTIMONIALS = [
+// Fallback quotes shown only until real reviews load (or if there aren't ≥3 yet).
+const FALLBACK_TESTIMONIALS = [
   { quote: "I finally found a practitioner I trust — the screening made me feel genuinely safe.", name: "Amara R.", role: "Client" },
   { quote: "Booking, consent, and follow-up all in one calm place. This is how it should be.", name: "Daniel K.", role: "Client" },
   { quote: "As a practitioner, my verified profile brought me serious, prepared clients.", name: "Sofía M.", role: "Practitioner" },
@@ -80,7 +76,7 @@ function useCountUp(target: number, decimals = 0, duration = 1400) {
   return display;
 }
 
-function Stat({ stat }: { stat: (typeof STATS)[number] }) {
+function Stat({ stat }: { stat: StatItem }) {
   const display = useCountUp(stat.value, stat.decimals ?? 0);
   const Icon = stat.icon;
   return (
@@ -130,11 +126,43 @@ export default function Landing() {
   });
   const reduce = useReducedMotion();
   const [featured, setFeatured] = useState<any[]>([]);
+  const [stats, setStats] = useState<StatItem[]>([]);
+  const [testimonials, setTestimonials] = useState(FALLBACK_TESTIMONIALS);
 
+  // All landing data is pulled live from the same entities the app uses.
   useEffect(() => {
-    Practitioner.list("-created_date", 12)
-      .then((list: any[]) => setFeatured(list.filter((p) => p.is_verified).slice(0, 8)))
-      .catch(() => setFeatured([]));
+    let cancelled = false;
+    (async () => {
+      const [practitioners, reviews, bookings] = await Promise.all([
+        Practitioner.list("-created_date").catch(() => []),
+        Review.list("-created_date").catch(() => []),
+        Booking.list("-created_date").catch(() => []),
+      ]);
+      if (cancelled) return;
+
+      const verified = (practitioners as any[]).filter((p) => p.is_verified);
+      setFeatured(verified.slice(0, 8));
+
+      const ratings = (reviews as any[]).map((r) => r.overall_rating ?? r.rating ?? 0).filter((n) => n > 0);
+      const avg = ratings.length ? ratings.reduce((a, b) => a + b, 0) / ratings.length : 0;
+      const cities = new Set((practitioners as any[]).map((p) => p.address?.city).filter(Boolean));
+      const sessions = (bookings as any[]).length || (reviews as any[]).length;
+
+      const computed: StatItem[] = [
+        { icon: Users, value: verified.length, label: "Verified practitioners" },
+        { icon: CalendarCheck, value: sessions, label: (bookings as any[]).length ? "Sessions booked" : "Community reviews" },
+        ...(avg > 0 ? [{ icon: Star, value: Number(avg.toFixed(1)), decimals: 1, label: "Average rating" } as StatItem] : []),
+        { icon: MapPin, value: cities.size, label: "Cities & regions" },
+      ].filter((s) => s.value > 0);
+      setStats(computed);
+
+      const real = (reviews as any[])
+        .filter((r) => (r.review_text || "").trim().length > 24 && (r.overall_rating ?? 0) >= 4 && r.reviewer_name)
+        .slice(0, 6)
+        .map((r) => ({ quote: r.review_text as string, name: r.reviewer_name as string, role: "Verified client" }));
+      if (real.length >= 3) setTestimonials(real);
+    })();
+    return () => { cancelled = true; };
   }, []);
 
   const avatars = featured.filter((p) => p.profile_image_url).slice(0, 5);
@@ -240,14 +268,25 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* ---------- Stats ---------- */}
-        <section className="border-y border-border bg-card/50">
-          <Reveal stagger className="mx-auto grid max-w-5xl grid-cols-2 gap-8 px-5 py-12 md:grid-cols-4">
-            {STATS.map((s) => (
-              <Reveal.Item key={s.label}><Stat stat={s} /></Reveal.Item>
-            ))}
-          </Reveal>
-        </section>
+        {/* ---------- Stats (live from the database) ---------- */}
+        {stats.length > 0 && (
+          <section className="border-y border-border bg-card/50">
+            <div className="mx-auto max-w-5xl px-5 pt-10 text-center">
+              <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
+                </span>
+                Live from KamboGuide
+              </span>
+            </div>
+            <Reveal stagger className={`mx-auto grid max-w-5xl grid-cols-2 gap-8 px-5 pb-12 pt-8 ${stats.length >= 4 ? "md:grid-cols-4" : "md:grid-cols-3"}`}>
+              {stats.map((s) => (
+                <Reveal.Item key={s.label}><Stat stat={s} /></Reveal.Item>
+              ))}
+            </Reveal>
+          </section>
+        )}
 
         {/* ---------- What you'll find ---------- */}
         <section className="mx-auto max-w-5xl px-5 pt-16 text-center">
@@ -258,9 +297,12 @@ export default function Landing() {
           <Reveal stagger step={0.05} className="mt-6 flex flex-wrap justify-center gap-2.5">
             {MODALITIES.map((m) => (
               <Reveal.Item key={m}>
-                <span className="inline-block rounded-full border border-border bg-card px-4 py-2 text-sm font-medium shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:text-primary hover:shadow-md">
+                <Link
+                  to={`${createPageUrl("Directory")}?q=${encodeURIComponent(m.split(" ")[0])}`}
+                  className="inline-block rounded-full border border-border bg-card px-4 py-2 text-sm font-medium shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:text-primary hover:shadow-md"
+                >
                   {m}
-                </span>
+                </Link>
               </Reveal.Item>
             ))}
           </Reveal>
@@ -277,14 +319,17 @@ export default function Landing() {
           <Reveal stagger step={0.12} className="grid gap-6 md:grid-cols-3">
             {STEPS.map((s, i) => (
               <Reveal.Item key={s.title}>
-                <div className="group relative h-full rounded-2xl border border-border bg-card p-7 shadow-sm transition-shadow duration-300 hover:shadow-lg">
+                <Link to={createPageUrl(s.page)} className="group relative flex h-full flex-col rounded-2xl border border-border bg-card p-7 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
                   <span className="absolute right-5 top-5 font-display text-4xl font-semibold text-primary/10">{i + 1}</span>
                   <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 transition-transform duration-300 group-hover:scale-110">
                     <s.icon className="h-6 w-6 text-primary" weight="duotone" />
                   </div>
                   <h3 className="mb-2 text-lg font-semibold">{s.title}</h3>
                   <p className="text-sm leading-relaxed text-muted-foreground">{s.body}</p>
-                </div>
+                  <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
+                    Start here <ArrowRight className="h-3.5 w-3.5" />
+                  </span>
+                </Link>
               </Reveal.Item>
             ))}
           </Reveal>
@@ -356,7 +401,7 @@ export default function Landing() {
             <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-background to-transparent" />
             <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-background to-transparent" />
             <div className={`flex w-max gap-5 ${reduce ? "" : "animate-marquee"}`}>
-              {[...TESTIMONIALS, ...TESTIMONIALS].map((t, i) => (
+              {[...testimonials, ...testimonials].map((t, i) => (
                 <figure key={i} className="w-[340px] shrink-0 rounded-2xl border border-border bg-card p-6 shadow-sm">
                   <div className="mb-3 flex gap-0.5 text-warning">
                     {Array.from({ length: 5 }).map((_, s) => <Star key={s} className="h-4 w-4 fill-warning" weight="fill" />)}
@@ -376,20 +421,20 @@ export default function Landing() {
         <section className="mx-auto max-w-5xl px-5 pb-8">
           <Reveal stagger className="grid gap-4 sm:grid-cols-3">
             {[
-              { icon: ShieldCheck, title: "Verified practitioners", body: "Credentials reviewed before a profile goes live." },
-              { icon: Heart, title: "Screening & consent", body: "Health screening and an informed-consent waiver on every booking." },
-              { icon: Users, title: "Supportive community", body: "Learn, share, and integrate with people on the same path." },
+              { icon: ShieldCheck, title: "Verified practitioners", body: "Credentials reviewed before a profile goes live.", page: "Directory" },
+              { icon: Heart, title: "Screening & consent", body: "Health screening and an informed-consent waiver on every booking.", page: "Education" },
+              { icon: Users, title: "Supportive community", body: "Learn, share, and integrate with people on the same path.", page: "Community" },
             ].map((f) => (
               <Reveal.Item key={f.title}>
-                <div className="flex h-full items-start gap-3 rounded-2xl border border-border bg-card p-5 shadow-sm">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+                <Link to={createPageUrl(f.page)} className="group flex h-full items-start gap-3 rounded-2xl border border-border bg-card p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 transition-transform group-hover:scale-110">
                     <f.icon className="h-5 w-5 text-primary" weight="duotone" />
                   </div>
                   <div>
                     <h3 className="font-semibold">{f.title}</h3>
                     <p className="mt-1 text-sm text-muted-foreground">{f.body}</p>
                   </div>
-                </div>
+                </Link>
               </Reveal.Item>
             ))}
           </Reveal>
