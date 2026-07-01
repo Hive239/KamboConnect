@@ -106,10 +106,11 @@ const SearchAreaButton = ({ onSearchArea, isVisible, isLoading }) => {
   );
 };
 
-const MapView = ({ 
-  practitioners, 
+const MapView = ({
+  practitioners,
   onPractitionerSelect,
-  onMapPractitionersUpdate 
+  onMapPractitionersUpdate,
+  heightClass = "h-96"
 }) => {
   const [userLocation, setUserLocation] = useState(null);
   const [isLocationLoading, setIsLocationLoading] = useState(false);
@@ -163,7 +164,7 @@ const MapView = ({
 
   if (practitionersWithCoords.length === 0) {
     return (
-      <div className="h-96 w-full bg-muted flex items-center justify-center rounded-lg border">
+      <div className={`${heightClass} w-full bg-muted flex items-center justify-center rounded-lg border`}>
         <div className="text-center p-8">
           <MapPin className="w-16 h-16 text-muted-foreground/40 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-foreground mb-2">No practitioners with location data</h3>
@@ -174,7 +175,7 @@ const MapView = ({
   }
 
   return (
-    <div className="w-full h-96 relative bg-card rounded-lg border overflow-hidden">
+    <div className={`w-full ${heightClass} relative bg-card rounded-lg border overflow-hidden`}>
       <MapContainer 
         center={mapCenter} 
         zoom={practitionersWithCoords.length > 0 ? 10 : 4} 

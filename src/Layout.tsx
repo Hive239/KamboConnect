@@ -7,7 +7,7 @@ import { User } from "@/entities/User";
 import {
   Search, Users, Calendar, Store, BookOpen, Menu, Heart, User as UserIcon,
   LogOut, Shield, Briefcase, Settings, LogIn, MessageSquare, ShieldCheck,
-  PanelLeft, Sparkle, Trophy,
+  PanelLeft, Sparkle, Trophy, MapPin, Package,
 } from "@/lib/icons";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ import ProfileMenu from "@/components/layout/ProfileMenu";
 // Main navigation (Desktop rail + Mobile sheet + Mobile bottom nav source)
 const mainNavItems = [
   { title: "Directory", tKey: "nav.directory", url: createPageUrl("Directory"), icon: Search, isPublic: true },
+  { title: "Map", tKey: "nav.map", url: createPageUrl("Map"), icon: MapPin, isPublic: true },
   { title: "Find Your Match", tKey: "nav.matchmaking", url: createPageUrl("Matchmaking"), icon: Sparkle, isPublic: true },
   { title: "Community", tKey: "nav.community", url: createPageUrl("Community"), icon: Users, isPublic: true },
   { title: "Events", tKey: "nav.events", url: createPageUrl("Events"), icon: Calendar, isPublic: true },
@@ -35,6 +36,7 @@ const mainNavItems = [
 const userDrawerItems = [
   { title: "Profile", tKey: "nav.profile", url: createPageUrl("Profile"), icon: UserIcon },
   { title: "My Account", tKey: "nav.account", url: createPageUrl("MyAccount"), icon: Settings },
+  { title: "My Orders", tKey: "nav.orders", url: createPageUrl("Orders"), icon: Package },
   { title: "Practitioner Dashboard", tKey: "nav.practitionerDashboard", url: createPageUrl("PractitionerDashboard"), icon: Briefcase },
   { title: "Billing & Growth", tKey: "nav.billing", url: createPageUrl("Billing"), icon: Trophy },
   { title: "Admin Dashboard", tKey: "nav.adminDashboard", url: createPageUrl("AdminDashboard"), icon: ShieldCheck, adminOnly: true },
@@ -84,10 +86,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   const visibleMainNav = mainNavItems.filter((i) => i.isPublic || !!user);
   const visibleUserItems = userDrawerItems.filter((i) => !i.adminOnly || (user && user.role === "admin"));
+  const navByTitle = (title: string) => mainNavItems.find((i) => i.title === title)!;
   const mobileBottomNav = [
-    mainNavItems[0], mainNavItems[2],
-    ...(user ? [mainNavItems[3]] : []),
-    mainNavItems[1],
+    navByTitle("Directory"), navByTitle("Community"),
+    ...(user ? [navByTitle("Events")] : []),
+    navByTitle("Find Your Match"),
     user
       ? { title: "Profile", url: createPageUrl("Profile"), icon: UserIcon, isPublic: false }
       : { title: "Learn", url: createPageUrl("Education"), icon: BookOpen, isPublic: true },

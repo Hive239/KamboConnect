@@ -21,6 +21,8 @@ import Matchmaking from './pages/Matchmaking';
 import TrustSafety from './pages/TrustSafety';
 import Billing from './pages/Billing';
 import Auth from './pages/Auth';
+import MapPage from './pages/Map';
+import Orders from './pages/Orders';
 import __Layout from './Layout';
 
 
@@ -48,6 +50,8 @@ export const PAGES = {
     "TrustSafety": TrustSafety,
     "Billing": Billing,
     "Auth": Auth,
+    "Map": MapPage,
+    "Orders": Orders,
 }
 
 export const pagesConfig = {

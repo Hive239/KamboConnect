@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Report } from "@/entities/all";
+import { triageReport } from "@/integrations/Moderation";
 import { SendEmail } from "@/integrations/Core";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -90,6 +91,12 @@ const DisputeCard = ({ report, onUpdate }) => {
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
+          {report.ai_rationale && (
+            <div className="flex items-start gap-2 rounded-lg bg-primary/5 p-2 text-xs text-muted-foreground">
+              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 text-primary" />
+              <span><span className="font-medium text-primary">AI triage:</span> {report.ai_rationale}</span>
+            </div>
+          )}
           <div>
             <h4 className="font-medium text-sm text-foreground">Reason:</h4>
             <p className="text-sm">{report.reason}</p>
@@ -166,7 +173,12 @@ export default function DisputeResolution() {
   const loadReports = async () => {
     try {
       const allReports = await Report.list('-created_date');
-      setReports(allReports);
+      // AI triage: suggest a priority + rationale for each report.
+      const enriched = await Promise.all(allReports.map(async (r) => {
+        const t = await triageReport(r);
+        return { ...r, priority: r.priority || t.priority, ai_rationale: t.rationale };
+      }));
+      setReports(enriched);
     } catch (error) {
       console.error("Failed to load reports:", error);
     } finally {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Post, Reply, Report } from "@/entities/all";
+import { moderateContent } from "@/integrations/Moderation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +16,7 @@ import {
 } from "@/lib/icons";
 import { format } from "date-fns";
 
-const ContentItem = ({ content, type, onAction }) => {
+const ContentItem = ({ content, type, onAction, ai }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   
   const truncateText = (text, maxLength = 150) => {
@@ -35,6 +36,11 @@ const ContentItem = ({ content, type, onAction }) => {
               By {content.author_name} • {format(new Date(content.created_date), 'MMM d, yyyy')}
               {type === 'post' && (
                 <Badge variant="outline" className="ml-2">{content.category}</Badge>
+              )}
+              {ai?.flagged && (
+                <Badge variant="destructive" className="ml-2 gap-1" title={ai.reasons.join(', ')}>
+                  <AlertTriangle className="w-3 h-3" /> AI risk {Math.round(ai.score * 100)}%
+                </Badge>
               )}
             </div>
             <div 
@@ -90,6 +96,7 @@ export default function ContentModeration() {
   const [posts, setPosts] = useState([]);
   const [replies, setReplies] = useState([]);
   const [flaggedContent, setFlaggedContent] = useState([]);
+  const [aiScores, setAiScores] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
@@ -104,6 +111,13 @@ export default function ContentModeration() {
       setPosts(allPosts);
       setReplies(allReplies);
       setFlaggedContent(reports);
+
+      // AI moderation pass: score each post/reply so admins see auto-flags.
+      const scored = await Promise.all([
+        ...allPosts.map(async (p) => [p.id, await moderateContent(`${p.title || ''} ${p.content || ''}`)]),
+        ...allReplies.map(async (r) => [r.id, await moderateContent(r.content || '')]),
+      ]);
+      setAiScores(Object.fromEntries(scored));
     } catch (error) {
       console.error("Failed to load content:", error);
     } finally {
@@ -192,22 +206,24 @@ export default function ContentModeration() {
 
         <TabsContent value="posts" className="space-y-4">
           {filteredPosts.map(post => (
-            <ContentItem 
+            <ContentItem
               key={post.id}
               content={post}
               type="post"
               onAction={handleContentAction}
+              ai={aiScores[post.id]}
             />
           ))}
         </TabsContent>
 
         <TabsContent value="replies" className="space-y-4">
           {filteredReplies.map(reply => (
-            <ContentItem 
+            <ContentItem
               key={reply.id}
               content={reply}
               type="reply"
               onAction={handleContentAction}
+              ai={aiScores[reply.id]}
             />
           ))}
         </TabsContent>

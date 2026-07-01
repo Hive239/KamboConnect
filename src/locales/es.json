@@ -1,6 +1,8 @@
 {
   "nav": {
     "directory": "Directorio",
+    "map": "Mapa",
+    "orders": "Mis Pedidos",
     "matchmaking": "Encuentra tu conexión",
     "community": "Comunidad",
     "events": "Eventos",
