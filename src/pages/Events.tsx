@@ -34,8 +34,11 @@ export default function Events() {
       try {
         const fetchedEvents = await Event.list("-start_date");
 
+        // Public listing excludes host drafts and cancelled events.
+        const publicEvents = fetchedEvents.filter((e) => e.status !== "draft" && e.status !== "cancelled");
+
         // Respect stored values; only fill missing coordinates for the map demo.
-        const eventsWithDetails = fetchedEvents.map(e => ({
+        const eventsWithDetails = publicEvents.map(e => ({
           ...e,
           current_participants: e.current_participants ?? 0,
           latitude: e.latitude ?? (40.7128 + (Math.random() - 0.5) * 2),

@@ -118,7 +118,7 @@ export interface Event extends BaseRecord {
   image_url?: string;
   is_online?: boolean;
   meeting_link?: string;
-  status?: 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
+  status?: 'draft' | 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
 }
 
 export interface EventRegistration extends BaseRecord {

@@ -31,8 +31,10 @@ export default function EventModal({ event, practitioner, onClose, onRegister })
     return badges[type] || badges.circle;
   };
 
-  const isFull = event.current_participants >= event.max_participants;
-  const spotsLeft = event.max_participants - event.current_participants;
+  const cap = Number(event.max_participants) || 0;
+  const taken = Number(event.current_participants) || 0;
+  const isFull = cap > 0 && taken >= cap;
+  const spotsLeft = cap > 0 ? cap - taken : null;
   const badge = getEventTypeBadge(event.event_type);
 
   const startDate = new Date(event.start_date);
@@ -149,9 +151,9 @@ export default function EventModal({ event, practitioner, onClose, onRegister })
                 <Users className="w-5 h-5 text-primary" />
                 <div>
                   <p className="font-medium">
-                    {event.current_participants} / {event.max_participants} participants
+                    {cap > 0 ? `${taken} / ${cap} participants` : `${taken} registered`}
                   </p>
-                  {!isFull && (
+                  {spotsLeft !== null && spotsLeft > 0 && (
                     <p className="text-sm text-muted-foreground">
                       {spotsLeft} spots remaining
                     </p>

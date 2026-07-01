@@ -28,7 +28,15 @@ export default function EventDetail() {
   const [host, setHost] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [registering, setRegistering] = useState(false);
+  const [isRegistered, setIsRegistered] = useState(false);
   const reqRef = useRef(0);
+
+  const checkRegistered = async () => {
+    const me = await User.me().catch(() => null);
+    if (!me?.email) return;
+    const regs = await EventRegistration.filter({ event_id: eventId, participant_email: me.email }).catch(() => []);
+    setIsRegistered(regs.length > 0);
+  };
 
   useEffect(() => {
     if (!eventId) { navigate(createPageUrl("Events")); return; }
@@ -44,6 +52,7 @@ export default function EventDetail() {
           const p = await Practitioner.get(ev.practitioner_id).catch(() => null);
           if (myReq === reqRef.current) setHost(p);
         }
+        checkRegistered();
       } finally {
         if (myReq === reqRef.current) setLoading(false);
       }
@@ -67,6 +76,7 @@ export default function EventDetail() {
     const next = (event.current_participants || 0) + 1;
     try { await Event.update(event.id, { current_participants: next }); } catch { /* non-fatal */ }
     setEvent((e: any) => ({ ...e, current_participants: next }));
+    setIsRegistered(true);
     const me = await User.me().catch(() => null);
     if (me) await Notification.create({ user_id: me.id, title: "Event Registration Confirmed", message: `You're registered for "${event.title}".`, type: "event", related_id: event.id, action_url: `${createPageUrl("EventDetail")}?id=${event.id}` }).catch(() => {});
   };
@@ -126,7 +136,15 @@ export default function EventDetail() {
           <div className="flex items-center gap-3"><Clock className="h-5 w-5 text-primary" /><p className="font-medium">{format(start, "h:mm a")} – {format(end, "h:mm a")}</p></div>
           <div className="flex items-center gap-3">
             {event.is_online ? <Globe className="h-5 w-5 text-primary" /> : <MapPin className="h-5 w-5 text-primary" />}
-            <p className="font-medium">{event.is_online ? "Online" : (event.location || "Location TBA")}</p>
+            {event.is_online ? (
+              isRegistered && event.meeting_link ? (
+                <a href={event.meeting_link} target="_blank" rel="noopener noreferrer" className="font-medium text-primary hover:underline">Join online →</a>
+              ) : (
+                <p className="font-medium">Online{isRegistered ? "" : " · link after registration"}</p>
+              )
+            ) : (
+              <p className="font-medium">{event.location || "Location TBA"}</p>
+            )}
           </div>
           <div className="flex items-center gap-3">
             <Users className="h-5 w-5 text-primary" />

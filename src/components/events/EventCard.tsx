@@ -26,9 +26,13 @@ export default function EventCard({ event, practitioner, onViewDetails, onRegist
     return badges[type] || badges.circle;
   };
 
-  const isAlmostFull = event.current_participants >= (event.max_participants * 0.8);
-  const isFull = event.current_participants >= event.max_participants;
-  const spotsLeft = event.max_participants - event.current_participants;
+  // Guard against a missing/zero capacity (was producing NaN comparisons).
+  const cap = Number(event.max_participants) || 0;
+  const taken = Number(event.current_participants) || 0;
+  const hasCap = cap > 0;
+  const isFull = hasCap && taken >= cap;
+  const isAlmostFull = hasCap && taken >= cap * 0.8;
+  const spotsLeft = hasCap ? cap - taken : null;
 
   const badge = getEventTypeBadge(event.event_type);
 
@@ -148,7 +152,7 @@ export default function EventCard({ event, practitioner, onViewDetails, onRegist
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Users className="w-4 h-4" />
                 <span>
-                  {event.current_participants}/{event.max_participants} spots
+                  {hasCap ? `${taken}/${cap} spots` : `${taken} registered`}
                 </span>
               </div>
               <div className="flex items-center gap-1 font-semibold text-primary">

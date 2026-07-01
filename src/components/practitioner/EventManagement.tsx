@@ -10,9 +10,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Plus, Calendar, MapPin, Users, DollarSign, Edit, Trash2, 
-  Clock, Globe, Video 
+import {
+  Plus, Calendar, MapPin, Users, DollarSign, Edit, Trash2,
+  Clock, Globe, Video, Copy
 } from "@/lib/icons";
 import { format } from "date-fns";
 import { createPageUrl } from '@/utils';
@@ -72,11 +72,12 @@ export default function EventManagement({ events, practitioner, onUpdate }) {
     setShowCreateForm(false);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e, status = "upcoming") => {
     e.preventDefault();
     try {
       const eventPayload = {
         ...eventData,
+        status,
         practitioner_id: practitioner.id,
         start_date: new Date(eventData.start_date).toISOString(),
         end_date: new Date(eventData.end_date).toISOString()
@@ -86,6 +87,9 @@ export default function EventManagement({ events, practitioner, onUpdate }) {
         await Event.update(editingEvent.id, eventPayload);
       } else {
         const newEvent = await Event.create(eventPayload);
+
+        // Drafts are private to the host — don't broadcast to the feed or favoriters.
+        if (status === "draft") { resetForm(); onUpdate(); return; }
 
         // Surface the new event in the community feed (verb already rendered by FeedView).
         await emitFeed({
@@ -137,11 +141,32 @@ export default function EventManagement({ events, practitioner, onUpdate }) {
       price: event.price,
       max_participants: event.max_participants,
       is_online: event.is_online || false,
+      meeting_link: event.meeting_link || "",
+      image_url: event.image_url || "",
       requirements: event.requirements || [],
       what_to_bring: event.what_to_bring || []
     });
     setEditingEvent(event);
     setShowCreateForm(true);
+  };
+
+  const handleDuplicate = (event) => {
+    // Prefill a NEW event from an existing one (recurring circles by hand).
+    handleEdit(event);
+    setEditingEvent(null); // clears the id so Submit creates a fresh event
+    setEventData((d) => ({ ...d, title: `${event.title} (copy)`, start_date: "", end_date: "" }));
+  };
+
+  const publishDraft = async (event) => {
+    try {
+      await Event.update(event.id, { status: "upcoming" });
+      await emitFeed({
+        actor_id: practitioner.id, actor_name: practitioner.full_name, actor_image_url: practitioner.profile_image_url,
+        verb: "hosted_event", object_type: "event", object_id: event.id, summary: event.title, image_url: event.image_url,
+        action_url: `${createPageUrl("EventDetail")}?id=${event.id}`,
+      });
+      onUpdate();
+    } catch (e) { console.error("Failed to publish draft:", e); }
   };
 
   const handleDelete = async (eventId) => {
@@ -293,8 +318,9 @@ export default function EventManagement({ events, practitioner, onUpdate }) {
                   <Input
                     id="price"
                     type="number"
+                    min="0"
                     value={eventData.price}
-                    onChange={(e) => setEventData(prev => ({...prev, price: parseFloat(e.target.value) || 0}))}
+                    onChange={(e) => setEventData(prev => ({...prev, price: Math.max(0, parseFloat(e.target.value) || 0)}))}
                     required
                   />
                 </div>
@@ -303,8 +329,9 @@ export default function EventManagement({ events, practitioner, onUpdate }) {
                   <Input
                     id="max_participants"
                     type="number"
+                    min="1"
                     value={eventData.max_participants}
-                    onChange={(e) => setEventData(prev => ({...prev, max_participants: parseInt(e.target.value) || 8}))}
+                    onChange={(e) => setEventData(prev => ({...prev, max_participants: Math.max(1, parseInt(e.target.value) || 1)}))}
                     required
                   />
                 </div>
@@ -320,10 +347,38 @@ export default function EventManagement({ events, practitioner, onUpdate }) {
                 <Label htmlFor="is_online">This is an online event</Label>
               </div>
 
-              <div className="flex gap-3">
+              {eventData.is_online && (
+                <div>
+                  <Label htmlFor="meeting_link">Meeting link (Zoom / Google Meet / etc.)</Label>
+                  <Input
+                    id="meeting_link"
+                    value={eventData.meeting_link}
+                    onChange={(e) => setEventData(prev => ({...prev, meeting_link: e.target.value}))}
+                    placeholder="https://…"
+                  />
+                  <p className="mt-1 text-xs text-muted-foreground">Shown to registrants on the event page.</p>
+                </div>
+              )}
+
+              <div>
+                <Label htmlFor="image_url">Cover image URL (optional)</Label>
+                <Input
+                  id="image_url"
+                  value={eventData.image_url}
+                  onChange={(e) => setEventData(prev => ({...prev, image_url: e.target.value}))}
+                  placeholder="https://…/photo.jpg"
+                />
+              </div>
+
+              <div className="flex flex-wrap gap-3">
                 <Button type="submit" className="bg-primary hover:bg-primary/90">
-                  {editingEvent ? 'Update Event' : 'Create Event'}
+                  {editingEvent ? 'Update Event' : 'Publish Event'}
                 </Button>
+                {!editingEvent && (
+                  <Button type="button" variant="secondary" onClick={(e) => handleSubmit(e, "draft")}>
+                    Save as Draft
+                  </Button>
+                )}
                 <Button type="button" variant="outline" onClick={resetForm}>
                   Cancel
                 </Button>
@@ -355,13 +410,27 @@ export default function EventManagement({ events, practitioner, onUpdate }) {
                           Online
                         </Badge>
                       )}
-                      {!isUpcoming && (
+                      {event.status === "draft" && (
+                        <Badge className="bg-amber-100 text-amber-800">Draft</Badge>
+                      )}
+                      {event.status === "cancelled" && (
+                        <Badge variant="destructive">Cancelled</Badge>
+                      )}
+                      {!isUpcoming && event.status !== "draft" && event.status !== "cancelled" && (
                         <Badge className="bg-muted text-foreground">Past Event</Badge>
                       )}
                     </div>
                     <CardTitle className="text-lg">{event.title}</CardTitle>
                   </div>
                   <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDuplicate(event)}
+                      aria-label="Duplicate event"
+                    >
+                      <Copy className="w-4 h-4" />
+                    </Button>
                     <Button
                       variant="ghost"
                       size="icon"
@@ -418,14 +487,21 @@ export default function EventManagement({ events, practitioner, onUpdate }) {
                     )}
                   </div>
                   
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => openRoster(event)}
-                  >
-                    <Users className="w-4 h-4 mr-2" />
-                    View Registrations ({event.current_participants || 0})
-                  </Button>
+                  <div className="flex gap-2">
+                    {event.status === "draft" && (
+                      <Button size="sm" onClick={() => publishDraft(event)} className="bg-primary hover:bg-primary/90">
+                        Publish
+                      </Button>
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => openRoster(event)}
+                    >
+                      <Users className="w-4 h-4 mr-2" />
+                      Registrations ({event.current_participants || 0})
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>

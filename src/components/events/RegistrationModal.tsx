@@ -159,6 +159,25 @@ export default function RegistrationModal({ event, onClose, onSubmitRegistration
                 className="col-span-3"
               />
             </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="emergency" className="text-right">Emergency contact</Label>
+              <Input
+                id="emergency"
+                value={formData.emergency_contact}
+                onChange={(e) => setFormData({...formData, emergency_contact: e.target.value})}
+                placeholder="Name & phone"
+                className="col-span-3"
+              />
+            </div>
+            <div className="flex items-center justify-end gap-2">
+              <input
+                type="checkbox"
+                id="prev_experience"
+                checked={formData.previous_kambo_experience}
+                onChange={(e) => setFormData({...formData, previous_kambo_experience: e.target.checked})}
+              />
+              <Label htmlFor="prev_experience" className="cursor-pointer">I've done Kambo before</Label>
+            </div>
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>

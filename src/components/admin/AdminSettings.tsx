@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { Notification } from "@/entities/Notification";
+import { Notification, User } from "@/entities/all";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Settings, Send, Bell, Users } from "@/lib/icons";
+import { toast } from "sonner";
 
 export default function AdminSettings() {
   const [announcement, setAnnouncement] = useState({
@@ -15,27 +16,28 @@ export default function AdminSettings() {
 
   const handleSendAnnouncement = async () => {
     if (!announcement.title.trim() || !announcement.message.trim()) {
-      alert("Please fill in both title and message.");
+      toast.error("Please fill in both title and message.");
       return;
     }
-
     setIsSending(true);
     try {
-      // In a real app, this would send to all users
-      // For demo purposes, we'll create a system notification
-      await Notification.create({
-        user_id: 'all_users', // Special identifier for broadcast
-        title: announcement.title,
-        message: announcement.message,
-        type: 'community',
-        priority: 'normal'
-      });
-
+      // Fan out a real notification to every user so it actually reaches inboxes.
+      const users = await User.list();
+      const recipients = (users || []).filter((u: any) => u.status !== "deleted");
+      await Promise.all(recipients.map((u: any) =>
+        Notification.create({
+          user_id: u.id,
+          title: announcement.title,
+          message: announcement.message,
+          type: "community",
+          priority: "normal",
+        }).catch(() => null),
+      ));
       setAnnouncement({ title: "", message: "" });
-      alert("Announcement sent successfully!");
+      toast.success(`Announcement sent to ${recipients.length} user${recipients.length === 1 ? "" : "s"}.`);
     } catch (error) {
       console.error("Failed to send announcement:", error);
-      alert("Failed to send announcement. Please try again.");
+      toast.error("Failed to send announcement. Please try again.");
     } finally {
       setIsSending(false);
     }
