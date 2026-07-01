@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { User, Notification } from "@/entities/all";
+import { subscribe } from "@/data/store";
 import { Bell, MessageSquare, CalendarCheck, Star, Users, Info, Loader2, X } from "@/lib/icons";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
@@ -86,7 +87,9 @@ export default function NotificationCenter() {
               fetchNotifications(currentUser);
             }
           }, NOTIFICATION_CHECK_INTERVAL);
-          return () => clearInterval(intervalId);
+          // Live refresh on realtime notification changes (cross-device)
+          const unsub = subscribe('Notification', () => fetchNotifications(currentUser, true));
+          return () => { clearInterval(intervalId); unsub(); };
         }
       } catch (e) {
         setUser(null);
