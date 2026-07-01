@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { Toaster } from "@/components/ui/sonner"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { User } from '@/entities/User'
@@ -67,25 +67,27 @@ const AuthenticatedApp = () => {
     }
   }
 
-  // Render the main app
+  // Render the main app. Suspense catches the lazy page chunks while they load.
   return (
-    <Routes>
-      <Route path="/" element={<IndexRoute />} />
-      {Object.entries(Pages).map(([path, Page]) => (
-        <Route
-          key={path}
-          path={`/${path}`}
-          element={
-            BARE_ROUTES.has(path)
-              ? <Page />
-              : <LayoutWrapper currentPageName={path}>
-                  <Page />
-                </LayoutWrapper>
-          }
-        />
-      ))}
-      <Route path="*" element={<PageNotFound />} />
-    </Routes>
+    <Suspense fallback={<Spinner />}>
+      <Routes>
+        <Route path="/" element={<IndexRoute />} />
+        {Object.entries(Pages).map(([path, Page]) => (
+          <Route
+            key={path}
+            path={`/${path}`}
+            element={
+              BARE_ROUTES.has(path)
+                ? <Page />
+                : <LayoutWrapper currentPageName={path}>
+                    <Page />
+                  </LayoutWrapper>
+            }
+          />
+        ))}
+        <Route path="*" element={<PageNotFound />} />
+      </Routes>
+    </Suspense>
   );
 };
 

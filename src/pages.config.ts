@@ -1,61 +1,37 @@
-import Directory from './pages/Directory';
-import Education from './pages/Education';
-import Verification from './pages/Verification';
-import Community from './pages/Community';
-import Events from './pages/Events';
-import Market from './pages/Market';
-import Disclaimer from './pages/Disclaimer';
-import NewPost from './pages/NewPost';
-import Post from './pages/Post';
-import Bookings from './pages/Bookings';
-import Profile from './pages/Profile';
-import MyAccount from './pages/MyAccount';
-import PractitionerDashboard from './pages/PractitionerDashboard';
-import PractitionerProfile from './pages/PractitionerProfile';
-import Messages from './pages/Messages';
-import BookingRequest from './pages/BookingRequest';
-import Favorites from './pages/Favorites';
-import PractitionerApplication from './pages/PractitionerApplication';
-import AdminDashboard from './pages/AdminDashboard';
-import Matchmaking from './pages/Matchmaking';
-import TrustSafety from './pages/TrustSafety';
-import Billing from './pages/Billing';
-import Auth from './pages/Auth';
-import Landing from './pages/Landing';
-import MapPage from './pages/Map';
-import Orders from './pages/Orders';
-import GroupDetail from './pages/GroupDetail';
+import { lazy } from 'react';
 import __Layout from './Layout';
 
-
+// Pages are lazy-loaded so each route is its own chunk (keeps the initial
+// bundle small; heavy libs like recharts/leaflet/react-quill/pdf-lib only load
+// on the routes that use them). The Layout shell stays eager.
 export const PAGES = {
-    "Directory": Directory,
-    "Matchmaking": Matchmaking,
-    "Education": Education,
-    "Verification": Verification,
-    "Community": Community,
-    "Events": Events,
-    "Market": Market,
-    "Disclaimer": Disclaimer,
-    "NewPost": NewPost,
-    "Post": Post,
-    "Bookings": Bookings,
-    "Profile": Profile,
-    "MyAccount": MyAccount,
-    "PractitionerDashboard": PractitionerDashboard,
-    "PractitionerProfile": PractitionerProfile,
-    "Messages": Messages,
-    "BookingRequest": BookingRequest,
-    "Favorites": Favorites,
-    "PractitionerApplication": PractitionerApplication,
-    "AdminDashboard": AdminDashboard,
-    "TrustSafety": TrustSafety,
-    "Billing": Billing,
-    "Auth": Auth,
-    "Landing": Landing,
-    "Map": MapPage,
-    "Orders": Orders,
-    "GroupDetail": GroupDetail,
+    "Directory": lazy(() => import('./pages/Directory')),
+    "Matchmaking": lazy(() => import('./pages/Matchmaking')),
+    "Education": lazy(() => import('./pages/Education')),
+    "Verification": lazy(() => import('./pages/Verification')),
+    "Community": lazy(() => import('./pages/Community')),
+    "Events": lazy(() => import('./pages/Events')),
+    "Market": lazy(() => import('./pages/Market')),
+    "Disclaimer": lazy(() => import('./pages/Disclaimer')),
+    "NewPost": lazy(() => import('./pages/NewPost')),
+    "Post": lazy(() => import('./pages/Post')),
+    "Bookings": lazy(() => import('./pages/Bookings')),
+    "Profile": lazy(() => import('./pages/Profile')),
+    "MyAccount": lazy(() => import('./pages/MyAccount')),
+    "PractitionerDashboard": lazy(() => import('./pages/PractitionerDashboard')),
+    "PractitionerProfile": lazy(() => import('./pages/PractitionerProfile')),
+    "Messages": lazy(() => import('./pages/Messages')),
+    "BookingRequest": lazy(() => import('./pages/BookingRequest')),
+    "Favorites": lazy(() => import('./pages/Favorites')),
+    "PractitionerApplication": lazy(() => import('./pages/PractitionerApplication')),
+    "AdminDashboard": lazy(() => import('./pages/AdminDashboard')),
+    "TrustSafety": lazy(() => import('./pages/TrustSafety')),
+    "Billing": lazy(() => import('./pages/Billing')),
+    "Auth": lazy(() => import('./pages/Auth')),
+    "Landing": lazy(() => import('./pages/Landing')),
+    "Map": lazy(() => import('./pages/Map')),
+    "Orders": lazy(() => import('./pages/Orders')),
+    "GroupDetail": lazy(() => import('./pages/GroupDetail')),
 }
 
 export const pagesConfig = {

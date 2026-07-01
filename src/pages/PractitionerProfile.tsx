@@ -7,6 +7,7 @@ import { User } from "@/entities/User";
 import { Conversation } from "@/entities/Conversation";
 import { Event } from "@/entities/Event";
 import { Product } from "@/entities/Product";
+import { PractitionerAvailability } from "@/entities/all";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -62,6 +63,7 @@ export default function PractitionerProfile() {
   const [reviews, setReviews] = useState([]);
   const [practitionerEvents, setPractitionerEvents] = useState([]);
   const [practitionerProducts, setPractitionerProducts] = useState([]);
+  const [availability, setAvailability] = useState([]);
   const [averageRating, setAverageRating] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -164,6 +166,12 @@ export default function PractitionerProfile() {
               .sort((a, b) => new Date(a.start_date) - new Date(b.start_date))
           );
           setPractitionerProducts((prods || []).filter((p) => p.status !== "archived"));
+        } catch { /* non-critical enrichment */ }
+
+        // Public weekly availability preview.
+        try {
+          const avail = await PractitionerAvailability.filter({ practitioner_id: practitionerId });
+          setAvailability((avail || []).filter((a) => a.is_available !== false));
         } catch { /* non-critical enrichment */ }
 
       } catch (error) {
@@ -513,6 +521,37 @@ export default function PractitionerProfile() {
             </Card>
           </div>
         </div>
+
+        {/* Weekly Availability */}
+        {availability.length > 0 && (
+          <div className="mt-8">
+            <Card>
+              <CardHeader><CardTitle className="flex items-center gap-2"><CalendarIcon className="w-5 h-5 text-primary" /> Weekly Availability</CardTitle></CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
+                  {["monday","tuesday","wednesday","thursday","friday","saturday","sunday"].map((day) => {
+                    const slots = availability
+                      .filter((a) => a.day_of_week === day)
+                      .sort((a, b) => (a.start_time || "").localeCompare(b.start_time || ""));
+                    return (
+                      <div key={day} className={`rounded-lg border p-3 text-center ${slots.length ? "border-primary/30 bg-primary/5" : "border-border bg-muted/40"}`}>
+                        <p className="text-xs font-semibold capitalize text-foreground">{day.slice(0, 3)}</p>
+                        {slots.length ? (
+                          slots.map((s, i) => (
+                            <p key={i} className="mt-1 text-xs text-muted-foreground">{s.start_time}–{s.end_time}</p>
+                          ))
+                        ) : (
+                          <p className="mt-1 text-xs text-muted-foreground/50">—</p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                <p className="mt-3 text-xs text-muted-foreground">Times shown are the practitioner's general weekly availability. Request a booking to confirm a specific slot.</p>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* Upcoming Sessions */}
         {practitionerEvents.length > 0 && (

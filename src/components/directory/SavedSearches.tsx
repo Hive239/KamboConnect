@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import {
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { Bookmark, Trash2 as Trash } from "@/lib/icons";
+import { Bookmark, Trash2 as Trash, Bell } from "@/lib/icons";
 import { toast } from "sonner";
 
 /**
@@ -32,6 +32,15 @@ export default function SavedSearches({ searchTerm, filters, onApply }:
   };
   const del = async (id: string) => { await SavedSearch.delete(id); load(); };
 
+  // Toggle email alerts for a saved search. NOTE: the job that actually *runs*
+  // saved searches and emits notifications is a scheduled backend task
+  // (Supabase cron / edge function) — this only records the user's preference.
+  const toggleNotify = async (s: any) => {
+    await SavedSearch.update(s.id, { notify: !s.notify, last_run_date: new Date().toISOString() });
+    toast.success(!s.notify ? "You'll be alerted about new matches" : "Alerts turned off");
+    load();
+  };
+
   return (
     <div className="mt-3 flex items-center justify-center gap-2">
       <Button variant="outline" size="sm" onClick={save} className="gap-2 rounded-full bg-card/80 backdrop-blur-sm">
@@ -48,9 +57,18 @@ export default function SavedSearches({ searchTerm, filters, onApply }:
             {items.map((s) => (
               <DropdownMenuItem key={s.id} onSelect={(e) => { e.preventDefault(); onApply(s); }} className="flex items-center justify-between gap-2">
                 <span className="truncate">{s.name}</span>
-                <button onClick={(e) => { e.stopPropagation(); del(s.id); }} aria-label="Delete saved search">
-                  <Trash className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); toggleNotify(s); }}
+                    aria-label={s.notify ? "Turn off alerts" : "Email me new matches"}
+                    title={s.notify ? "Alerts on" : "Email me new matches"}
+                  >
+                    <Bell className={`h-3.5 w-3.5 ${s.notify ? "text-primary" : "text-muted-foreground hover:text-foreground"}`} weight={s.notify ? "fill" : "regular"} />
+                  </button>
+                  <button onClick={(e) => { e.stopPropagation(); del(s.id); }} aria-label="Delete saved search">
+                    <Trash className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
+                  </button>
+                </div>
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
