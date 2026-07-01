@@ -98,8 +98,8 @@ export default function ForumView() {
       
       try {
         const allPosts = await Post.list("-last_reply_date");
-        // Group-scoped posts live on their group page, not the main forum.
-        const forumPosts = allPosts.filter((p) => !p.group_id).map((p) => ({ ...p, reply_count: p.reply_count || 0 }));
+        // Group-scoped posts live on their group page; hidden posts are moderated out.
+        const forumPosts = allPosts.filter((p) => !p.group_id && !p.is_hidden).map((p) => ({ ...p, reply_count: p.reply_count || 0 }));
         setPosts(forumPosts);
         try {
           const pracs = await Practitioner.list();

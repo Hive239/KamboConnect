@@ -3,6 +3,7 @@ import { Practitioner, Review } from "@/entities/all";
 import { scoreMatches } from "@/integrations/Matchmaking";
 import type { MatchResult, MatchPrefs } from "@/lib/matchScore";
 import { getCurrentLocation } from "@/components/utils/locationUtils";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -45,12 +46,19 @@ export default function Matchmaking() {
   const runMatch = async () => {
     setLoading(true);
     setStep(3);
-    const [pracs, revs] = await Promise.all([Practitioner.list("-created_date"), Review.list("-created_date")]);
-    setReviews(revs);
-    const rOf = (p: any) => { const xs = revs.filter((r: any) => r.practitioner_id === p.id); return xs.length ? xs.reduce((a: number, r: any) => a + (r.overall_rating ?? r.rating ?? 0), 0) / xs.length : 0; };
-    const matched = await scoreMatches(prefs, pracs.filter((p: any) => p.is_verified || !prefs.requireVerified), rOf);
-    setResults(matched.slice(0, 12));
-    setLoading(false);
+    try {
+      const [pracs, revs] = await Promise.all([Practitioner.list("-created_date"), Review.list("-created_date")]);
+      setReviews(revs);
+      const rOf = (p: any) => { const xs = revs.filter((r: any) => r.practitioner_id === p.id); return xs.length ? xs.reduce((a: number, r: any) => a + (r.overall_rating ?? r.rating ?? 0), 0) / xs.length : 0; };
+      const matched = await scoreMatches(prefs, pracs.filter((p: any) => p.is_verified || !prefs.requireVerified), rOf);
+      setResults(matched.slice(0, 12));
+    } catch (e) {
+      console.error("Matchmaking failed:", e);
+      toast.error("Couldn't find matches right now. Please try again.");
+      setResults([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const priceLabels = ["$", "$$", "$$$", "$$$$"];

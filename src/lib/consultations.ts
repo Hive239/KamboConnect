@@ -1,5 +1,6 @@
 import { Consultation, Booking, Notification, Conversation } from "@/entities/all";
 import { upsertClientRecord } from "@/lib/fileWaiver";
+import { SendEmail } from "@/integrations/Core";
 
 /** Client requests a (free) consultation with a practitioner. */
 export async function requestConsultation(practitioner: any, user: any, message = "") {
@@ -24,6 +25,16 @@ export async function requestConsultation(practitioner: any, user: any, message 
   // Seed the CRM row so the client shows up immediately.
   if (practitioner.id && user?.id) {
     await upsertClientRecord({ practitionerId: practitioner.id, clientId: user.id, clientName: user.full_name, clientEmail: user.email });
+  }
+  // Email the practitioner (no-op if email isn't configured).
+  if (practitioner.email) {
+    try {
+      await SendEmail({
+        to: practitioner.email,
+        subject: "New consultation request — KamboGuide",
+        body: `${user?.full_name || "A client"} requested a consultation with you.\n\nLog in to your KamboGuide dashboard to accept, schedule, or decline.`,
+      });
+    } catch { /* non-fatal */ }
   }
   // Open a conversation thread for the two parties.
   try {

@@ -1,0 +1,34 @@
+// Vercel serverless function: sends transactional email via Resend.
+// Configure in Vercel → Settings → Environment Variables:
+//   RESEND_API_KEY  (required)  — from https://resend.com
+//   EMAIL_FROM      (optional)  — e.g. "KamboGuide <hello@yourdomain.com>"; must be a Resend-verified domain.
+// If RESEND_API_KEY is unset the endpoint is a safe no-op (returns skipped:true).
+
+export default async function handler(req, res) {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'method_not_allowed' });
+
+  const KEY = process.env.RESEND_API_KEY;
+  const FROM = process.env.EMAIL_FROM || 'KamboGuide <onboarding@resend.dev>';
+  if (!KEY) return res.status(200).json({ skipped: true, reason: 'RESEND_API_KEY not set' });
+
+  const { to, subject, body } = (typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body) || {};
+  if (!to || !subject) return res.status(400).json({ error: 'missing_to_or_subject' });
+
+  const html = `<div style="font-family:ui-sans-serif,system-ui,-apple-system,sans-serif;line-height:1.6;color:#1a1c1a">
+    ${String(body || '').replace(/\n/g, '<br/>')}
+    <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0"/>
+    <p style="font-size:12px;color:#6b7280">Sent by KamboGuide. If this wasn't you, you can ignore this email.</p>
+  </div>`;
+
+  try {
+    const r = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from: FROM, to, subject, html }),
+    });
+    const j = await r.json().catch(() => ({}));
+    return res.status(r.ok ? 200 : 502).json(j);
+  } catch (e) {
+    return res.status(502).json({ error: 'send_failed', detail: String(e) });
+  }
+}

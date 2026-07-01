@@ -29,10 +29,21 @@ export async function UploadPrivateFile({ file }: { file: File | Blob }): Promis
   return { file_uri: objectUrl(file) };
 }
 
+/**
+ * Sends email via the /api/send-email serverless function (Resend).
+ * No-ops safely when the endpoint/RESEND_API_KEY isn't available (e.g. local dev),
+ * so every call site (already try/catch-wrapped) stays non-blocking.
+ */
 export async function SendEmail(args: { to: string; subject: string; body: string }): Promise<{ success: true }> {
-  // Non-critical in the app (every call site is wrapped in try/catch).
-  // eslint-disable-next-line no-console
-  console.info('[mock SendEmail]', { to: args.to, subject: args.subject });
+  try {
+    await fetch('/api/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(args),
+    });
+  } catch (e) {
+    console.warn('SendEmail failed (non-fatal):', e);
+  }
   return { success: true };
 }
 

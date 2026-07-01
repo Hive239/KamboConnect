@@ -74,7 +74,7 @@ export default function Auth() {
         if (data.session) {
           // Email confirmation disabled → session active; create profile now.
           try { await User.create({ id: data.user!.id, email, full_name: fullName || email.split("@")[0], role: "client" } as any); } catch { /* ensured on load too */ }
-          done();
+          window.location.assign("/Welcome"); // new members → onboarding
         } else {
           setNotice("Account created. Check your email to confirm, then sign in.");
           setMode("signin");

@@ -146,8 +146,15 @@ export default function VerificationPage() {
         return;
       }
       setUser(currentUser);
-      const pendingApps = await Practitioner.filter({ verification_level: "pending" });
-      setPending(pendingApps);
+      // A data-fetch failure here must NOT bounce the admin to Directory (was
+      // treating a transient error as an auth failure).
+      try {
+        const pendingApps = await Practitioner.filter({ verification_level: "pending" });
+        setPending(pendingApps);
+      } catch (dataErr) {
+        console.error("Failed to load pending applications:", dataErr);
+        setPending([]);
+      }
     } catch (e) {
       setUser(null);
       navigate(createPageUrl("Directory"));

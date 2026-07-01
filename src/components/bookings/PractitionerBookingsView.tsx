@@ -10,6 +10,8 @@ import { format } from 'date-fns';
 import { Check, X, Mail, Phone, MoreHorizontal, Briefcase, FileText, ShieldCheck, AlertCircle, Loader2 } from "@/lib/icons";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Booking } from '@/entities/Booking';
+import { Notification } from '@/entities/all';
+import { SendEmail } from '@/integrations/Core';
 import { ScreeningResponse, ConsentRecord } from '@/entities/all';
 import { toast } from 'sonner';
 
@@ -116,6 +118,22 @@ const PractitionerBookingsView = ({ bookings, onUpdate }) => {
     }
     await Booking.update(bookingId, { status });
     if (status === 'confirmed') { try { await Booking.update(bookingId, { waiver_signed: true }); } catch { /* noop */ } }
+    // Prompt the client to leave a review once the session is complete.
+    if (status === 'completed') {
+      try {
+        const bk = await Booking.get(bookingId);
+        if (bk?.client_id) {
+          await Notification.create({
+            user_id: bk.client_id, title: "How was your session?",
+            message: `Share your experience with ${bk.practitioner_name || "your practitioner"} — leave a review.`,
+            type: "review", priority: "normal", related_id: bookingId, action_url: "/Bookings",
+          });
+          if (bk.client_email) {
+            try { await SendEmail({ to: bk.client_email, subject: "How was your Kambo session?", body: `Thanks for booking through KamboGuide. We'd love your feedback — log in to leave a review for ${bk.practitioner_name || "your practitioner"}.` }); } catch { /* non-fatal */ }
+          }
+        }
+      } catch { /* non-fatal */ }
+    }
     onUpdate();
   };
 

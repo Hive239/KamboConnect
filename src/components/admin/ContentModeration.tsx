@@ -64,7 +64,7 @@ const ContentItem = ({ content, type, onAction, ai }) => {
             <Button 
               variant="outline" 
               size="sm"
-              onClick={() => onAction(content.id, 'flag')}
+              onClick={() => onAction(content.id, 'flag', type)}
             >
               <Flag className="w-3 h-3 mr-1" />
               Flag
@@ -72,7 +72,7 @@ const ContentItem = ({ content, type, onAction, ai }) => {
             <Button 
               variant="outline" 
               size="sm"
-              onClick={() => onAction(content.id, 'hide')}
+              onClick={() => onAction(content.id, 'hide', type)}
             >
               <EyeOff className="w-3 h-3 mr-1" />
               Hide
@@ -80,7 +80,7 @@ const ContentItem = ({ content, type, onAction, ai }) => {
             <Button 
               variant="destructive" 
               size="sm"
-              onClick={() => onAction(content.id, 'delete')}
+              onClick={() => onAction(content.id, 'delete', type)}
             >
               <Trash2 className="w-3 h-3 mr-1" />
               Delete
@@ -129,12 +129,13 @@ export default function ContentModeration() {
     loadContent();
   }, []);
 
-  const handleContentAction = async (contentId, action) => {
+  const handleContentAction = async (contentId, action, type = 'post') => {
+    const Entity = type === 'reply' ? Reply : Post;
     try {
       switch (action) {
         case 'flag':
           await Report.create({
-            reported_item_type: 'post',
+            reported_item_type: type,
             reported_item_id: contentId,
             reporter_id: 'admin',
             reason: 'Admin flagged for review',
@@ -142,13 +143,13 @@ export default function ContentModeration() {
           });
           break;
         case 'hide':
-          // In a real app, you'd update a 'is_hidden' field
-          console.log(`Hiding content ${contentId}`);
+          await Entity.update(contentId, { is_hidden: true });
+          loadContent(); // Refresh
           break;
         case 'delete':
           const confirmDelete = window.confirm('Are you sure you want to delete this content? This action cannot be undone.');
           if (confirmDelete) {
-            await Post.delete(contentId);
+            await Entity.delete(contentId); // Reply.delete for replies, Post.delete for posts
             loadContent(); // Refresh
           }
           break;

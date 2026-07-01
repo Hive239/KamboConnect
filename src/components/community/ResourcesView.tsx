@@ -119,9 +119,15 @@ export default function ResourcesView() {
   useEffect(() => {
     const fetchResources = async () => {
       setIsLoading(true);
-      const allResources = await CommunityResource.list();
-      setResources(allResources);
-      setIsLoading(false);
+      try {
+        const allResources = await CommunityResource.list();
+        setResources(allResources);
+      } catch (e) {
+        console.error("Failed to load resources:", e);
+        setResources([]);
+      } finally {
+        setIsLoading(false);
+      }
     };
     fetchResources();
   }, []);

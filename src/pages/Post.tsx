@@ -40,7 +40,7 @@ export default function PostPage() {
       ]);
       setUser(currentUser);
       setPost(postData);
-      setReplies(postReplies);
+      setReplies((postReplies || []).filter((r) => !r.is_hidden)); // moderated replies hidden
       try {
         const pracs = await Practitioner.list();
         setPractitionerIds(new Set(pracs.map((p) => p.id)));

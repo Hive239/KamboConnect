@@ -35,6 +35,7 @@ export const PAGES = {
     "Privacy": lazy(() => import('./pages/Privacy')),
     "Terms": lazy(() => import('./pages/Terms')),
     "ResetPassword": lazy(() => import('./pages/ResetPassword')),
+    "Welcome": lazy(() => import('./pages/Welcome')),
 }
 
 export const pagesConfig = {
