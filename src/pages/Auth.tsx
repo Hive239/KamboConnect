@@ -11,7 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
-  Leaf, AlertTriangle, Loader2, CheckCircle, GoogleLogo, GithubLogo,
+  Leaf, AlertTriangle, Loader2, CheckCircle, GoogleLogo,
   ArrowLeft, ShieldCheck, Sparkle, Users, Star,
 } from "@/lib/icons";
 import { useSeo } from "@/lib/useSeo";
@@ -182,12 +182,9 @@ export default function Auth() {
                 {notice && <Alert className="mt-4"><CheckCircle className="h-4 w-4" /><AlertDescription>{notice}</AlertDescription></Alert>}
                 {error && <Alert variant="destructive" className="mt-4"><AlertTriangle className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>}
 
-                <div className="mt-5 space-y-2">
-                  <Button type="button" variant="outline" className="w-full gap-2" disabled={busy} onClick={() => signInWithProvider("google")}>
+                <div className="mt-5">
+                  <Button type="button" variant="outline" size="lg" className="w-full gap-2" disabled={busy} onClick={() => signInWithProvider("google")}>
                     <GoogleLogo className="h-4 w-4" weight="bold" /> Continue with Google
-                  </Button>
-                  <Button type="button" variant="outline" className="w-full gap-2" disabled={busy} onClick={() => signInWithProvider("github")}>
-                    <GithubLogo className="h-4 w-4" weight="fill" /> Continue with GitHub
                   </Button>
                 </div>
 

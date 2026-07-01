@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, Suspense, lazy } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Practitioner, Review, Booking } from "@/entities/all";
@@ -20,6 +20,9 @@ import {
 import {
   Accordion, AccordionContent, AccordionItem, AccordionTrigger,
 } from "@/components/ui/accordion";
+
+// Lazy so leaflet stays out of the eagerly-imported Landing bundle.
+const HeroMap = lazy(() => import("@/components/landing/HeroMap"));
 
 const MODALITIES = [
   "Kambo ceremonies", "Rapé & Hapé", "Sananga", "Integration support",
@@ -126,6 +129,7 @@ export default function Landing() {
   });
   const reduce = useReducedMotion();
   const [featured, setFeatured] = useState<any[]>([]);
+  const [mapPins, setMapPins] = useState<any[]>([]);
   const [stats, setStats] = useState<StatItem[]>([]);
   const [testimonials, setTestimonials] = useState(FALLBACK_TESTIMONIALS);
 
@@ -142,6 +146,7 @@ export default function Landing() {
 
       const verified = (practitioners as any[]).filter((p) => p.is_verified);
       setFeatured(verified.slice(0, 8));
+      setMapPins((practitioners as any[]).filter((p) => p.latitude && p.longitude));
 
       const ratings = (reviews as any[]).map((r) => r.overall_rating ?? r.rating ?? 0).filter((n) => n > 0);
       const avg = ratings.length ? ratings.reduce((a, b) => a + b, 0) / ratings.length : 0;
@@ -187,7 +192,7 @@ export default function Landing() {
         </header>
 
         {/* ---------- Hero ---------- */}
-        <section className="relative overflow-hidden grain">
+        <section className="relative overflow-hidden">
           <GradientMesh intensity="vivid" />
           <div className="relative z-10 mx-auto grid max-w-6xl gap-10 px-5 py-20 sm:py-28 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
             <div className="text-center lg:text-left">
@@ -237,33 +242,29 @@ export default function Landing() {
               </div>
             </div>
 
-            {/* Floating verified-practitioner avatars */}
-            <div className="relative hidden h-[420px] lg:block">
-              <div className="absolute inset-0 rounded-[2rem] border border-border/70 bg-card/40 backdrop-blur-sm" />
-              {avatars.map((p, idx) => {
-                const positions = [
-                  "left-6 top-8 h-24 w-24",
-                  "right-8 top-16 h-28 w-28",
-                  "left-16 bottom-14 h-28 w-28",
-                  "right-14 bottom-8 h-20 w-20",
-                  "left-1/2 top-1/2 h-24 w-24 -translate-x-1/2 -translate-y-1/2",
-                ];
-                return (
-                  <motion.div
-                    key={p.id}
-                    initial={reduce ? false : { opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.2 + idx * 0.12, type: "spring", stiffness: 260, damping: 20 }}
-                    className={`absolute ${positions[idx]} ${reduce ? "" : "animate-float-slow"} overflow-hidden rounded-2xl border-2 border-card shadow-lg`}
-                    style={{ animationDelay: `${idx * -1.5}s` }}
-                  >
-                    <img src={p.profile_image_url} alt={p.full_name} className="h-full w-full object-cover" loading="lazy" />
-                  </motion.div>
-                );
-              })}
-              <div className="absolute right-6 top-1/2 flex -translate-y-1/2 items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium shadow-md">
-                <span className="flex h-2 w-2 rounded-full bg-success" /> Verified nearby
+            {/* Live map of verified practitioners */}
+            <div className="relative hidden h-[440px] lg:block">
+              <div className="absolute inset-0 overflow-hidden rounded-[2rem] border border-border/70 shadow-xl">
+                <Suspense fallback={<div className="h-full w-full shimmer" />}>
+                  {mapPins.length > 0 ? <HeroMap practitioners={mapPins} /> : <div className="h-full w-full shimmer" />}
+                </Suspense>
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/15 to-transparent" />
               </div>
+              {/* live count pill */}
+              <div className="pointer-events-none absolute left-4 top-4 z-[500] flex items-center gap-2 rounded-full border border-border bg-card/95 px-3 py-1.5 text-xs font-semibold shadow-md backdrop-blur">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
+                </span>
+                {mapPins.length > 0 ? `${mapPins.length} verified nearby` : "Verified nearby"}
+              </div>
+              {/* open full map */}
+              <Link
+                to={createPageUrl("Map")}
+                className="absolute bottom-4 right-4 z-[500] inline-flex items-center gap-1 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-lg transition-transform hover:scale-105"
+              >
+                Open full map <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
             </div>
           </div>
         </section>

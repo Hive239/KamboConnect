@@ -4,6 +4,7 @@ import { createPageUrl } from "@/utils";
 import { Product, Order, Payment, User, Notification } from "@/entities/all";
 import { createCheckout } from "@/integrations/Payments";
 import { useCart } from "@/lib/cart";
+import { toast } from "sonner";
 import { formatCurrency } from "@/lib/format";
 import { useSeo } from "@/lib/useSeo";
 import { Button } from "@/components/ui/button";
@@ -35,14 +36,21 @@ export default function Market() {
     setCheckingOut(true);
     try {
       const me = await User.me().catch(() => null);
-      const charge = await createCheckout({ amount: cart.total, currency: "USD", description: `${cart.count} item(s)`, metadata: { user_id: me?.id } });
+      // Require login — a "guest" order is owned by no one (invisible in /Orders)
+      // and can't satisfy per-user ownership once strict RLS is enabled.
+      if (!me) {
+        toast.error("Please sign in to complete your purchase.");
+        await User.login();
+        return;
+      }
+      const charge = await createCheckout({ amount: cart.total, currency: "USD", description: `${cart.count} item(s)`, metadata: { user_id: me.id } });
       const order = await Order.create({
-        user_id: me?.id || "guest",
+        user_id: me.id,
         items: cart.items.map((i) => ({ product_id: i.product_id, title: i.title, quantity: i.quantity, price: i.price })),
         total: cart.total, currency: "USD", status: "paid", payment_id: charge.id,
       });
-      await Payment.create({ user_id: me?.id || "guest", amount: cart.total, currency: "USD", payment_type: "product", payment_status: "completed", stripe_payment_id: charge.id, payment_date: new Date().toISOString() });
-      if (me) await Notification.create({ user_id: me.id, title: "Order confirmed", message: `Your order of ${cart.count} item(s) is confirmed.`, type: "system", priority: "normal", related_id: order.id, action_url: "/Market" });
+      await Payment.create({ user_id: me.id, amount: cart.total, currency: "USD", payment_type: "product", payment_status: "completed", stripe_payment_id: charge.id, payment_date: new Date().toISOString() });
+      await Notification.create({ user_id: me.id, title: "Order confirmed", message: `Your order of ${cart.count} item(s) is confirmed.`, type: "system", priority: "normal", related_id: order.id, action_url: "/Orders" });
       cart.clear();
       setPlaced(order);
       setCartOpen(false);

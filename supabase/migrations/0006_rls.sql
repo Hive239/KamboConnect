@@ -89,7 +89,7 @@ end $$;
 do $$ declare r record; begin
   for r in select * from (values
     ('saved_searches','user_id'), ('favorites','user_id'), ('follows','follower_id'),
-    ('orders','user_id'), ('notifications','user_id')
+    ('orders','user_id')
   ) as x(tbl, col) loop
     execute format('drop policy if exists %I on public.%I', r.tbl||'_rw', r.tbl);
     execute format('drop policy if exists %I on public.%I', r.tbl||'_read', r.tbl);
@@ -97,6 +97,17 @@ do $$ declare r record; begin
     execute format('create policy %I on public.%I for all using (%I = auth.uid()::text or public.is_admin()) with check (%I = auth.uid()::text)', r.tbl||'_owner', r.tbl, r.col, r.col);
   end loop;
 end $$;
+
+-- notifications: the OWNER reads/updates/deletes their own, but any authenticated
+-- user may INSERT a notification for another user (the app's notify-others pattern —
+-- booking notifies the practitioner, a message notifies the recipient, etc.).
+-- (Owner-only insert would break every cross-user notification.)
+drop policy if exists "notifications_rw" on public.notifications;
+drop policy if exists "notifications_owner" on public.notifications;
+create policy "notifications_owner_read"   on public.notifications for select using (user_id = auth.uid()::text or public.is_admin());
+create policy "notifications_owner_modify" on public.notifications for update using (user_id = auth.uid()::text or public.is_admin()) with check (user_id = auth.uid()::text or public.is_admin());
+create policy "notifications_owner_delete" on public.notifications for delete using (user_id = auth.uid()::text or public.is_admin());
+create policy "notifications_auth_insert"  on public.notifications for insert with check (auth.uid()::text is not null);
 
 -- ---------- Two-party (client OR practitioner) ----------
 -- bookings, consultations, screening_responses, consent_records, client_records,
