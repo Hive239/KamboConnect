@@ -19,11 +19,13 @@ import {
   Clock,
   CalendarDays,
   Star,
+  ShieldCheck,
   LogIn
 } from "@/lib/icons";
 
 import ProfileManagement from "../components/practitioner/ProfileManagement";
 import ReviewsManagement from "../components/practitioner/ReviewsManagement";
+import CredentialManagement from "../components/practitioner/CredentialManagement";
 import BookingCalendar from "../components/practitioner/BookingCalendar";
 import MessagingCenter from "../components/practitioner/MessagingCenter";
 import EventManagement from "../components/practitioner/EventManagement";
@@ -191,7 +193,7 @@ export default function PractitionerDashboard() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 sm:grid-cols-7 gap-1 h-auto bg-muted p-1 rounded-xl">
+          <TabsList className="grid w-full grid-cols-4 sm:grid-cols-8 gap-1 h-auto bg-muted p-1 rounded-xl">
             <TabsTrigger value="overview" className="flex flex-col sm:flex-row items-center gap-1 p-2 text-xs sm:text-sm">
               <Home className="w-4 h-4" />
               <span className="hidden sm:inline">Overview</span>
@@ -215,6 +217,10 @@ export default function PractitionerDashboard() {
             <TabsTrigger value="reviews" className="flex flex-col sm:flex-row items-center gap-1 p-2 text-xs sm:text-sm">
               <Star className="w-4 h-4" />
               <span className="hidden sm:inline">Reviews</span>
+            </TabsTrigger>
+            <TabsTrigger value="credentials" className="flex flex-col sm:flex-row items-center gap-1 p-2 text-xs sm:text-sm">
+              <ShieldCheck className="w-4 h-4" />
+              <span className="hidden sm:inline">Credentials</span>
             </TabsTrigger>
             <TabsTrigger value="messages" className="flex flex-col sm:flex-row items-center gap-1 p-2 text-xs sm:text-sm">
               <MessageSquare className="w-4 h-4" />
@@ -321,6 +327,10 @@ export default function PractitionerDashboard() {
 
           <TabsContent value="reviews" className="py-6">
             <ReviewsManagement practitioner={practitionerProfile} />
+          </TabsContent>
+
+          <TabsContent value="credentials" className="py-6">
+            <CredentialManagement practitioner={practitionerProfile} />
           </TabsContent>
 
           <TabsContent value="availability" className="py-6">

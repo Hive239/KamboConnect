@@ -82,8 +82,9 @@ export default function ForumView() {
       
       try {
         const allPosts = await Post.list("-last_reply_date");
-        // Mock data for reply counts for demo
-        const postsWithReplies = allPosts.map((p, i) => ({...p, reply_count: i % 5 + (p.is_pinned ? 5 : 0) }));
+        // Group-scoped posts live on their group page, not the main forum.
+        const forumPosts = allPosts.filter((p) => !p.group_id);
+        const postsWithReplies = forumPosts.map((p, i) => ({...p, reply_count: i % 5 + (p.is_pinned ? 5 : 0) }));
         setPosts(postsWithReplies);
       } catch (error) {
         console.error("Failed to load posts:", error);

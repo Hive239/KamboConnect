@@ -23,6 +23,7 @@ import Billing from './pages/Billing';
 import Auth from './pages/Auth';
 import MapPage from './pages/Map';
 import Orders from './pages/Orders';
+import GroupDetail from './pages/GroupDetail';
 import __Layout from './Layout';
 
 
@@ -52,6 +53,7 @@ export const PAGES = {
     "Auth": Auth,
     "Map": MapPage,
     "Orders": Orders,
+    "GroupDetail": GroupDetail,
 }
 
 export const pagesConfig = {

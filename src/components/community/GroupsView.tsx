@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 import { Group, GroupMembership, User } from "@/entities/all";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { UsersThree, Check, Plus, Lock } from "@/lib/icons";
 
 export default function GroupsView() {
+  const navigate = useNavigate();
   const [groups, setGroups] = useState<any[]>([]);
   const [memberships, setMemberships] = useState<Record<string, string>>({}); // group_id -> membership id
   const [me, setMe] = useState<any>(null);
@@ -49,7 +52,7 @@ export default function GroupsView() {
       {groups.map((g) => {
         const joined = !!memberships[g.id];
         return (
-          <Card key={g.id} className="overflow-hidden">
+          <Card key={g.id} className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate(createPageUrl(`GroupDetail?id=${g.id}`))}>
             <div className="relative h-28 bg-muted">
               {g.image_url && <img src={g.image_url} alt={g.name} className="h-full w-full object-cover" />}
               {g.is_private && <Badge variant="secondary" className="absolute right-3 top-3 gap-1"><Lock className="h-3 w-3" /> Private</Badge>}
@@ -59,7 +62,7 @@ export default function GroupsView() {
               <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{g.description}</p>
               <div className="mt-3 flex items-center justify-between">
                 <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><UsersThree className="h-4 w-4" weight="duotone" /> {g.member_count || 0} members</span>
-                <Button size="sm" variant={joined ? "outline" : "default"} disabled={busy === g.id} onClick={() => toggle(g)} className="gap-1.5">
+                <Button size="sm" variant={joined ? "outline" : "default"} disabled={busy === g.id} onClick={(e) => { e.stopPropagation(); toggle(g); }} className="gap-1.5">
                   {joined ? <><Check className="h-4 w-4" weight="bold" /> Joined</> : <><Plus className="h-4 w-4" weight="bold" /> Join</>}
                 </Button>
               </div>
