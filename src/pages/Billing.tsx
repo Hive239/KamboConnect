@@ -61,6 +61,19 @@ export default function Billing() {
     } finally { setUpgrading(null); }
   };
 
+  const cancelPlan = async () => {
+    if (!prac || !sub) return;
+    if (!confirm("Cancel your subscription? Your listing reverts to Basic at the end of the period.")) return;
+    setUpgrading("cancel");
+    try {
+      await Subscription.update(sub.id, { status: "cancelled", canceled_at: new Date().toISOString() });
+      await Practitioner.update(prac.id, { listing_tier: "basic" });
+      await Notification.create({ user_id: prac.id, title: "Subscription cancelled", message: "Your listing has reverted to Basic.", type: "system", priority: "normal" });
+      setSub({ ...sub, status: "cancelled" });
+      setPrac({ ...prac, listing_tier: "basic" });
+    } finally { setUpgrading(null); }
+  };
+
   if (loading) return <div className="p-8 text-muted-foreground">Loading…</div>;
   if (!prac) return <div className="mx-auto max-w-2xl p-8 text-center"><Briefcase className="mx-auto mb-3 h-10 w-10 text-muted-foreground/40" weight="duotone" /><h1 className="text-xl font-semibold">Practitioners only</h1><p className="mt-1 text-muted-foreground">Create a practitioner profile to access growth tools.</p><Button className="mt-4" onClick={() => navigate("/PractitionerApplication")}>Become a practitioner</Button></div>;
 
@@ -105,11 +118,18 @@ export default function Billing() {
       {/* Plans */}
       <h2 className="mb-2 text-lg font-semibold">Your plan</h2>
       {sub && sub.status === "active" && (
-        <p className="mb-4 text-sm text-muted-foreground">
-          Current plan: <span className="font-medium capitalize text-foreground">{sub.tier}</span>
-          {sub.price ? ` · $${sub.price}/mo` : " · Free"}
-          {sub.current_period_end ? ` · renews ${new Date(sub.current_period_end).toLocaleDateString()}` : ""}
-        </p>
+        <div className="mb-4 flex flex-wrap items-center gap-3">
+          <p className="text-sm text-muted-foreground">
+            Current plan: <span className="font-medium capitalize text-foreground">{sub.tier}</span>
+            {sub.price ? ` · $${sub.price}/mo` : " · Free"}
+            {sub.current_period_end ? ` · renews ${new Date(sub.current_period_end).toLocaleDateString()}` : ""}
+          </p>
+          {sub.price > 0 && (
+            <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" disabled={upgrading === "cancel"} onClick={cancelPlan}>
+              Cancel plan
+            </Button>
+          )}
+        </div>
       )}
       <div className="grid gap-5 md:grid-cols-3">
         {TIERS.map((t) => {

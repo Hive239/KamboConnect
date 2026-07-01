@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { motion, useReducedMotion } from "framer-motion";
 import { createPageUrl } from "@/utils";
 import { User } from "@/entities/User";
+import { getRole } from "@/lib/roles";
 import {
   Search, Users, Calendar, Store, BookOpen, Menu, Heart, User as UserIcon,
   LogOut, Shield, Briefcase, Settings, LogIn, MessageSquare, ShieldCheck,
@@ -19,18 +20,25 @@ import LanguageSwitcher from "@/components/LanguageSwitcher";
 import ProfileMenu from "@/components/layout/ProfileMenu";
 
 // Main navigation (Desktop rail + Mobile sheet + Mobile bottom nav source)
+// `roles` restricts a logged-in user to that tier (admin sees everything).
+// Items with no `roles` are shared across all authenticated roles.
 const mainNavItems = [
-  { title: "For You", tKey: "nav.forYou", url: createPageUrl("ForYou"), icon: Home, isPublic: false },
-  { title: "Ask the Guide", tKey: "nav.guide", url: createPageUrl("Guide"), icon: Sparkle, isPublic: true },
-  { title: "Directory", tKey: "nav.directory", url: createPageUrl("Directory"), icon: Search, isPublic: true },
-  { title: "Map", tKey: "nav.map", url: createPageUrl("Map"), icon: MapPin, isPublic: true },
-  { title: "Find Your Match", tKey: "nav.matchmaking", url: createPageUrl("Matchmaking"), icon: Crosshair, isPublic: true },
+  // Practitioner hub (only practitioners/admin).
+  { title: "Dashboard", tKey: "nav.practitionerDashboard", url: createPageUrl("PractitionerDashboard"), icon: Briefcase, isPublic: false, roles: ["practitioner"] },
+  // Client discovery + commerce.
+  { title: "For You", tKey: "nav.forYou", url: createPageUrl("ForYou"), icon: Home, isPublic: false, roles: ["client"] },
+  { title: "Ask the Guide", tKey: "nav.guide", url: createPageUrl("Guide"), icon: Sparkle, isPublic: true, roles: ["client"] },
+  { title: "Directory", tKey: "nav.directory", url: createPageUrl("Directory"), icon: Search, isPublic: true, roles: ["client"] },
+  { title: "Map", tKey: "nav.map", url: createPageUrl("Map"), icon: MapPin, isPublic: true, roles: ["client"] },
+  { title: "Find Your Match", tKey: "nav.matchmaking", url: createPageUrl("Matchmaking"), icon: Crosshair, isPublic: true, roles: ["client"] },
+  // Shared community (all roles).
   { title: "Community", tKey: "nav.community", url: createPageUrl("Community"), icon: Users, isPublic: true },
   { title: "Events", tKey: "nav.events", url: createPageUrl("Events"), icon: Calendar, isPublic: true },
-  { title: "My Bookings", tKey: "nav.bookings", url: createPageUrl("Bookings"), icon: Briefcase, isPublic: false },
+  // Client-only.
+  { title: "My Bookings", tKey: "nav.bookings", url: createPageUrl("Bookings"), icon: Briefcase, isPublic: false, roles: ["client"] },
   { title: "Messages", tKey: "nav.messages", url: createPageUrl("Messages"), icon: MessageSquare, isPublic: false },
-  { title: "My Favorites", tKey: "nav.favorites", url: createPageUrl("Favorites"), icon: Heart, isPublic: false },
-  { title: "Market", tKey: "nav.market", url: createPageUrl("Market"), icon: Store, isPublic: true },
+  { title: "My Favorites", tKey: "nav.favorites", url: createPageUrl("Favorites"), icon: Heart, isPublic: false, roles: ["client"] },
+  { title: "Market", tKey: "nav.market", url: createPageUrl("Market"), icon: Store, isPublic: true, roles: ["client"] },
   { title: "Learn", tKey: "nav.learn", url: createPageUrl("Education"), icon: BookOpen, isPublic: true },
 ];
 
@@ -38,9 +46,8 @@ const mainNavItems = [
 const userDrawerItems = [
   { title: "Profile", tKey: "nav.profile", url: createPageUrl("Profile"), icon: UserIcon },
   { title: "My Account", tKey: "nav.account", url: createPageUrl("MyAccount"), icon: Settings },
-  { title: "My Orders", tKey: "nav.orders", url: createPageUrl("Orders"), icon: Package },
-  { title: "Practitioner Dashboard", tKey: "nav.practitionerDashboard", url: createPageUrl("PractitionerDashboard"), icon: Briefcase },
-  { title: "Billing & Growth", tKey: "nav.billing", url: createPageUrl("Billing"), icon: Trophy },
+  { title: "My Orders", tKey: "nav.orders", url: createPageUrl("Orders"), icon: Package, roles: ["client"] },
+  { title: "Billing & Growth", tKey: "nav.billing", url: createPageUrl("Billing"), icon: Trophy, roles: ["practitioner"] },
   { title: "Admin Dashboard", tKey: "nav.adminDashboard", url: createPageUrl("AdminDashboard"), icon: ShieldCheck, adminOnly: true },
   { title: "Trust & Safety", tKey: "nav.trustSafety", url: createPageUrl("TrustSafety"), icon: Shield, adminOnly: true },
   { title: "Admin Verification", tKey: "nav.verification", url: createPageUrl("Verification"), icon: ShieldCheck, adminOnly: true },
@@ -86,13 +93,20 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     navigate(`${createPageUrl("Directory")}${search ? `?q=${encodeURIComponent(search)}` : ""}`);
   };
 
-  const visibleMainNav = mainNavItems.filter((i) => i.isPublic || !!user);
-  const visibleUserItems = userDrawerItems.filter((i) => !i.adminOnly || (user && user.role === "admin"));
+  // Role-aware nav: anonymous visitors see public items; a logged-in user sees
+  // items allowed for their tier (admin sees everything; untagged = all roles).
+  const role = user ? getRole(user) : null;
+  const roleOk = (i: any) => !i.roles || role === "admin" || (role && i.roles.includes(role));
+  const visibleMainNav = mainNavItems.filter((i) => (i.isPublic || !!user) && (!user || roleOk(i)));
+  const visibleUserItems = userDrawerItems.filter(
+    (i: any) => (!i.adminOnly || role === "admin") && roleOk(i)
+  );
   const navByTitle = (title: string) => mainNavItems.find((i) => i.title === title)!;
   const mobileBottomNav = user
     ? [
-        navByTitle("For You"), navByTitle("Directory"), navByTitle("Ask the Guide"),
-        navByTitle("Community"),
+        // Derived from the role-filtered nav so practitioners/clients each get
+        // their own reachable tabs (no redirect-loops).
+        ...visibleMainNav.slice(0, 4),
         { title: "Profile", tKey: "nav.profile", url: createPageUrl("Profile"), icon: UserIcon },
       ]
     : [

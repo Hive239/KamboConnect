@@ -171,13 +171,13 @@ export default function EventCard({ event, practitioner, onViewDetails, onRegist
 
           {/* Action Buttons */}
           <div className="flex gap-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => onViewDetails(event)}
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
               className="flex-1"
             >
-              View Details
+              <Link to={`${createPageUrl("EventDetail")}?id=${event.id}`}>View Details</Link>
             </Button>
             <Button 
               size="sm" 

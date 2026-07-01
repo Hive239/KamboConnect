@@ -15,6 +15,7 @@ import {
   ArrowLeft, ShieldCheck, Sparkle, Users, Star,
 } from "@/lib/icons";
 import { useSeo } from "@/lib/useSeo";
+import { getAcquisition } from "@/lib/acquisition";
 
 export default function Auth() {
   useSeo({ title: "Sign in — KamboGuide" });
@@ -74,7 +75,7 @@ export default function Auth() {
         const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { full_name: fullName } } });
         if (error) throw error;
         if (data.session) {
-          try { await User.create({ id: data.user!.id, email, full_name: fullName || email.split("@")[0], role: "client" } as any); } catch { /* ensured on load too */ }
+          try { await User.create({ id: data.user!.id, email, full_name: fullName || email.split("@")[0], role: "client", acquisition: getAcquisition() } as any); } catch { /* ensured on load too */ }
           window.location.assign("/Welcome");
         } else {
           setNotice("Account created. Check your email to confirm, then sign in.");

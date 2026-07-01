@@ -33,8 +33,9 @@ export type DayOfWeek =
 export interface User extends BaseRecord {
   email: string;
   full_name?: string;
-  role?: 'admin' | 'practitioner' | 'client' | 'user';
+  role?: 'admin' | 'practitioner' | 'client';
   auth_id?: string;
+  acquisition?: Record<string, any>;
   profile_image_url?: string;
   preferences?: Record<string, unknown>;
   status?: 'active' | 'suspended' | 'banned';
@@ -172,7 +173,7 @@ export interface Booking extends BaseRecord {
   service_type?: 'Private Session' | 'Group Circle' | 'Consultation';
   requested_date: string;
   message?: string;
-  status?: 'pending' | 'confirmed' | 'declined' | 'completed' | 'cancelled';
+  status?: 'pending' | 'confirmed' | 'declined' | 'completed' | 'cancelled' | 'no_show';
   price?: number;
   payment_status?: 'paid' | 'unpaid' | 'refunded' | 'partially_refunded';
   consultation_id?: string;
@@ -485,6 +486,12 @@ export interface ClientDocument extends BaseRecord {
   file_url?: string;
 }
 
+export interface ActivityEvent extends BaseRecord {
+  user_id?: string;
+  type?: string;
+  path?: string;
+}
+
 export interface EntityTypeMap {
   User: User;
   Practitioner: Practitioner;
@@ -520,6 +527,7 @@ export interface EntityTypeMap {
   ClientRecord: ClientRecord;
   ConsultationNote: ConsultationNote;
   ClientDocument: ClientDocument;
+  ActivityEvent: ActivityEvent;
 }
 
 export type EntityName = keyof EntityTypeMap;

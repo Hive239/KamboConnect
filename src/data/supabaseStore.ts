@@ -43,6 +43,7 @@ export const TABLE: Record<EntityName, string> = {
   ClientRecord: 'client_records',
   ConsultationNote: 'consultation_notes',
   ClientDocument: 'client_documents',
+  ActivityEvent: 'activity_events',
 };
 
 function applySort<T>(q: any, sort?: string) {

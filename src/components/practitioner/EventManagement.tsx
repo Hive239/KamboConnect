@@ -1,6 +1,8 @@
 
 import React, { useState } from 'react';
-import { Event, Favorite, Notification } from "@/entities/all";
+import { Event, Favorite, Notification, EventRegistration } from "@/entities/all";
+import { emitFeed } from "@/lib/feed";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +20,22 @@ import { createPageUrl } from '@/utils';
 export default function EventManagement({ events, practitioner, onUpdate }) {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
+  const [rosterEvent, setRosterEvent] = useState(null);
+  const [roster, setRoster] = useState([]);
+  const [rosterLoading, setRosterLoading] = useState(false);
+
+  const openRoster = async (event) => {
+    setRosterEvent(event);
+    setRosterLoading(true);
+    try {
+      setRoster(await EventRegistration.filter({ event_id: event.id }, "-created_date"));
+    } catch (e) {
+      console.error("Failed to load registrations:", e);
+      setRoster([]);
+    } finally {
+      setRosterLoading(false);
+    }
+  };
   const [eventData, setEventData] = useState({
     title: "",
     description: "",
@@ -64,11 +82,24 @@ export default function EventManagement({ events, practitioner, onUpdate }) {
         await Event.update(editingEvent.id, eventPayload);
       } else {
         const newEvent = await Event.create(eventPayload);
-        
+
+        // Surface the new event in the community feed (verb already rendered by FeedView).
+        await emitFeed({
+          actor_id: practitioner.id,
+          actor_name: practitioner.full_name,
+          actor_image_url: practitioner.profile_image_url,
+          verb: "hosted_event",
+          object_type: "event",
+          object_id: newEvent.id,
+          summary: newEvent.title,
+          image_url: newEvent.image_url,
+          action_url: `${createPageUrl("EventDetail")}?id=${newEvent.id}`,
+        });
+
         // Notify users who have favorited this practitioner
-        const favorites = await Favorite.filter({ 
-            item_id: practitioner.id, 
-            item_type: 'practitioner' 
+        const favorites = await Favorite.filter({
+            item_id: practitioner.id,
+            item_type: 'practitioner'
         });
 
         for (const fav of favorites) {
@@ -78,7 +109,7 @@ export default function EventManagement({ events, practitioner, onUpdate }) {
                 message: `Check out the new event: "${newEvent.title}"`,
                 type: 'event',
                 related_id: newEvent.id,
-                action_url: createPageUrl(`Events`),
+                action_url: `${createPageUrl("EventDetail")}?id=${newEvent.id}`,
                 sender_image_url: practitioner.profile_image_url || null
             });
         }
@@ -386,10 +417,10 @@ export default function EventManagement({ events, practitioner, onUpdate }) {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => handlePaymentSetup(event.id)}
+                    onClick={() => openRoster(event)}
                   >
-                    <DollarSign className="w-4 h-4 mr-2" />
-                    Payment Setup
+                    <Users className="w-4 h-4 mr-2" />
+                    View Registrations ({event.current_participants || 0})
                   </Button>
                 </div>
               </CardContent>
@@ -397,6 +428,36 @@ export default function EventManagement({ events, practitioner, onUpdate }) {
           );
         })}
       </div>
+
+      {/* Attendee roster */}
+      <Dialog open={!!rosterEvent} onOpenChange={() => setRosterEvent(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Registrations — {rosterEvent?.title}</DialogTitle>
+          </DialogHeader>
+          {rosterLoading ? (
+            <div className="py-8 text-center text-muted-foreground">Loading…</div>
+          ) : roster.length === 0 ? (
+            <div className="py-8 text-center text-muted-foreground">No registrations yet.</div>
+          ) : (
+            <div className="max-h-[60vh] space-y-2 overflow-y-auto">
+              {roster.map((r) => (
+                <div key={r.id} className="flex items-start justify-between gap-3 rounded-lg border border-border p-3">
+                  <div className="min-w-0">
+                    <p className="font-medium text-foreground">{r.participant_name}</p>
+                    <p className="truncate text-sm text-muted-foreground">{r.participant_email}{r.participant_phone ? ` · ${r.participant_phone}` : ""}</p>
+                    {r.medical_conditions && <p className="mt-1 text-xs text-amber-700">Medical: {r.medical_conditions}</p>}
+                  </div>
+                  <div className="flex shrink-0 flex-col items-end gap-1">
+                    <Badge variant={r.registration_status === "waitlist" ? "secondary" : "outline"} className="capitalize">{r.registration_status || "confirmed"}</Badge>
+                    <a href={`mailto:${r.participant_email}`} className="text-xs text-primary hover:underline">Email</a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {events.length === 0 && !showCreateForm && (
         <Card>

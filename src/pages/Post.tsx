@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Loader2, MessageSquare } from "@/lib/icons";
 import PageBreadcrumbs from "@/components/PageBreadcrumbs";
 import { sanitizeHtml } from "@/lib/sanitize";
+import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import 'react-quill/dist/quill.snow.css';
 
@@ -154,9 +155,14 @@ export default function PostPage() {
                 )}
               </Avatar>
               {post.author_id && practitionerIds.has(post.author_id) ? (
-                <Link to={createPageUrl(`PractitionerProfile?id=${post.author_id}`)} className="text-primary hover:underline">
-                  {post.author_name}
-                </Link>
+                <span className="flex items-center gap-1.5">
+                  <Link to={createPageUrl(`PractitionerProfile?id=${post.author_id}`)} className="text-primary hover:underline">
+                    {post.author_name}
+                  </Link>
+                  <Badge variant="tier" className="text-[10px]">Practitioner</Badge>
+                </span>
+              ) : post.author_id ? (
+                <Link to={createPageUrl(`UserProfile?id=${post.author_id}`)} className="hover:underline">{post.author_name}</Link>
               ) : (
                 <span>{post.author_name}</span>
               )}
@@ -187,9 +193,14 @@ export default function PostPage() {
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       {reply.author_id && practitionerIds.has(reply.author_id) ? (
-                        <Link to={createPageUrl(`PractitionerProfile?id=${reply.author_id}`)} className="font-semibold text-primary hover:underline">
-                          {reply.author_name}
-                        </Link>
+                        <>
+                          <Link to={createPageUrl(`PractitionerProfile?id=${reply.author_id}`)} className="font-semibold text-primary hover:underline">
+                            {reply.author_name}
+                          </Link>
+                          <Badge variant="tier" className="text-[10px]">Practitioner</Badge>
+                        </>
+                      ) : reply.author_id ? (
+                        <Link to={createPageUrl(`UserProfile?id=${reply.author_id}`)} className="font-semibold hover:underline">{reply.author_name}</Link>
                       ) : (
                         <span className="font-semibold">{reply.author_name}</span>
                       )}

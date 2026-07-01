@@ -164,6 +164,9 @@ const PractitionerBookingsView = ({ bookings, onUpdate }) => {
              <DropdownMenuItem onClick={() => updateBookingStatus(booking.id, 'completed')}>
                 <Check className="w-4 h-4 mr-2"/>Mark as Completed
              </DropdownMenuItem>
+             <DropdownMenuItem onClick={() => updateBookingStatus(booking.id, 'no_show')}>
+                <X className="w-4 h-4 mr-2"/>Mark No-show
+             </DropdownMenuItem>
              <DropdownMenuItem asChild>
                 <a href={`mailto:${booking.client_email}`} className="w-full">
                     <Mail className="w-4 h-4 mr-2"/>Email Client

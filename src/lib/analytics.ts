@@ -1,4 +1,8 @@
-import { User, Practitioner, Booking, Payment, Subscription, Review, Consultation, Event, Order } from "@/entities/all";
+import { User, Practitioner, Booking, Payment, Subscription, Review, Consultation, Event, Order, Message, ConsentRecord, ScreeningResponse, Credential, ActivityEvent } from "@/entities/all";
+
+const median = (arr: number[]) => { if (!arr.length) return 0; const s = [...arr].sort((a, b) => a - b); const m = Math.floor(s.length / 2); return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+const pct = (num: number, den: number) => (den > 0 ? Math.round((num / den) * 100) : 0);
+const DAY = 86400000;
 
 /** Platform economics. */
 export const PLATFORM_FEE_RATE = 0.05; // platform keeps 5% of each paid session
@@ -29,11 +33,23 @@ export interface PlatformAnalytics {
   marketplace: { orders: number; gmv: number };
   events: { total: number; upcoming: number };
   geo: { lat: number; lng: number; type: "practitioner"; label: string; weight: number; tier?: string }[];
+  engagement: { dau: number; wau: number; mau: number; trend: { day: string; users: number }[] };
+  acquisition: { source: string; count: number }[];
+  churn: { activeSubs: number; cancelledSubs: number; churnRate: number; nrr: number };
+  funnelRates: { from: string; to: string; rate: number }[];
+  bookingHealth: { cancellationRate: number; declineRate: number; noShowRate: number; avgLeadTimeDays: number; avgTimeToConfirmHrs: number };
+  leaderboard: { name: string; earnings: number; bookings: number; rating: number }[];
+  geoRevenue: { region: string; practitioners: number; bookings: number; revenue: number }[];
+  safety: { flaggedRate: number; waiverCompletion: number; credentialsExpiring: number; credentialsExpired: number };
+  clientValue: { avgLtv: number; topClients: { name: string; spend: number }[] };
+  retention: { cohort: string; size: number; booked: number; repeat: number }[];
+  responsiveness: { medianFirstReplyHrs: number; medianTimeToFirstBookingDays: number };
+  payouts: { liability: number; refunds: number };
 }
 
 /** Loads everything and computes the full platform analytics snapshot. */
 export async function computePlatformAnalytics(): Promise<PlatformAnalytics> {
-  const [profiles, pracs, bookings, payments, subs, reviews, consults, events, orders] = await Promise.all([
+  const [profiles, pracs, bookings, payments, subs, reviews, consults, events, orders, messages, consents, screenings, credentials, activity] = await Promise.all([
     User.list().catch(() => []),
     Practitioner.list().catch(() => []),
     Booking.list().catch(() => []),
@@ -43,6 +59,11 @@ export async function computePlatformAnalytics(): Promise<PlatformAnalytics> {
     Consultation.list().catch(() => []),
     Event.list().catch(() => []),
     Order.list().catch(() => []),
+    Message.list().catch(() => []),
+    ConsentRecord.list().catch(() => []),
+    ScreeningResponse.list().catch(() => []),
+    Credential.list().catch(() => []),
+    ActivityEvent.list("-created_date", 5000).catch(() => []),
   ]);
 
   const now = new Date();
@@ -122,6 +143,105 @@ export async function computePlatformAnalytics(): Promise<PlatformAnalytics> {
     .filter((p: any) => typeof p.latitude === "number" && typeof p.longitude === "number")
     .map((p: any) => ({ lat: p.latitude, lng: p.longitude, type: "practitioner" as const, label: p.full_name, weight: bookingsByPrac.get(p.id) || 1, tier: p.listing_tier }));
 
+  // Engagement (DAU/WAU/MAU) from activity events
+  const nowTs = now.getTime();
+  const distinctUsersSince = (ms: number) => new Set(activity.filter((e: any) => e.created_date && nowTs - new Date(e.created_date).getTime() <= ms).map((e: any) => e.user_id)).size;
+  const trend = lastNMonths(1).length ? Array.from({ length: 14 }, (_, i) => {
+    const d = new Date(nowTs - (13 - i) * DAY); const key = d.toISOString().slice(0, 10);
+    const users = new Set(activity.filter((e: any) => e.created_date && new Date(e.created_date).toISOString().slice(0, 10) === key).map((e: any) => e.user_id)).size;
+    return { day: `${d.getMonth() + 1}/${d.getDate()}`, users };
+  }) : [];
+  const engagement = { dau: distinctUsersSince(DAY), wau: distinctUsersSince(7 * DAY), mau: distinctUsersSince(30 * DAY), trend };
+
+  // Acquisition
+  const acqMap = new Map<string, number>();
+  profiles.forEach((u: any) => { const s = u.acquisition?.source || "direct"; acqMap.set(s, (acqMap.get(s) || 0) + 1); });
+  const acquisition = [...acqMap.entries()].map(([source, count]) => ({ source, count })).sort((a, b) => b.count - a.count);
+
+  // Churn / NRR
+  const cancelledSubs = subs.filter((s: any) => s.status === "cancelled").length;
+  const everActive = activeSubs.length + cancelledSubs;
+  const churnRate = pct(cancelledSubs, everActive);
+  const churn = { activeSubs: activeSubs.length, cancelledSubs, churnRate, nrr: Math.max(0, 100 - churnRate) };
+
+  // Funnel drop-off rates
+  const fSteps = [["Signup", profiles.length], ["Consultation", consults.length], ["Booking", bookings.length], ["Completed", bk.completed], ["Review", reviews.length]] as [string, number][];
+  const funnelRates = fSteps.slice(1).map((step, i) => ({ from: fSteps[i][0], to: step[0], rate: pct(step[1], fSteps[i][1]) }));
+
+  // Booking health
+  const declined = bookings.filter((b: any) => b.status === "declined").length;
+  const cancelled = bookings.filter((b: any) => b.status === "cancelled").length;
+  const noShows = bookings.filter((b: any) => b.status === "no_show").length;
+  const leadTimes = bookings.filter((b: any) => b.created_date && b.requested_date).map((b: any) => (new Date(b.requested_date).getTime() - new Date(b.created_date).getTime()) / DAY).filter((d: number) => d >= 0);
+  const confirmTimes = bookings.filter((b: any) => (b.status === "confirmed" || b.status === "completed") && b.created_date && b.updated_date).map((b: any) => (new Date(b.updated_date).getTime() - new Date(b.created_date).getTime()) / 3600000).filter((h: number) => h >= 0);
+  const bookingHealth = { cancellationRate: pct(cancelled, bookings.length), declineRate: pct(declined, bookings.length), noShowRate: pct(noShows, bookings.length), avgLeadTimeDays: Math.round(median(leadTimes)), avgTimeToConfirmHrs: Math.round(median(confirmTimes)) };
+
+  // Leaderboard
+  const earnByPrac = new Map<string, number>();
+  payments.forEach((p: any) => { if (p.practitioner_id && p.payment_type !== "subscription") earnByPrac.set(p.practitioner_id, (earnByPrac.get(p.practitioner_id) || 0) + (p.amount || 0)); });
+  const leaderboard = pracs.map((p: any) => ({
+    name: p.full_name, earnings: Math.round(earnByPrac.get(p.id) || 0), bookings: bookingsByPrac.get(p.id) || 0,
+    rating: reviews.filter((r: any) => r.practitioner_id === p.id).reduce((s: number, r: any, _i: number, arr: any[]) => s + (r.overall_rating || r.rating || 0) / arr.length, 0),
+  })).map((r: any) => ({ ...r, rating: Math.round(r.rating * 10) / 10 })).sort((a, b) => b.earnings - a.earnings).slice(0, 8);
+
+  // Geographic revenue & supply
+  const region = (p: any) => [p.address?.state_province, p.address?.country].filter(Boolean).join(", ") || "Unknown";
+  const pracById = new Map(pracs.map((p: any) => [p.id, p]));
+  const geoMap = new Map<string, { region: string; practitioners: number; bookings: number; revenue: number }>();
+  pracs.forEach((p: any) => { const r = region(p); const g = geoMap.get(r) || { region: r, practitioners: 0, bookings: 0, revenue: 0 }; g.practitioners += 1; geoMap.set(r, g); });
+  paidBookings.forEach((b: any) => { const p = pracById.get(b.practitioner_id); const r = p ? region(p) : "Unknown"; const g = geoMap.get(r) || { region: r, practitioners: 0, bookings: 0, revenue: 0 }; g.bookings += 1; g.revenue += (b.price || 0) * PLATFORM_FEE_RATE; geoMap.set(r, g); });
+  const geoRevenue = [...geoMap.values()].map((g) => ({ ...g, revenue: Math.round(g.revenue) })).sort((a, b) => b.revenue - a.revenue).slice(0, 10);
+
+  // Safety
+  const flaggedRate = pct(screenings.filter((s: any) => s.flagged).length, screenings.length);
+  const waiverCompletion = pct(consents.length, bookings.length);
+  const in60 = nowTs + 60 * DAY;
+  const credentialsExpiring = credentials.filter((c: any) => c.expiry_date && new Date(c.expiry_date).getTime() > nowTs && new Date(c.expiry_date).getTime() <= in60).length;
+  const credentialsExpired = credentials.filter((c: any) => c.expiry_date && new Date(c.expiry_date).getTime() <= nowTs).length;
+  const safety = { flaggedRate, waiverCompletion, credentialsExpiring, credentialsExpired };
+
+  // Client LTV
+  const spendByClient = new Map<string, number>();
+  payments.forEach((p: any) => { if (p.user_id && p.payment_type !== "subscription") spendByClient.set(p.user_id, (spendByClient.get(p.user_id) || 0) + (p.amount || 0)); });
+  const nameById = new Map(profiles.map((u: any) => [u.id, u.full_name || u.email || "Client"]));
+  const ltvs = [...spendByClient.values()];
+  const clientValue = {
+    avgLtv: ltvs.length ? Math.round(ltvs.reduce((s, n) => s + n, 0) / ltvs.length) : 0,
+    topClients: [...spendByClient.entries()].map(([id, spend]) => ({ name: nameById.get(id) || "Client", spend: Math.round(spend) })).sort((a, b) => b.spend - a.spend).slice(0, 5),
+  };
+
+  // Cohort retention (by signup month)
+  const cohortMap = new Map<string, { size: number; booked: Set<string>; repeat: Set<string> }>();
+  profiles.filter((u: any) => role(u) === "client" || role(u) === "user").forEach((u: any) => {
+    if (!u.created_date) return; const k = monthKey(new Date(u.created_date));
+    const c = cohortMap.get(k) || { size: 0, booked: new Set(), repeat: new Set() }; c.size += 1;
+    const n = bookingsPerClient.get(u.id) || 0; if (n >= 1) c.booked.add(u.id); if (n >= 2) c.repeat.add(u.id); cohortMap.set(k, c);
+  });
+  const retention = [...cohortMap.entries()].sort().slice(-6).map(([cohort, c]) => ({ cohort, size: c.size, booked: pct(c.booked.size, c.size), repeat: pct(c.repeat.size, c.size) }));
+
+  // Responsiveness: median first practitioner reply + time-to-first-booking
+  const pracUserIds = new Set(pracs.map((p: any) => p.id));
+  const byConvo = new Map<string, any[]>();
+  messages.forEach((m: any) => { if (!m.conversation_id) return; const a = byConvo.get(m.conversation_id) || []; a.push(m); byConvo.set(m.conversation_id, a); });
+  const replyLatencies: number[] = [];
+  byConvo.forEach((msgs) => {
+    const sorted = msgs.filter((m: any) => m.created_date).sort((a: any, b: any) => new Date(a.created_date).getTime() - new Date(b.created_date).getTime());
+    const firstClient = sorted.find((m: any) => !pracUserIds.has(m.sender_id));
+    if (!firstClient) return;
+    const reply = sorted.find((m: any) => pracUserIds.has(m.sender_id) && new Date(m.created_date).getTime() > new Date(firstClient.created_date).getTime());
+    if (reply) replyLatencies.push((new Date(reply.created_date).getTime() - new Date(firstClient.created_date).getTime()) / 3600000);
+  });
+  const firstBookingByClient = new Map<string, number>();
+  bookings.forEach((b: any) => { if (!b.client_id || !b.created_date) return; const t = new Date(b.created_date).getTime(); const cur = firstBookingByClient.get(b.client_id); if (cur === undefined || t < cur) firstBookingByClient.set(b.client_id, t); });
+  const ttfb: number[] = [];
+  profiles.forEach((u: any) => { const fb = firstBookingByClient.get(u.id); if (fb && u.created_date) { const d = (fb - new Date(u.created_date).getTime()) / DAY; if (d >= 0) ttfb.push(d); } });
+  const responsiveness = { medianFirstReplyHrs: Math.round(median(replyLatencies) * 10) / 10, medianTimeToFirstBookingDays: Math.round(median(ttfb) * 10) / 10 };
+
+  // Payouts & refunds
+  const liability = Math.round(bookings.filter((b: any) => isPaid(b) && b.status !== "completed").reduce((s: number, b: any) => s + (b.price || 0) * (1 - PLATFORM_FEE_RATE), 0));
+  const refunds = Math.round(payments.filter((p: any) => p.payment_status === "refunded").reduce((s: number, p: any) => s + (p.amount || 0), 0));
+  const payoutsRefunds = { liability, refunds };
+
   return {
     users: { total: profiles.length, clients, practitioners: practitionerUsers || pracs.length, admins, newThisMonth: profiles.filter(inThisMonth).length },
     practitioners: { total: pracs.length, verified, pending, rejected, tiers, tierRevenue },
@@ -133,5 +253,17 @@ export async function computePlatformAnalytics(): Promise<PlatformAnalytics> {
     marketplace: { orders: orders.length, gmv: orders.reduce((s: number, o: any) => s + (o.total || 0), 0) },
     events: { total: events.length, upcoming: events.filter((e: any) => e.start_date && new Date(e.start_date) >= now).length },
     geo,
+    engagement,
+    acquisition,
+    churn,
+    funnelRates,
+    bookingHealth,
+    leaderboard,
+    geoRevenue,
+    safety,
+    clientValue,
+    retention,
+    responsiveness,
+    payouts: payoutsRefunds,
   };
 }

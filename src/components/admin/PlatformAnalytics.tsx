@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import GeoMap from "./GeoMap";
 import {
-  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip as RTooltip, Legend, PieChart, Pie, Cell, CartesianGrid,
+  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip as RTooltip, Legend, PieChart, Pie, Cell, CartesianGrid, LineChart, Line,
 } from "recharts";
 import {
   DollarSign, Users, ShieldCheck, Briefcase, TrendingUp, Star, Globe, Loader2, Storefront, Calendar,
@@ -174,6 +174,131 @@ export default function PlatformAnalytics() {
           <Kpi icon={Storefront} label="Marketplace GMV" value={formatCurrency(a.marketplace.gmv)} sub={`${a.marketplace.orders} orders`} accent="text-clay" />
           <Kpi icon={Calendar} label="Events" value={a.events.total} sub={`${a.events.upcoming} upcoming`} accent="text-info" />
         </div>
+      </section>
+
+      {/* Engagement */}
+      <section>
+        <h2 className="mb-3 flex items-center gap-2 font-semibold"><TrendingUp className="h-5 w-5 text-primary" weight="duotone" /> Engagement & retention</h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Kpi icon={Users} label="Daily active" value={a.engagement.dau} />
+          <Kpi icon={Users} label="Weekly active" value={a.engagement.wau} accent="text-info" />
+          <Kpi icon={Users} label="Monthly active" value={a.engagement.mau} accent="text-clay" />
+          <Kpi icon={TrendingUp} label="Median time-to-book" value={`${a.responsiveness.medianTimeToFirstBookingDays}d`} sub={`reply ${a.responsiveness.medianFirstReplyHrs}h`} accent="text-success" />
+        </div>
+        <div className="mt-4 grid gap-4 lg:grid-cols-3">
+          <Card className="lg:col-span-2">
+            <CardHeader><CardTitle className="text-base">Active users (14 days)</CardTitle></CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={200}>
+                <LineChart data={a.engagement.trend}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                  <XAxis dataKey="day" tick={{ fontSize: 11 }} /><YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+                  <RTooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }} />
+                  <Line type="monotone" dataKey="users" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle className="text-base">Repeat cohorts</CardTitle></CardHeader>
+            <CardContent className="space-y-2 text-sm">
+              {a.retention.length ? a.retention.map((c) => (
+                <div key={c.cohort} className="flex items-center justify-between">
+                  <span className="text-muted-foreground">{c.cohort}</span>
+                  <span>{c.size} · {c.booked}% booked · {c.repeat}% repeat</span>
+                </div>
+              )) : <p className="text-muted-foreground">No cohort data yet.</p>}
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* Acquisition + churn + payouts */}
+      <section className="grid gap-4 lg:grid-cols-3">
+        <Card>
+          <CardHeader><CardTitle className="text-base">Acquisition sources</CardTitle></CardHeader>
+          <CardContent className="space-y-2 text-sm">
+            {a.acquisition.length ? a.acquisition.map((s) => (
+              <div key={s.source} className="flex justify-between"><span className="capitalize text-muted-foreground">{s.source}</span><span>{s.count}</span></div>
+            )) : <p className="text-muted-foreground">No attribution yet.</p>}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader><CardTitle className="text-base">Subscription health</CardTitle></CardHeader>
+          <CardContent className="space-y-1.5 text-sm">
+            <div className="flex justify-between"><span className="text-muted-foreground">Active</span><span>{a.churn.activeSubs}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground">Cancelled</span><span>{a.churn.cancelledSubs}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground">Churn rate</span><span>{a.churn.churnRate}%</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground">Net revenue retention</span><span>{a.churn.nrr}%</span></div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader><CardTitle className="text-base">Payouts & refunds</CardTitle></CardHeader>
+          <CardContent className="space-y-1.5 text-sm">
+            <div className="flex justify-between"><span className="text-muted-foreground">Outstanding payouts</span><span>{formatCurrency(a.payouts.liability)}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground">Refunds issued</span><span>{formatCurrency(a.payouts.refunds)}</span></div>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* Funnel drop-off + booking health */}
+      <section className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader><CardTitle className="text-base">Funnel conversion</CardTitle></CardHeader>
+          <CardContent className="space-y-2">
+            {a.funnelRates.map((r) => (
+              <div key={r.to}>
+                <div className="mb-1 flex justify-between text-sm"><span>{r.from} → {r.to}</span><span className="text-muted-foreground">{r.rate}%</span></div>
+                <div className="h-2 w-full overflow-hidden rounded-full bg-muted"><div className="h-full bg-primary" style={{ width: `${Math.min(100, r.rate)}%` }} /></div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader><CardTitle className="text-base">Booking health</CardTitle></CardHeader>
+          <CardContent className="grid grid-cols-2 gap-3 text-sm">
+            <div><p className="text-2xl font-bold">{a.bookingHealth.cancellationRate}%</p><p className="text-muted-foreground">Cancellation</p></div>
+            <div><p className="text-2xl font-bold">{a.bookingHealth.declineRate}%</p><p className="text-muted-foreground">Decline</p></div>
+            <div><p className="text-2xl font-bold">{a.bookingHealth.noShowRate}%</p><p className="text-muted-foreground">No-show</p></div>
+            <div><p className="text-2xl font-bold">{a.bookingHealth.avgLeadTimeDays}d</p><p className="text-muted-foreground">Avg lead time</p></div>
+            <div><p className="text-2xl font-bold">{a.bookingHealth.avgTimeToConfirmHrs}h</p><p className="text-muted-foreground">Time to confirm</p></div>
+            <div><p className="text-2xl font-bold">{formatCurrency(a.clientValue.avgLtv)}</p><p className="text-muted-foreground">Avg client LTV</p></div>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* Safety */}
+      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Kpi icon={ShieldCheck} label="Screenings flagged" value={`${a.safety.flaggedRate}%`} accent="text-warning" />
+        <Kpi icon={ShieldCheck} label="Waiver completion" value={`${a.safety.waiverCompletion}%`} accent="text-success" />
+        <Kpi icon={ShieldCheck} label="Credentials expiring" value={a.safety.credentialsExpiring} sub="within 60 days" accent="text-warning" />
+        <Kpi icon={ShieldCheck} label="Credentials expired" value={a.safety.credentialsExpired} accent="text-destructive" />
+      </section>
+
+      {/* Leaderboard + geo revenue */}
+      <section className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader><CardTitle className="text-base">Top practitioners</CardTitle></CardHeader>
+          <CardContent className="space-y-1.5 text-sm">
+            {a.leaderboard.length ? a.leaderboard.map((p, i) => (
+              <div key={i} className="flex items-center justify-between">
+                <span className="truncate">{i + 1}. {p.name}</span>
+                <span className="text-muted-foreground">{formatCurrency(p.earnings)} · {p.bookings} bk{p.rating ? ` · ${p.rating}★` : ""}</span>
+              </div>
+            )) : <p className="text-muted-foreground">No data yet.</p>}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader><CardTitle className="text-base">Revenue by region</CardTitle></CardHeader>
+          <CardContent className="space-y-1.5 text-sm">
+            {a.geoRevenue.length ? a.geoRevenue.map((g) => (
+              <div key={g.region} className="flex items-center justify-between">
+                <span className="truncate">{g.region}</span>
+                <span className="text-muted-foreground">{formatCurrency(g.revenue)} · {g.practitioners} prac · {g.bookings} bk</span>
+              </div>
+            )) : <p className="text-muted-foreground">No data yet.</p>}
+          </CardContent>
+        </Card>
       </section>
 
       {/* Geo */}

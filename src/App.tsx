@@ -1,4 +1,4 @@
-import { useEffect, useState, Suspense } from 'react'
+import { useEffect, useState, Suspense, type ReactNode } from 'react'
 import { Toaster } from "@/components/ui/sonner"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { User } from '@/entities/User'
@@ -35,15 +35,48 @@ const Spinner = () => (
   </div>
 );
 
-/** Index route: logged-out visitors get the marketing Landing page; members get the app home. */
+/** Index route: logged-out visitors get the marketing Landing page; members go to their role-home. */
 const IndexRoute = () => {
-  const [state, setState] = useState<'loading' | 'app' | 'landing'>('loading');
+  const [state, setState] = useState<'loading' | 'landing'>('loading');
+  const [home, setHome] = useState<string | null>(null);
   useEffect(() => {
-    User.me().then((u) => setState(u ? 'app' : 'landing')).catch(() => setState('landing'));
+    let active = true;
+    User.me()
+      .then((u) => { if (active) setHome(roleHome(getRole(u))); })
+      .catch(() => { if (active) setState('landing'); });
+    return () => { active = false; };
   }, []);
-  if (state === 'loading') return <Spinner />;
   if (state === 'landing') return <Landing />;
-  return <LayoutWrapper currentPageName={mainPageKey}><MainPage /></LayoutWrapper>;
+  if (home) return <Navigate to={home} replace />;
+  return <Spinner />;
+};
+
+/**
+ * Route guard: redirects a logged-in user whose role can't view `page` to their
+ * role-home, and an anonymous visitor on a non-public page to sign-in. Central —
+ * one wrapper covers every route, no per-page edits.
+ */
+const RequireRole = ({ page, children }: { page: string; children: ReactNode }) => {
+  const [status, setStatus] = useState<'loading' | 'ok' | 'redirect'>('loading');
+  const [dest, setDest] = useState('/');
+  useEffect(() => {
+    let active = true;
+    User.me()
+      .then((u) => {
+        if (!active) return;
+        if (canAccess(page, getRole(u))) setStatus('ok');
+        else { setDest(roleHome(getRole(u))); setStatus('redirect'); }
+      })
+      .catch(() => {
+        if (!active) return;
+        if (PUBLIC_PAGES.has(page)) setStatus('ok');
+        else { setDest(createPageUrl('Auth')); setStatus('redirect'); }
+      });
+    return () => { active = false; };
+  }, [page]);
+  if (status === 'loading') return <Spinner />;
+  if (status === 'redirect') return <Navigate to={dest} replace />;
+  return <>{children}</>;
 };
 
 const AuthenticatedApp = () => {
@@ -81,9 +114,11 @@ const AuthenticatedApp = () => {
             element={
               BARE_ROUTES.has(path)
                 ? <Page />
-                : <LayoutWrapper currentPageName={path}>
-                    <Page />
-                  </LayoutWrapper>
+                : <RequireRole page={path}>
+                    <LayoutWrapper currentPageName={path}>
+                      <Page />
+                    </LayoutWrapper>
+                  </RequireRole>
             }
           />
         ))}

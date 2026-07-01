@@ -36,10 +36,17 @@ const PostListItem = ({ post, practitionerIds }) => {
                 <span>
                   by{" "}
                   {post.author_id && practitionerIds.has(post.author_id) ? (
-                    <Link
-                      to={createPageUrl(`PractitionerProfile?id=${post.author_id}`)}
-                      className="text-primary hover:underline"
-                    >
+                    <>
+                      <Link
+                        to={createPageUrl(`PractitionerProfile?id=${post.author_id}`)}
+                        className="text-primary hover:underline"
+                      >
+                        {post.author_name}
+                      </Link>
+                      <Badge variant="tier" className="ml-1.5 align-middle text-[10px]">Practitioner</Badge>
+                    </>
+                  ) : post.author_id ? (
+                    <Link to={createPageUrl(`UserProfile?id=${post.author_id}`)} className="hover:underline">
                       {post.author_name}
                     </Link>
                   ) : (

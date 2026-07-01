@@ -246,7 +246,7 @@ export default function Landing() {
             <div className="relative hidden h-[440px] lg:block">
               <div className="absolute inset-0 overflow-hidden rounded-[2rem] border border-border/70 shadow-xl">
                 <Suspense fallback={<div className="h-full w-full shimmer" />}>
-                  {mapPins.length > 0 ? <HeroMap practitioners={mapPins} /> : <div className="h-full w-full shimmer" />}
+                  <HeroMap practitioners={mapPins} />
                 </Suspense>
                 <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/15 to-transparent" />
               </div>

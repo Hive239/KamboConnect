@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { FeedItem, Follow, User } from "@/entities/all";
+import { FeedItem, Follow, User, Practitioner } from "@/entities/all";
 import { subscribe } from "@/data/store";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -22,16 +22,27 @@ export default function FeedView() {
   const [loading, setLoading] = useState(true);
   const [onlyFollowing, setOnlyFollowing] = useState(false);
   const [followedIds, setFollowedIds] = useState<Set<string>>(new Set());
+  const [practitionerIds, setPractitionerIds] = useState<Set<string>>(new Set());
 
   const load = async () => {
-    const me = await User.me().catch(() => null);
-    if (me) {
-      const follows = await Follow.filter({ follower_id: me.id });
-      setFollowedIds(new Set(follows.map((f: any) => f.followee_id)));
+    try {
+      const me = await User.me().catch(() => null);
+      if (me) {
+        const follows = await Follow.filter({ follower_id: me.id });
+        setFollowedIds(new Set(follows.map((f: any) => f.followee_id)));
+      }
+      const feed = await FeedItem.list("-created_date", 50);
+      setItems(feed);
+      try {
+        const pracs = await Practitioner.list();
+        setPractitionerIds(new Set(pracs.map((p: any) => p.id)));
+      } catch { /* badge is a non-critical enhancement */ }
+    } catch (e) {
+      console.error("Failed to load feed:", e);
+      setItems([]);
+    } finally {
+      setLoading(false);
     }
-    const feed = await FeedItem.list("-created_date", 50);
-    setItems(feed);
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -69,7 +80,13 @@ export default function FeedView() {
                     <AvatarFallback className="bg-primary/10 text-primary text-xs">{it.actor_name?.[0]}</AvatarFallback>
                   </Avatar>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm"><span className="font-semibold">{it.actor_name}</span> <span className="text-muted-foreground">{meta.label}</span></p>
+                    <p className="text-sm">
+                      <span className="font-semibold">{it.actor_name}</span>
+                      {it.actor_id && practitionerIds.has(it.actor_id) && (
+                        <Badge variant="tier" className="mx-1.5 align-middle text-[10px]">Practitioner</Badge>
+                      )}
+                      {" "}<span className="text-muted-foreground">{meta.label}</span>
+                    </p>
                     {it.summary && <p className="mt-0.5 text-sm text-foreground">{it.summary}</p>}
                     <div className="mt-1 flex items-center gap-2">
                       <Badge variant="tier" className="gap-1"><meta.icon className="h-3 w-3" weight="duotone" /> {it.object_type}</Badge>
