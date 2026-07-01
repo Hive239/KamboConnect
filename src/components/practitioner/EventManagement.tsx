@@ -327,18 +327,20 @@ export default function EventManagement({ events, practitioner, onUpdate }) {
                     <CardTitle className="text-lg">{event.title}</CardTitle>
                   </div>
                   <div className="flex gap-2">
-                    <Button 
-                      variant="ghost" 
+                    <Button
+                      variant="ghost"
                       size="icon"
                       onClick={() => handleEdit(event)}
+                      aria-label="Edit event"
                     >
                       <Edit className="w-4 h-4" />
                     </Button>
-                    <Button 
-                      variant="ghost" 
+                    <Button
+                      variant="ghost"
                       size="icon"
                       onClick={() => handleDelete(event.id)}
                       className="text-red-600 hover:text-red-700"
+                      aria-label="Delete event"
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>

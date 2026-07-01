@@ -583,7 +583,7 @@ const ArticleCard = ({ title, icon: Icon, imageUrl }) => (
     <Card className="shadow-sm border-border hover:shadow-lg hover:border-input transition-all cursor-pointer overflow-hidden bg-card group">
         <div className="w-full h-24 bg-muted relative">
             {imageUrl ? (
-              <img src={imageUrl} alt={title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+              <img loading="lazy" src={imageUrl} alt={title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
                 <Icon className="w-10 h-10 text-muted-foreground" />
@@ -599,7 +599,7 @@ const ArticleCard = ({ title, icon: Icon, imageUrl }) => (
 
 const InfoSection = ({ id, icon: Icon, title, content: Content, imageUrl }) => (
   <Card id={id} className="bg-card border-border shadow-sm overflow-hidden">
-    {imageUrl && <img src={imageUrl} alt={title} className="w-full h-56 object-cover opacity-90"/>}
+    {imageUrl && <img loading="lazy" src={imageUrl} alt={title} className="w-full h-56 object-cover opacity-90"/>}
     <div className="p-6">
       <CardHeader className="p-0 mb-4">
         <CardTitle className="flex items-center gap-3 text-xl text-foreground">

@@ -11,6 +11,8 @@ export { IconContext } from '@phosphor-icons/react';
 export type { Icon, IconProps, IconWeight } from '@phosphor-icons/react';
 
 export {
+  GoogleLogo,
+  GithubLogo,
   Warning as AlertTriangle,
   WarningCircle as AlertCircle,
   ChartBar as BarChart3,

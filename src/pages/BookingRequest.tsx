@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { User, Practitioner, Booking, Notification, ScreeningResponse, ConsentRecord } from "@/entities/all";
+import { User, Practitioner, Booking, Notification } from "@/entities/all";
 import SafetyGate, { type SafetyData } from "@/components/booking/SafetyGate";
+import { fileScreeningAndWaiver } from "@/lib/fileWaiver";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -95,14 +96,10 @@ export default function BookingRequestPage() {
       });
 
       const clientId = user?.id || newBooking.client_id;
-      await ScreeningResponse.create({
-        booking_id: newBooking.id, user_id: clientId, practitioner_id: practitioner.id,
-        answers: safety.answers, flagged: safety.flagged,
-      });
-      await ConsentRecord.create({
-        booking_id: newBooking.id, user_id: clientId, practitioner_id: practitioner.id,
-        document_version: safety.consent.document_version, agreed: safety.consent.agreed,
-        signature_name: safety.consent.signature_name, agreed_at: safety.consent.agreed_at,
+      await fileScreeningAndWaiver({
+        bookingId: newBooking.id, clientId, clientName: formData.client_name,
+        clientEmail: formData.client_email, clientPhone: formData.client_phone,
+        practitionerId: practitioner.id, practitionerName: practitioner.full_name, safety,
       });
 
       // Notify practitioner

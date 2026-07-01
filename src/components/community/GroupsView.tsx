@@ -80,7 +80,7 @@ export default function GroupsView() {
             onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openGroup(g); } }}
           >
             <div className="relative h-28 bg-muted">
-              {g.image_url && <img src={g.image_url} alt={g.name} className="h-full w-full object-cover" />}
+              {g.image_url && <img loading="lazy" src={g.image_url} alt={g.name} className="h-full w-full object-cover" />}
               {g.is_private && <Badge variant="secondary" className="absolute right-3 top-3 gap-1"><Lock className="h-3 w-3" /> Private</Badge>}
             </div>
             <CardContent className="p-4">

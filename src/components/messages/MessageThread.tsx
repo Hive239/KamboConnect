@@ -38,7 +38,7 @@ export default function MessageThread({ conversation, messages, currentUser, onS
   return (
     <Card className="h-full flex flex-col border-0 lg:border rounded-none lg:rounded-lg">
       <CardHeader className="pb-3 border-b flex-row items-center gap-3">
-        <Button variant="ghost" size="icon" className="lg:hidden" onClick={onBack}>
+        <Button variant="ghost" size="icon" className="lg:hidden" onClick={onBack} aria-label="Back to conversations">
             <ChevronLeft className="w-5 h-5" />
         </Button>
         <Avatar className="w-10 h-10">

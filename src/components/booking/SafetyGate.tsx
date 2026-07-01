@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { screeningQuestions } from "@/data/contraindications";
+import { WAIVER_TITLE, WAIVER_VERSION, WAIVER_SECTIONS } from "@/data/waiver";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -8,16 +9,14 @@ import { AlertTriangle, ShieldCheck, ArrowLeft, ArrowRight } from "@/lib/icons";
 export interface SafetyData {
   answers: { key: string; question: string; answer: boolean; flag?: boolean }[];
   flagged: boolean;
+  screeningSummary: string;
   consent: { agreed: boolean; signature_name: string; document_version: string; agreed_at: string };
 }
 
-const CONSENT_VERSION = "v1.0";
-
 /**
  * Pre-session safety gate: a health-screening questionnaire (driven by the
- * shared contraindications data) followed by an informed-consent waiver.
- * Calls onComplete with the collected data; a "yes" on an absolute item flags
- * the booking for practitioner review (it does not hard-block — balanced posture).
+ * shared contraindications data) followed by the real informed-consent waiver.
+ * An ABSOLUTE contraindication hard-blocks; relative/temporary items flag for review.
  */
 export default function SafetyGate({ onComplete, onBack, userName = "" }: { onComplete: (d: SafetyData) => void; onBack: () => void; userName?: string }) {
   const questions = screeningQuestions();
@@ -26,14 +25,18 @@ export default function SafetyGate({ onComplete, onBack, userName = "" }: { onCo
   const [signature, setSignature] = useState(userName);
   const [agreed, setAgreed] = useState(false);
 
-  const flaggedItems = questions.filter((q) => answers[q.id] && q.level === "absolute");
-  const anyFlag = questions.some((q) => answers[q.id] && (q.level === "absolute" || q.level === "relative"));
+  const absoluteItems = questions.filter((q) => answers[q.id] && q.level === "absolute");
+  const relativeItems = questions.filter((q) => answers[q.id] && q.level === "relative");
+  const hasAbsolute = absoluteItems.length > 0;
+  const anyFlag = absoluteItems.length + relativeItems.length > 0;
 
   const submit = () => {
+    const flags = [...absoluteItems, ...relativeItems].map((q) => q.label);
     onComplete({
       answers: questions.map((q) => ({ key: q.id, question: q.label, answer: !!answers[q.id], flag: !!answers[q.id] && q.level !== "temporary" })),
       flagged: anyFlag,
-      consent: { agreed, signature_name: signature, document_version: CONSENT_VERSION, agreed_at: new Date().toISOString() },
+      screeningSummary: flags.length ? `Flagged: ${flags.join("; ")}` : "No contraindications reported",
+      consent: { agreed, signature_name: signature, document_version: WAIVER_VERSION, agreed_at: new Date().toISOString() },
     });
   };
 
@@ -58,17 +61,26 @@ export default function SafetyGate({ onComplete, onBack, userName = "" }: { onCo
             </label>
           ))}
         </div>
-        {flaggedItems.length > 0 && (
+        {hasAbsolute && (
           <Alert variant="destructive" className="mt-4">
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
-              You selected items that may be contraindications. You can still request the session — your practitioner will review your responses and follow up before confirming.
+              One or more of your answers is an <strong>absolute contraindication</strong> for Kambo. For your safety this session
+              cannot be booked. Please consult your practitioner or a medical professional.
+            </AlertDescription>
+          </Alert>
+        )}
+        {!hasAbsolute && relativeItems.length > 0 && (
+          <Alert className="mt-4">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              You selected items that may require caution. You can continue — your practitioner will review your responses before confirming.
             </AlertDescription>
           </Alert>
         )}
         <div className="mt-6 flex justify-between border-t pt-4">
           <Button variant="outline" onClick={onBack} className="gap-2"><ArrowLeft className="h-4 w-4" /> Back</Button>
-          <Button onClick={() => setPhase("consent")} className="gap-2">Continue <ArrowRight className="h-4 w-4" /></Button>
+          <Button onClick={() => setPhase("consent")} disabled={hasAbsolute} className="gap-2">Continue <ArrowRight className="h-4 w-4" /></Button>
         </div>
       </div>
     );
@@ -80,11 +92,16 @@ export default function SafetyGate({ onComplete, onBack, userName = "" }: { onCo
         <ShieldCheck className="h-5 w-5 text-primary" weight="duotone" />
         <h3 className="text-lg font-semibold">Informed consent</h3>
       </div>
-      <div className="max-h-64 space-y-3 overflow-y-auto rounded-lg border border-border bg-muted/40 p-4 text-sm text-muted-foreground">
-        <p>I understand that Kambo is a traditional practice and not a substitute for professional medical care. I confirm the health information I provided is accurate to the best of my knowledge.</p>
-        <p>I understand the potential effects and risks, that I may stop at any time, and that my practitioner will screen me for contraindications. I participate of my own free will and release the practitioner from liability to the extent permitted by law.</p>
-        <p>I consent to my screening responses being shared with my chosen practitioner for safety purposes.</p>
-        <p className="text-xs">Consent document {CONSENT_VERSION}. This is educational content, not medical or legal advice.</p>
+      <div className="max-h-72 space-y-3 overflow-y-auto rounded-lg border border-border bg-muted/40 p-4 text-sm text-muted-foreground">
+        <p className="font-semibold text-foreground">{WAIVER_TITLE}</p>
+        <p className="text-xs">Version {WAIVER_VERSION}</p>
+        {WAIVER_SECTIONS.map((s) => (
+          <div key={s.heading}>
+            <p className="font-medium text-foreground">{s.heading}</p>
+            <p>{s.body}</p>
+          </div>
+        ))}
+        <p className="text-xs">A signed PDF copy will be filed to your records and shared with your practitioner.</p>
       </div>
       <div className="mt-4 space-y-3">
         <label className="flex items-start gap-3">

@@ -44,7 +44,7 @@ export default function EventModal({ event, practitioner, onClose, onRegister })
             {/* Event Image */}
             {event.image_url && (
               <div className="w-full h-48 rounded-lg overflow-hidden">
-                <img 
+                <img loading="lazy" 
                   src={event.image_url} 
                   alt={event.title}
                   className="w-full h-full object-cover"

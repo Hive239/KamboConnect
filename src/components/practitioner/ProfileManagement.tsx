@@ -199,7 +199,7 @@ export default function ProfileManagement({ practitioner, user, onUpdate }) {
             <CardContent className="text-center space-y-4">
               <div className="w-32 h-32 rounded-full bg-muted overflow-hidden mx-auto">
                 {profileData.profile_image_url ? (
-                  <img 
+                  <img loading="lazy" 
                     src={profileData.profile_image_url} 
                     alt="Profile"
                     className="w-full h-full object-cover"
@@ -246,7 +246,7 @@ export default function ProfileManagement({ practitioner, user, onUpdate }) {
               <div className="grid grid-cols-2 gap-3">
                 {profileData.image_urls.map((url, index) => (
                   <div key={index} className="relative">
-                    <img 
+                    <img loading="lazy" 
                       src={url} 
                       alt={`Gallery ${index + 1}`}
                       className="w-full h-20 object-cover rounded-lg"
@@ -256,6 +256,7 @@ export default function ProfileManagement({ practitioner, user, onUpdate }) {
                       variant="destructive"
                       className="absolute top-1 right-1 w-6 h-6"
                       onClick={() => handleRemoveImage(index)}
+                      aria-label={`Remove gallery image ${index + 1}`}
                     >
                       <Trash2 className="w-3 h-3" />
                     </Button>

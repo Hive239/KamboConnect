@@ -13,6 +13,7 @@ import {
   ConsentRecord
 } from "@/entities/all";
 import SafetyGate, { type SafetyData } from "./SafetyGate";
+import { fileScreeningAndWaiver } from "@/lib/fileWaiver";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -186,16 +187,12 @@ export default function DirectBookingModal({ practitioner, onClose, onBookingCom
       // Link payment to booking
       await Payment.update(paymentRecord.id, { booking_id: bookingRecord.id });
 
-      // Persist health screening + consent (safety pathway)
+      // Persist health screening + consent + file the signed waiver PDF (safety pathway)
       if (safetyData) {
-        await ScreeningResponse.create({
-          booking_id: bookingRecord.id, user_id: user.id, practitioner_id: practitioner.id,
-          answers: safetyData.answers, flagged: safetyData.flagged,
-        });
-        await ConsentRecord.create({
-          booking_id: bookingRecord.id, user_id: user.id, practitioner_id: practitioner.id,
-          document_version: safetyData.consent.document_version, agreed: safetyData.consent.agreed,
-          signature_name: safetyData.consent.signature_name, agreed_at: safetyData.consent.agreed_at,
+        await fileScreeningAndWaiver({
+          bookingId: bookingRecord.id, clientId: user.id, clientName: user.full_name,
+          clientEmail: user.email, practitionerId: practitioner.id,
+          practitionerName: practitioner.full_name, safety: safetyData,
         });
         if (safetyData.flagged) {
           await Notification.create({

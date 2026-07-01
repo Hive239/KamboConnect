@@ -14,7 +14,7 @@ export default function ProductCard({ product, onAdd, onOpen }: { product: Produ
         <button onClick={onOpen} className="block w-full text-left" aria-label={product.title}>
           <div className="relative aspect-square w-full bg-muted">
             {product.image_urls?.[0] ? (
-              <img src={product.image_urls[0]} alt={product.title} className="h-full w-full object-cover" />
+              <img loading="lazy" src={product.image_urls[0]} alt={product.title} className="h-full w-full object-cover" />
             ) : (
               <div className="flex h-full items-center justify-center"><Package className="h-12 w-12 text-muted-foreground/40" weight="duotone" /></div>
             )}

@@ -52,7 +52,7 @@ const ResourceCard = ({ resource }) => {
       <Card className="shadow-sm border-border hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden">
         <div className={`h-32 bg-gradient-to-br ${categoryColors[resource.category]} relative overflow-hidden`}>
           {categoryImages[resource.category] && (
-            <img 
+            <img loading="lazy" 
               src={categoryImages[resource.category]} 
               alt={resource.category}
               className="w-full h-full object-cover opacity-30"

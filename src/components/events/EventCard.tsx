@@ -39,7 +39,7 @@ export default function EventCard({ event, practitioner, onViewDetails, onRegist
         {/* Event Image */}
         <div className="w-full h-48 bg-gradient-to-br from-primary/10 to-clay/30 relative overflow-hidden">
           {event.image_url ? (
-            <img 
+            <img loading="lazy" 
               src={event.image_url} 
               alt={event.title}
               className="w-full h-full object-cover"

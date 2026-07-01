@@ -44,7 +44,7 @@ export default function PractitionerCard({
       <Card className="overflow-hidden border-border shadow-sm hover:shadow-lg transition-all duration-300 bg-card h-full">
         <div className={`w-full bg-muted ${currentStyles.image} relative`}>
             {practitioner.profile_image_url ? (
-                <img src={practitioner.profile_image_url} alt={practitioner.full_name} className="w-full h-full object-cover" />
+                <img loading="lazy" src={practitioner.profile_image_url} alt={practitioner.full_name} className="w-full h-full object-cover" />
             ) : (
                  <div className="w-full h-full flex items-center justify-center bg-muted">
                     <UserCircle className="w-16 h-16 text-muted-foreground" />

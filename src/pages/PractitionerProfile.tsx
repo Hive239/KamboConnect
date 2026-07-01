@@ -316,7 +316,7 @@ export default function PractitionerProfile() {
   return (
     <div className="bg-muted min-h-screen">
       <div className="w-full h-48 md:h-64 bg-gradient-to-br from-primary/5 to-clay/20 relative">
-        <img
+        <img loading="lazy"
           src={practitioner.image_urls?.[0] || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=2070&auto=format&fit=crop'}
           alt="Cover"
           className="w-full h-full object-cover opacity-20"
@@ -551,7 +551,7 @@ export default function PractitionerProfile() {
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   {practitioner.image_urls.map((url, index) => (
                     <div key={index} className="aspect-w-1 aspect-h-1 rounded-lg overflow-hidden cursor-pointer group" onClick={() => setSelectedImage(url)}>
-                      <img src={url} alt={`Gallery image ${index + 1}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      <img loading="lazy" src={url} alt={`Gallery image ${index + 1}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                     </div>
                   ))}
                 </div>
@@ -573,7 +573,7 @@ export default function PractitionerProfile() {
       {selectedImage && (
         <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
           <DialogContent className="max-w-4xl p-0 bg-transparent border-0 shadow-none">
-            <img src={selectedImage} alt="Gallery view" className="w-full h-auto rounded-lg" />
+            <img loading="lazy" src={selectedImage} alt="Gallery view" className="w-full h-auto rounded-lg" />
           </DialogContent>
         </Dialog>
       )}

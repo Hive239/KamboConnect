@@ -90,7 +90,7 @@ export default function Market() {
           {detail && (
             <>
               <DialogHeader><DialogTitle>{detail.title}</DialogTitle></DialogHeader>
-              {detail.image_urls?.[0] && <img src={detail.image_urls[0]} alt={detail.title} className="h-56 w-full rounded-lg object-cover" />}
+              {detail.image_urls?.[0] && <img loading="lazy" src={detail.image_urls[0]} alt={detail.title} className="h-56 w-full rounded-lg object-cover" />}
               <p className="text-sm text-muted-foreground">{detail.description}</p>
               <div className="flex items-center justify-between">
                 <span className="font-display text-2xl font-semibold text-primary">{formatCurrency(detail.price, detail.currency)}</span>
@@ -112,7 +112,7 @@ export default function Market() {
             {cart.items.length === 0 && <p className="py-10 text-center text-muted-foreground">Your cart is empty.</p>}
             {cart.items.map((i) => (
               <div key={i.product_id} className="flex gap-3 rounded-lg border border-border p-3">
-                {i.image_url && <img src={i.image_url} alt={i.title} className="h-16 w-16 rounded-md object-cover" />}
+                {i.image_url && <img loading="lazy" src={i.image_url} alt={i.title} className="h-16 w-16 rounded-md object-cover" />}
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">{i.title}</p>
                   <p className="text-xs text-muted-foreground">{formatCurrency(i.price)}</p>

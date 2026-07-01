@@ -219,8 +219,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder={t("common.search")}
                 aria-label={t("common.search")}
-                className="h-10 rounded-full border-border bg-muted/60 pl-9 focus-visible:bg-background"
+                className="h-10 rounded-full border-border bg-muted/60 pl-9 pr-14 focus-visible:bg-background"
               />
+              <kbd className="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 items-center gap-0.5 rounded border border-border bg-background px-1.5 font-mono text-[10px] font-medium text-muted-foreground lg:flex">
+                ⌘K
+              </kbd>
             </div>
           </form>
 

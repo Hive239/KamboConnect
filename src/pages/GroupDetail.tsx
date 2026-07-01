@@ -86,7 +86,7 @@ export default function GroupDetail() {
       </Button>
 
       <Card className="mb-6 overflow-hidden">
-        {group.image_url && <div className="h-32 bg-muted"><img src={group.image_url} alt={group.name} className="h-full w-full object-cover" /></div>}
+        {group.image_url && <div className="h-32 bg-muted"><img loading="lazy" src={group.image_url} alt={group.name} className="h-full w-full object-cover" /></div>}
         <CardContent className="p-4">
           <div className="flex items-start justify-between gap-3">
             <div>

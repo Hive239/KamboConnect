@@ -76,7 +76,7 @@ export default function FeedView() {
                       <span className="text-xs text-muted-foreground">{new Date(it.created_date).toLocaleDateString()}</span>
                     </div>
                   </div>
-                  {it.image_url && <img src={it.image_url} alt="" className="h-16 w-16 rounded-lg object-cover" />}
+                  {it.image_url && <img loading="lazy" src={it.image_url} alt="" className="h-16 w-16 rounded-lg object-cover" />}
                 </CardContent>
               </Card>
             );

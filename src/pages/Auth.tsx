@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Leaf, AlertTriangle, Loader2, CheckCircle } from "@/lib/icons";
+import { Leaf, AlertTriangle, Loader2, CheckCircle, GoogleLogo, GithubLogo } from "@/lib/icons";
 import { useSeo } from "@/lib/useSeo";
 
 export default function Auth() {
@@ -21,6 +21,23 @@ export default function Auth() {
   const [notice, setNotice] = useState("");
 
   const done = () => { window.location.assign("/Directory"); };
+
+  const signInWithProvider = async (provider: "google" | "github") => {
+    setError(""); setNotice("");
+    if (!supabase) { setError("Supabase is not configured."); return; }
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo: `${window.location.origin}/Directory` },
+      });
+      if (error) throw error;
+      // On success the browser redirects to the provider; nothing else to do here.
+    } catch (err: any) {
+      setError(err?.message || `Could not sign in with ${provider}.`);
+      setBusy(false);
+    }
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,7 +93,20 @@ export default function Auth() {
             {notice && <Alert className="mt-4"><CheckCircle className="h-4 w-4" /><AlertDescription>{notice}</AlertDescription></Alert>}
             {error && <Alert variant="destructive" className="mt-4"><AlertTriangle className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>}
 
-            <form onSubmit={submit} className="mt-5 space-y-4">
+            <div className="mt-5 space-y-2">
+              <Button type="button" variant="outline" className="w-full gap-2" disabled={busy} onClick={() => signInWithProvider("google")}>
+                <GoogleLogo className="h-4 w-4" weight="bold" /> Continue with Google
+              </Button>
+              <Button type="button" variant="outline" className="w-full gap-2" disabled={busy} onClick={() => signInWithProvider("github")}>
+                <GithubLogo className="h-4 w-4" weight="fill" /> Continue with GitHub
+              </Button>
+            </div>
+
+            <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
+              <span className="h-px flex-1 bg-border" /> or use email <span className="h-px flex-1 bg-border" />
+            </div>
+
+            <form onSubmit={submit} className="space-y-4">
               <TabsContent value="signup" className="m-0 space-y-4">
                 <div>
                   <Label htmlFor="fullName">Full name</Label>

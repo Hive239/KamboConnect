@@ -185,7 +185,7 @@ export default function PractitionerModal({
             className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
             onClick={() => setSelectedGalleryImage(null)}
           >
-            <img
+            <img loading="lazy"
               src={selectedGalleryImage}
               alt="Ceremony space"
               className="max-w-full max-h-full object-contain"
@@ -196,6 +196,7 @@ export default function PractitionerModal({
               size="icon"
               className="absolute top-4 right-4 text-white hover:bg-card/20"
               onClick={() => setSelectedGalleryImage(null)}
+              aria-label="Close image"
             >
               <X />
             </Button>
