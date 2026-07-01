@@ -5,12 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Loader2 } from "@/lib/icons";
+import { Loader2, CheckCircle } from "@/lib/icons";
 import { createPageUrl } from '@/utils';
+import AddToCalendar from "@/components/AddToCalendar";
 
 export default function RegistrationModal({ event, onClose, onSubmitRegistration }) {
   const [user, setUser] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [registered, setRegistered] = useState(false);
   const [formData, setFormData] = useState({
     participant_name: "",
     participant_email: "",
@@ -63,7 +65,7 @@ export default function RegistrationModal({ event, onClose, onSubmitRegistration
         });
       }
 
-      onClose();
+      setRegistered(true);
     } catch (error) {
       console.error("Registration failed:", error);
       alert("Registration failed. Please try again.");
@@ -73,6 +75,37 @@ export default function RegistrationModal({ event, onClose, onSubmitRegistration
   };
 
   if (!event) return null;
+
+  if (registered) {
+    return (
+      <Dialog open={true} onOpenChange={onClose}>
+        <DialogContent className="sm:max-w-[425px] text-center">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-success/10">
+            <CheckCircle className="h-8 w-8 text-success" weight="fill" />
+          </div>
+          <DialogHeader>
+            <DialogTitle className="text-center">You're registered!</DialogTitle>
+            <DialogDescription className="text-center">
+              Your spot for "{event.title}" is confirmed. Add it to your calendar so you don't miss it.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col items-center gap-3 pt-2">
+            <AddToCalendar
+              size="default"
+              event={{
+                title: event.title,
+                details: event.description,
+                location: event.is_online ? "Online" : event.location,
+                start: event.start_date,
+                end: event.end_date,
+              }}
+            />
+            <Button variant="ghost" onClick={onClose}>Done</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={true} onOpenChange={onClose}>

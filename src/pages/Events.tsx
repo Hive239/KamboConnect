@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Event, EventRegistration, Practitioner } from "@/entities/all";
+import { Event, EventRegistration, Practitioner, User } from "@/entities/all";
 import { Button } from "@/components/ui/button";
+import AddToCalendar from "@/components/AddToCalendar";
 import { Calendar, List, ChevronLeft, ChevronRight, Loader2 } from "@/lib/icons";
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSameMonth } from "date-fns";
 
@@ -20,6 +21,7 @@ export default function Events() {
   const [userLocation, setUserLocation] = useState(null);
   const [sortBy, setSortBy] = useState("date");
   const [hasFetchedEvents, setHasFetchedEvents] = useState(false);
+  const [myRegistrations, setMyRegistrations] = useState([]);
 
   useEffect(() => {
     const loadEvents = async () => {
@@ -45,6 +47,18 @@ export default function Events() {
         try {
           const pracs = await Practitioner.list();
           setPractitionerMap(Object.fromEntries(pracs.map((p) => [p.id, p])));
+        } catch { /* non-fatal */ }
+
+        // Load the current user's own registrations (for "Your Registrations").
+        try {
+          const me = await User.me().catch(() => null);
+          if (me) {
+            const regs = await EventRegistration.filter({ participant_email: me.email });
+            const eventById = Object.fromEntries(eventsWithDetails.map((e) => [e.id, e]));
+            setMyRegistrations(
+              regs.map((r) => ({ ...r, event: eventById[r.event_id] })).filter((r) => r.event)
+            );
+          }
         } catch { /* non-fatal */ }
 
         // If the current month has no events, jump to the next upcoming event's month.
@@ -144,6 +158,33 @@ export default function Events() {
       </div>
 
       <div className="p-6">
+        {myRegistrations.length > 0 && (
+          <div className="mb-8 rounded-2xl border border-border bg-card p-5 shadow-sm">
+            <h2 className="mb-3 text-lg font-semibold text-foreground">Your Registrations</h2>
+            <div className="space-y-2">
+              {myRegistrations.map((r) => (
+                <div key={r.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-muted/60 px-4 py-3">
+                  <div>
+                    <p className="font-medium text-foreground">{r.event.title}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {r.event.start_date ? format(new Date(r.event.start_date), "EEE, MMM d, yyyy · h:mm a") : ""}
+                      {r.event.is_online ? " · Online" : r.event.location ? ` · ${r.event.location}` : ""}
+                    </p>
+                  </div>
+                  <AddToCalendar
+                    event={{
+                      title: r.event.title,
+                      details: r.event.description,
+                      location: r.event.is_online ? "Online" : r.event.location,
+                      start: r.event.start_date,
+                      end: r.event.end_date,
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
           {/* Sort Controls */}
           <div className="flex flex-wrap gap-3">

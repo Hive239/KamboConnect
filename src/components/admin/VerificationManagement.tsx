@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Practitioner } from "@/entities/Practitioner";
+import { makeEntity } from "@/data/store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -207,6 +208,8 @@ export default function VerificationManagement() {
           is_verified: true,
           verification_level: 'basic'
         });
+        // Grant the practitioner role on the owner's profile (unified id = applicationId).
+        try { await makeEntity('User').update(applicationId, { role: 'practitioner' }); } catch { /* legacy rows may not map 1:1 */ }
       } else if (action === 'reject') {
         const reason = prompt('Please provide a reason for rejection:');
         if (reason) {

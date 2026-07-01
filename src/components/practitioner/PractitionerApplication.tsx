@@ -159,8 +159,11 @@ export default function PractitionerApplicationForm({ onSuccess }) {
         const fullAddress = `${formData.address.street}, ${formData.address.city}, ${formData.address.state_province || ''}, ${formData.address.country}`.replace(/,\s*,/g, ',').trim();
         const location = await geocodeAddress(fullAddress);
 
+        // Unified identity: the practitioner listing id === the owner's user id.
+        const owner = await User.me().catch(() => null);
         const applicationData = {
           ...formData,
+          ...(owner ? { id: owner.id, user_id: owner.id } : {}),
           is_verified: false,
           verification_level: 'pending',
           latitude: location?.lat || null,

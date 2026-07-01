@@ -11,6 +11,7 @@ import { format } from 'date-fns';
 import { Calendar, Check, X, Hourglass, CalendarCheck2, AlertTriangle, MessageSquare, Loader2, RefreshCw, DollarSign, Star, CheckCircle } from '@/lib/icons';
 import { NotificationService } from '../notifications/NotificationService';
 import BookingReviewModal from './BookingReviewModal';
+import AddToCalendar from "@/components/AddToCalendar";
 
 const ConfirmationDialog = ({ open, onOpenChange, onConfirm, title, description, isDestructive, isProcessing, children }) => (
   <Dialog open={open} onOpenChange={onOpenChange}>
@@ -375,6 +376,14 @@ const BookingCard = ({ booking, onAction, onReview, hasBeenReviewed }) => {
                 )}
                 {booking.status === 'confirmed' && (
                     <>
+                        <AddToCalendar
+                          event={{
+                            title: `Kambo Session with ${booking.practitioner_name}`,
+                            details: booking.service_type ? `Service: ${booking.service_type}` : undefined,
+                            location: booking.location,
+                            start: booking.requested_date,
+                          }}
+                        />
                         <Button variant="destructive" size="sm" onClick={() => onAction(booking, 'cancel')}>
                             <X className="w-4 h-4 mr-2" />
                             Cancel Session

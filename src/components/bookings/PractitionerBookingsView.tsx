@@ -11,6 +11,7 @@ import { Check, X, Mail, Phone, MoreHorizontal, Briefcase, FileText, ShieldCheck
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Booking } from '@/entities/Booking';
 import { ScreeningResponse, ConsentRecord } from '@/entities/all';
+import { toast } from 'sonner';
 
 const IntakeDialog = ({ booking, onClose }) => {
   const [loading, setLoading] = useState(true);
@@ -104,7 +105,17 @@ const PractitionerBookingsView = ({ bookings, onUpdate }) => {
   const [intakeBooking, setIntakeBooking] = useState(null);
 
   const updateBookingStatus = async (bookingId, status) => {
+    // Safety gate: a booking cannot be confirmed until the client has signed the waiver.
+    if (status === 'confirmed') {
+      const consent = await ConsentRecord.filter({ booking_id: bookingId }).catch(() => []);
+      const signed = consent.some((c) => c.agreed);
+      if (!signed) {
+        toast.error("This client hasn't signed the waiver yet — it must be signed before you can confirm.");
+        return;
+      }
+    }
     await Booking.update(bookingId, { status });
+    if (status === 'confirmed') { try { await Booking.update(bookingId, { waiver_signed: true }); } catch { /* noop */ } }
     onUpdate();
   };
 

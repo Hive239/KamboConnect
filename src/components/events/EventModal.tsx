@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import AddToCalendar from "@/components/AddToCalendar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -172,17 +173,28 @@ export default function EventModal({ event, practitioner, onClose, onRegister })
               <span className="text-muted-foreground">{event.currency}</span>
             </div>
             
-            <Button
-              onClick={() => onRegister(event)}
-              disabled={isFull}
-              className={`px-8 ${
-                isFull 
-                  ? "bg-gray-400 cursor-not-allowed" 
-                  : "bg-primary hover:bg-primary/90"
-              }`}
-            >
-              {isFull ? "Event Full" : "Register Now"}
-            </Button>
+            <div className="flex items-center gap-2">
+              <AddToCalendar
+                event={{
+                  title: event.title,
+                  details: event.description,
+                  location: event.is_online ? "Online" : event.location,
+                  start: event.start_date,
+                  end: event.end_date,
+                }}
+              />
+              <Button
+                onClick={() => onRegister(event)}
+                disabled={isFull}
+                className={`px-8 ${
+                  isFull
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-primary hover:bg-primary/90"
+                }`}
+              >
+                {isFull ? "Event Full" : "Register Now"}
+              </Button>
+            </div>
           </div>
 
           <Separator />
