@@ -17,6 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon, Send, ArrowLeft, UserCircle, Loader2 } from "@/lib/icons";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import PageBreadcrumbs from "@/components/PageBreadcrumbs";
 
 export default function BookingRequestPage() {
   const navigate = useNavigate();
@@ -142,12 +143,14 @@ export default function BookingRequestPage() {
   return (
     <div className="bg-muted min-h-screen p-4 sm:p-6">
       <div className="max-w-3xl mx-auto">
-        <div className="mb-6">
-          <Button variant="ghost" onClick={() => navigate(-1)} className="flex items-center gap-2 text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="w-4 h-4" />
-            Back
-          </Button>
-        </div>
+        <PageBreadcrumbs
+          className="mb-6"
+          items={[
+            { label: "Directory", to: createPageUrl("Directory") },
+            { label: practitioner.full_name, to: createPageUrl(`PractitionerProfile?id=${practitioner.id}`) },
+            { label: "Request Booking" },
+          ]}
+        />
 
         <Card>
           <CardHeader className="text-center">

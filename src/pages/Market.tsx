@@ -155,7 +155,12 @@ export default function Market() {
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-success/10"><CheckCircle className="h-8 w-8 text-success" weight="fill" /></div>
           <DialogHeader><DialogTitle className="text-center">Order confirmed!</DialogTitle></DialogHeader>
           <p className="text-sm text-muted-foreground">Thank you. Your order total was {placed && formatCurrency(placed.total, placed.currency)}. A confirmation is in your notifications.</p>
-          <Button onClick={() => setPlaced(null)}>Continue shopping</Button>
+          <div className="flex gap-2">
+            <Button asChild className="flex-1">
+              <Link to={createPageUrl("Orders")} onClick={() => setPlaced(null)}>View your order</Link>
+            </Button>
+            <Button variant="outline" className="flex-1" onClick={() => setPlaced(null)}>Continue shopping</Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

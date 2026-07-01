@@ -5,6 +5,8 @@ import { Practitioner } from "@/entities/Practitioner";
 import { Review } from "@/entities/Review";
 import { User } from "@/entities/User";
 import { Conversation } from "@/entities/Conversation";
+import { Event } from "@/entities/Event";
+import { Product } from "@/entities/Product";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +20,9 @@ import { createPageUrl } from "@/utils";
 import { format } from 'date-fns';
 import { toast } from "sonner";
 import FollowButton from "@/components/social/FollowButton";
+import EventCard from "@/components/events/EventCard";
+import ProductCard from "@/components/market/ProductCard";
+import PageBreadcrumbs from "@/components/PageBreadcrumbs";
 import { useSeo } from "@/lib/useSeo";
 import { requestConsultation } from "@/lib/consultations";
 
@@ -55,6 +60,8 @@ export default function PractitionerProfile() {
 
   const [practitioner, setPractitioner] = useState(null);
   const [reviews, setReviews] = useState([]);
+  const [practitionerEvents, setPractitionerEvents] = useState([]);
+  const [practitionerProducts, setPractitionerProducts] = useState([]);
   const [averageRating, setAverageRating] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -143,6 +150,21 @@ export default function PractitionerProfile() {
         } else {
           setAverageRating(0); // Set to 0 if no reviews
         }
+
+        // Forward paths: this practitioner's upcoming events + shop listings.
+        try {
+          const now = new Date();
+          const [evts, prods] = await Promise.all([
+            Event.filter({ practitioner_id: practitionerId }),
+            Product.filter({ seller_id: practitionerId }),
+          ]);
+          setPractitionerEvents(
+            (evts || [])
+              .filter((e) => e.start_date && new Date(e.start_date) >= now)
+              .sort((a, b) => new Date(a.start_date) - new Date(b.start_date))
+          );
+          setPractitionerProducts((prods || []).filter((p) => p.status !== "archived"));
+        } catch { /* non-critical enrichment */ }
 
       } catch (error) {
         console.error("Failed to fetch practitioner data:", error);
@@ -322,6 +344,13 @@ export default function PractitionerProfile() {
       </div>
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+        <PageBreadcrumbs
+          className="pt-4"
+          items={[
+            { label: "Directory", to: createPageUrl("Directory") },
+            { label: practitioner.full_name },
+          ]}
+        />
         {/* Header Section */}
         <div className="relative -mt-16 sm:-mt-24">
           <div className="flex flex-col sm:flex-row items-center bg-card p-6 rounded-2xl shadow-lg border">
@@ -484,6 +513,44 @@ export default function PractitionerProfile() {
             </Card>
           </div>
         </div>
+
+        {/* Upcoming Sessions */}
+        {practitionerEvents.length > 0 && (
+          <div className="mt-8">
+            <h2 className="mb-4 text-2xl font-bold text-foreground">Upcoming Sessions</h2>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {practitionerEvents.slice(0, 6).map((event) => (
+                <EventCard
+                  key={event.id}
+                  event={event}
+                  practitioner={practitioner}
+                  onViewDetails={() => navigate(createPageUrl("Events"))}
+                  onRegister={() => navigate(createPageUrl("Events"))}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Shop */}
+        {practitionerProducts.length > 0 && (
+          <div className="mt-8">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-foreground">Shop</h2>
+              <Link to={createPageUrl("Market")} className="text-sm text-primary hover:underline">View all in Market</Link>
+            </div>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+              {practitionerProducts.slice(0, 4).map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onOpen={() => navigate(createPageUrl("Market"))}
+                  onAdd={() => navigate(createPageUrl("Market"))}
+                />
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Reviews Section */}
         <div className="mt-8">

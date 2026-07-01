@@ -21,6 +21,7 @@ import Matchmaking from './pages/Matchmaking';
 import TrustSafety from './pages/TrustSafety';
 import Billing from './pages/Billing';
 import Auth from './pages/Auth';
+import Landing from './pages/Landing';
 import MapPage from './pages/Map';
 import Orders from './pages/Orders';
 import GroupDetail from './pages/GroupDetail';
@@ -51,6 +52,7 @@ export const PAGES = {
     "TrustSafety": TrustSafety,
     "Billing": Billing,
     "Auth": Auth,
+    "Landing": Landing,
     "Map": MapPage,
     "Orders": Orders,
     "GroupDetail": GroupDetail,

@@ -1,8 +1,11 @@
+import { useEffect, useState } from 'react'
 import { Toaster } from "@/components/ui/sonner"
 import { QueryClientProvider } from '@tanstack/react-query'
+import { User } from '@/entities/User'
 import { queryClientInstance } from '@/lib/query-client'
 import NavigationTracker from '@/lib/NavigationTracker'
 import { pagesConfig } from './pages.config'
+import Landing from './pages/Landing'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
@@ -20,6 +23,26 @@ const MainPage = mainPageKey ? Pages[mainPageKey] : <></>;
 const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   <Layout currentPageName={currentPageName}>{children}</Layout>
   : <>{children}</>;
+
+// Routes that render standalone (no app sidebar): marketing + auth.
+const BARE_ROUTES = new Set(['Auth', 'Landing']);
+
+const Spinner = () => (
+  <div className="fixed inset-0 flex items-center justify-center">
+    <div className="w-8 h-8 border-4 border-border border-t-primary rounded-full animate-spin"></div>
+  </div>
+);
+
+/** Index route: logged-out visitors get the marketing Landing page; members get the app home. */
+const IndexRoute = () => {
+  const [state, setState] = useState<'loading' | 'app' | 'landing'>('loading');
+  useEffect(() => {
+    User.me().then((u) => setState(u ? 'app' : 'landing')).catch(() => setState('landing'));
+  }, []);
+  if (state === 'loading') return <Spinner />;
+  if (state === 'landing') return <Landing />;
+  return <LayoutWrapper currentPageName={mainPageKey}><MainPage /></LayoutWrapper>;
+};
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -47,19 +70,17 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <Routes>
-      <Route path="/" element={
-        <LayoutWrapper currentPageName={mainPageKey}>
-          <MainPage />
-        </LayoutWrapper>
-      } />
+      <Route path="/" element={<IndexRoute />} />
       {Object.entries(Pages).map(([path, Page]) => (
         <Route
           key={path}
           path={`/${path}`}
           element={
-            <LayoutWrapper currentPageName={path}>
-              <Page />
-            </LayoutWrapper>
+            BARE_ROUTES.has(path)
+              ? <Page />
+              : <LayoutWrapper currentPageName={path}>
+                  <Page />
+                </LayoutWrapper>
           }
         />
       ))}

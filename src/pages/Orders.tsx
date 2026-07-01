@@ -1,11 +1,16 @@
 import { useEffect, useState } from "react";
-import { Order } from "@/entities/all";
+import { useNavigate } from "react-router-dom";
+import { Order, Product } from "@/entities/all";
 import { useCurrentUser } from "@/lib/useCurrentUser";
+import { useCart } from "@/lib/cart";
+import { createPageUrl } from "@/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { formatCurrency, formatDate } from "@/lib/format";
-import { Package, Loader2 } from "@/lib/icons";
+import { Package, Loader2, ShoppingCart } from "@/lib/icons";
 import { useSeo } from "@/lib/useSeo";
+import { toast } from "sonner";
 
 const STATUS_VARIANT: Record<string, any> = {
   paid: "verified", fulfilled: "verified", pending: "warning", cancelled: "destructive", refunded: "secondary",
@@ -15,16 +20,38 @@ const STATUS_VARIANT: Record<string, any> = {
 export default function Orders() {
   useSeo({ title: "My Orders — KamboConnect" });
   const { data: me } = useCurrentUser();
+  const navigate = useNavigate();
+  const cart = useCart();
   const [orders, setOrders] = useState<any[]>([]);
+  const [productsById, setProductsById] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
       if (!me) { setLoading(false); return; }
       setOrders(await Order.filter({ user_id: me.id }, "-created_date"));
+      try {
+        const all = await Product.list();
+        setProductsById(Object.fromEntries(all.map((p: any) => [p.id, p])));
+      } catch { /* buy-again falls back to the historical item */ }
       setLoading(false);
     })();
   }, [me?.id]);
+
+  const buyAgain = (order: any) => {
+    let added = 0, missing = 0;
+    (order.items || []).forEach((it: any) => {
+      const p = productsById[it.product_id];
+      if (p && p.status !== "sold_out" && p.stock !== 0) { cart.add(p, it.quantity || 1); added++; }
+      else missing++;
+    });
+    if (added) {
+      toast.success(`Added ${added} item${added > 1 ? "s" : ""} to your cart`);
+      navigate(createPageUrl("Market"));
+    } else {
+      toast.error(missing ? "Those items are no longer available." : "Nothing to add.");
+    }
+  };
 
   if (loading) return <div className="flex h-[60vh] items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
 
@@ -55,9 +82,11 @@ export default function Orders() {
                     </div>
                   ))}
                 </div>
-                <div className="mt-3 flex justify-between border-t border-border pt-3 font-semibold">
-                  <span>Total</span>
-                  <span>{formatCurrency(o.total || 0, o.currency)}</span>
+                <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
+                  <span className="font-semibold">Total {formatCurrency(o.total || 0, o.currency)}</span>
+                  <Button size="sm" variant="outline" className="gap-1.5" onClick={() => buyAgain(o)}>
+                    <ShoppingCart className="h-4 w-4" weight="duotone" /> Buy again
+                  </Button>
                 </div>
               </CardContent>
             </Card>

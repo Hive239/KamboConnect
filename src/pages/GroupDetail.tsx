@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ArrowLeft, UsersThree, Lock, Loader2, Check, Plus } from "@/lib/icons";
 import { formatDate } from "@/lib/format";
 import { useSeo } from "@/lib/useSeo";
+import PageBreadcrumbs from "@/components/PageBreadcrumbs";
 
 /** Group detail — members + group-scoped discussions (Post.group_id). Completes #13. */
 export default function GroupDetail() {
@@ -81,9 +82,14 @@ export default function GroupDetail() {
 
   return (
     <div className="mx-auto max-w-3xl p-4 sm:p-6">
-      <Button variant="ghost" onClick={() => navigate(createPageUrl("Community"))} className="mb-4 gap-2 text-muted-foreground">
-        <ArrowLeft className="h-4 w-4" /> Community
-      </Button>
+      <PageBreadcrumbs
+        className="mb-4"
+        items={[
+          { label: "Community", to: createPageUrl("Community") },
+          { label: "Groups", to: createPageUrl("Community") },
+          { label: group.name },
+        ]}
+      />
 
       <Card className="mb-6 overflow-hidden">
         {group.image_url && <div className="h-32 bg-muted"><img loading="lazy" src={group.image_url} alt={group.name} className="h-full w-full object-cover" /></div>}

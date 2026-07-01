@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Loader2, MessageSquare } from "@/lib/icons";
+import PageBreadcrumbs from "@/components/PageBreadcrumbs";
 import { format } from "date-fns";
 import 'react-quill/dist/quill.snow.css';
 
@@ -122,14 +123,18 @@ export default function PostPage() {
   return (
     <div className="p-4 sm:p-6 bg-muted min-h-screen">
       <div className="max-w-4xl mx-auto">
-        <div className="mb-4">
-          <Button variant="ghost" asChild>
-            <Link to={createPageUrl("Community")}>
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Community
-            </Link>
-          </Button>
-        </div>
+        <PageBreadcrumbs
+          className="mb-4"
+          items={post.group_id ? [
+            { label: "Community", to: createPageUrl("Community") },
+            { label: "Groups", to: createPageUrl(`GroupDetail?id=${post.group_id}`) },
+            { label: post.title },
+          ] : [
+            { label: "Community", to: createPageUrl("Community") },
+            { label: "Forum", to: createPageUrl("Community") },
+            { label: post.title },
+          ]}
+        />
 
         <Card>
           <CardHeader>
