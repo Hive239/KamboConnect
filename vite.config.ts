@@ -14,30 +14,10 @@ export default defineConfig({
     },
   },
   build: {
-    rollupOptions: {
-      output: {
-        // Split heavy vendors into their own chunks. Route-specific libs
-        // (charts/maps/editor/pdf) load only where used; shared framework libs
-        // (react/radix/supabase) are one cacheable chunk instead of bloating
-        // every route's entry.
-        manualChunks(id) {
-          if (!id.includes('node_modules')) return undefined;
-          if (id.includes('recharts') || id.includes('d3-')) return 'vendor-charts';
-          if (id.includes('leaflet')) return 'vendor-maps';
-          if (id.includes('react-quill') || id.includes('quill')) return 'vendor-editor';
-          if (id.includes('pdf-lib')) return 'vendor-pdf';
-          if (id.includes('framer-motion')) return 'vendor-motion';
-          if (id.includes('@radix-ui')) return 'vendor-radix';
-          if (id.includes('@supabase')) return 'vendor-supabase';
-          if (id.includes('@tanstack')) return 'vendor-query';
-          if (id.includes('@phosphor-icons')) return 'vendor-icons';
-          if (id.includes('date-fns')) return 'vendor-date';
-          if (id.includes('i18next')) return 'vendor-i18n';
-          if (id.includes('/react-dom/') || id.includes('/react-router') || id.includes('/scheduler/') || id.includes('/react/')) return 'vendor-react';
-          return 'vendor';
-        },
-      },
-    },
+    // NOTE: no manual vendor chunking — a hand-rolled manualChunks split Radix
+    // into a chunk that initialized before React (blank screen: "useLayoutEffect
+    // of undefined"). Route-level lazy() in pages.config still code-splits per page;
+    // let Rollup order shared vendor deps correctly.
   },
   server: {
     port: 5173,
