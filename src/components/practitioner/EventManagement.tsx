@@ -46,6 +46,8 @@ export default function EventManagement({ events, practitioner, onUpdate }) {
     price: 100,
     max_participants: 8,
     is_online: false,
+    meeting_link: "",
+    image_url: "",
     requirements: [],
     what_to_bring: []
   });
@@ -61,6 +63,8 @@ export default function EventManagement({ events, practitioner, onUpdate }) {
       price: 100,
       max_participants: 8,
       is_online: false,
+      meeting_link: "",
+      image_url: "",
       requirements: [],
       what_to_bring: []
     });

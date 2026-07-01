@@ -7,10 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Loader2, MessageSquare } from "@/lib/icons";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
+import { ArrowLeft, Loader2, MessageSquare, Lock } from "@/lib/icons";
 import PageBreadcrumbs from "@/components/PageBreadcrumbs";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { Badge } from "@/components/ui/badge";
+import ReportButton from "@/components/profile/ReportButton";
 import { format } from "date-fns";
 import 'react-quill/dist/quill.snow.css';
 
@@ -25,6 +28,10 @@ export default function PostPage() {
   const [isSubmitting, setIsSubmitting] = useState(false); // Changed from isReplying to isSubmitting
   // Author names link to a public profile only when the author is a practitioner.
   const [practitionerIds, setPractitionerIds] = useState(() => new Set());
+  const [editingPost, setEditingPost] = useState(false);
+  const [editDraft, setEditDraft] = useState({ title: "", content: "" });
+  const [editingReplyId, setEditingReplyId] = useState(null);
+  const [editReplyText, setEditReplyText] = useState("");
 
   const postId = new URLSearchParams(location.search).get("id");
 
@@ -64,6 +71,51 @@ export default function PostPage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  const canEdit = (authorId) => user && (user.id === authorId || user.role === "admin");
+
+  const startEditPost = () => { setEditDraft({ title: post.title, content: post.content }); setEditingPost(true); };
+  const saveEditPost = async () => {
+    if (!editDraft.title.trim() || !editDraft.content.trim()) return;
+    try {
+      await Post.update(post.id, { title: editDraft.title.trim().slice(0, 200), content: editDraft.content });
+      setPost((p) => ({ ...p, title: editDraft.title.trim().slice(0, 200), content: editDraft.content }));
+      setEditingPost(false);
+      toast.success("Post updated");
+    } catch (e) { console.error(e); toast.error("Couldn't save changes."); }
+  };
+  const deletePost = async () => {
+    if (!window.confirm("Delete this post? This can't be undone.")) return;
+    try {
+      await Post.delete(post.id);
+      try { const rs = await Reply.filter({ post_id: post.id }); await Promise.all(rs.map((r) => Reply.delete(r.id))); } catch { /* best-effort cleanup */ }
+      toast.success("Post deleted");
+      navigate(createPageUrl("Community"));
+    } catch (e) { console.error(e); toast.error("Couldn't delete the post."); }
+  };
+
+  const saveEditReply = async (reply) => {
+    if (!editReplyText.trim()) return;
+    try {
+      await Reply.update(reply.id, { content: editReplyText.trim() });
+      setReplies((prev) => prev.map((r) => (r.id === reply.id ? { ...r, content: editReplyText.trim() } : r)));
+      setEditingReplyId(null);
+      toast.success("Reply updated");
+    } catch (e) { console.error(e); toast.error("Couldn't save."); }
+  };
+  const deleteReply = async (reply) => {
+    if (!window.confirm("Delete this reply?")) return;
+    try {
+      await Reply.delete(reply.id);
+      setReplies((prev) => prev.filter((r) => r.id !== reply.id));
+      try {
+        const next = Math.max(0, (post.reply_count || 1) - 1);
+        await Post.update(post.id, { reply_count: next });
+        setPost((p) => ({ ...p, reply_count: next }));
+      } catch { /* non-fatal */ }
+      toast.success("Reply deleted");
+    } catch (e) { console.error(e); toast.error("Couldn't delete."); }
+  };
 
   const handleReplySubmit = async (e) => {
     e.preventDefault(); // Keep preventDefault for form submission
@@ -171,10 +223,34 @@ export default function PostPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div
-              className="prose max-w-none"
-              dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content) }}
-            />
+            {editingPost ? (
+              <div className="space-y-3">
+                <Input value={editDraft.title} onChange={(e) => setEditDraft((d) => ({ ...d, title: e.target.value }))} maxLength={200} />
+                <Textarea rows={8} value={editDraft.content} onChange={(e) => setEditDraft((d) => ({ ...d, content: e.target.value }))} />
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" size="sm" onClick={() => setEditingPost(false)}>Cancel</Button>
+                  <Button size="sm" onClick={saveEditPost} disabled={!editDraft.title.trim() || !editDraft.content.trim()}>Save</Button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div
+                  className="prose max-w-none"
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content) }}
+                />
+                <div className="mt-4 flex items-center justify-end gap-2 border-t border-border pt-3">
+                  {canEdit(post.author_id) && (
+                    <>
+                      <Button variant="ghost" size="sm" onClick={startEditPost}>Edit</Button>
+                      <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={deletePost}>Delete</Button>
+                    </>
+                  )}
+                  {user && user.id !== post.author_id && (
+                    <ReportButton itemType="post" itemId={post.id} itemTitle={post.title} />
+                  )}
+                </div>
+              </>
+            )}
           </CardContent>
         </Card>
 
@@ -208,7 +284,32 @@ export default function PostPage() {
                         {format(new Date(reply.created_date), "MMM d, yyyy, p")}
                       </span>
                     </div>
-                    <p className="text-foreground mt-1">{reply.content}</p>
+                    {editingReplyId === reply.id ? (
+                      <div className="mt-1 space-y-2">
+                        <Textarea rows={3} value={editReplyText} onChange={(e) => setEditReplyText(e.target.value)} />
+                        <div className="flex justify-end gap-2">
+                          <Button variant="outline" size="sm" onClick={() => setEditingReplyId(null)}>Cancel</Button>
+                          <Button size="sm" onClick={() => saveEditReply(reply)} disabled={!editReplyText.trim()}>Save</Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <p className="text-foreground mt-1">{reply.content}</p>
+                        {(canEdit(reply.author_id) || (user && user.id !== reply.author_id)) && (
+                          <div className="mt-2 flex items-center gap-2">
+                            {canEdit(reply.author_id) && (
+                              <>
+                                <button className="text-xs text-muted-foreground hover:text-foreground" onClick={() => { setEditingReplyId(reply.id); setEditReplyText(reply.content); }}>Edit</button>
+                                <button className="text-xs text-muted-foreground hover:text-destructive" onClick={() => deleteReply(reply)}>Delete</button>
+                              </>
+                            )}
+                            {user && user.id !== reply.author_id && (
+                              <ReportButton itemType="reply" itemId={reply.id} itemTitle={`reply by ${reply.author_name}`} size="sm" variant="ghost" />
+                            )}
+                          </div>
+                        )}
+                      </>
+                    )}
                   </div>
                 </CardHeader>
               </Card>
@@ -216,7 +317,11 @@ export default function PostPage() {
           </div>
         </div>
 
-        {user && (
+        {post.is_locked ? (
+          <div className="mt-8 flex items-center justify-center gap-2 rounded-lg border border-border bg-muted/60 p-4 text-sm text-muted-foreground">
+            <Lock className="h-4 w-4" /> This thread is locked — new replies are disabled.
+          </div>
+        ) : user && (
           <Card className="mt-8">
             <CardHeader>
               <CardTitle>Leave a Reply</CardTitle>

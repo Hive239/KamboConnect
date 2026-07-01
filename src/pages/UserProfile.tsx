@@ -64,7 +64,7 @@ export default function UserProfile() {
 
   const messageUser = () => {
     // Route to Messages with a target so a conversation can be opened/created there.
-    navigate(`${createPageUrl("Messages")}?to=${userId}`);
+    navigate(`${createPageUrl("Messages")}?to=${userId}&name=${encodeURIComponent(user.full_name || "Member")}`);
   };
 
   if (loading) return <div className="flex h-[60vh] items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;

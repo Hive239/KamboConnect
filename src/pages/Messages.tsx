@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { User, Conversation, Message, Practitioner } from "@/entities/all";
 import { subscribe } from "@/data/store";
@@ -279,6 +279,19 @@ export default function Messages() {
         console.error("Failed to start new conversation:", error);
     }
   };
+
+  // Deep link: /Messages?to=<userId>&name=<name> opens (or creates) a conversation
+  // with that person — powers "Message" buttons on profiles, posts, and events.
+  const toHandledRef = useRef(false);
+  useEffect(() => {
+    if (toHandledRef.current || isLoading || !user) return;
+    const params = new URLSearchParams(location.search);
+    const to = params.get("to");
+    if (to && to !== user.id) {
+      toHandledRef.current = true;
+      startNewConversation(to, params.get("name") || "Member");
+    }
+  }, [isLoading, user, location.search]);
 
   if (isLoading) {
     return (

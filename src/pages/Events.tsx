@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Event, EventRegistration, Practitioner, User } from "@/entities/all";
 import { Button } from "@/components/ui/button";
 import AddToCalendar from "@/components/AddToCalendar";
+import { toast } from "sonner";
 import { Calendar, List, ChevronLeft, ChevronRight, Loader2 } from "@/lib/icons";
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSameMonth } from "date-fns";
 
@@ -94,6 +95,25 @@ export default function Events() {
 
     getUserLocation();
   }, [sortBy]);
+
+  const cancelRegistration = async (reg) => {
+    if (!window.confirm(`Cancel your registration for "${reg.event.title}"?`)) return;
+    try {
+      await EventRegistration.delete(reg.id);
+      // Free the spot (counter was only ever incremented).
+      const ev = reg.event;
+      if (ev && (ev.current_participants || 0) > 0) {
+        const next = Math.max(0, (ev.current_participants || 1) - 1);
+        try { await Event.update(ev.id, { current_participants: next }); } catch { /* non-fatal */ }
+        setEvents((prev) => prev.map((e) => (e.id === ev.id ? { ...e, current_participants: next } : e)));
+      }
+      setMyRegistrations((prev) => prev.filter((r) => r.id !== reg.id));
+      toast.success("Registration cancelled");
+    } catch (e) {
+      console.error("Failed to cancel registration:", e);
+      toast.error("Couldn't cancel. Please try again.");
+    }
+  };
 
   const handleRegistrationSubmit = async (registrationData) => {
     const ev = events.find((e) => e.id === registrationData.event_id);
@@ -192,15 +212,20 @@ export default function Events() {
                       {r.event.is_online ? " · Online" : r.event.location ? ` · ${r.event.location}` : ""}
                     </p>
                   </div>
-                  <AddToCalendar
-                    event={{
-                      title: r.event.title,
-                      details: r.event.description,
-                      location: r.event.is_online ? "Online" : r.event.location,
-                      start: r.event.start_date,
-                      end: r.event.end_date,
-                    }}
-                  />
+                  <div className="flex items-center gap-2">
+                    <AddToCalendar
+                      event={{
+                        title: r.event.title,
+                        details: r.event.description,
+                        location: r.event.is_online ? "Online" : r.event.location,
+                        start: r.event.start_date,
+                        end: r.event.end_date,
+                      }}
+                    />
+                    <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => cancelRegistration(r)}>
+                      Cancel
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>

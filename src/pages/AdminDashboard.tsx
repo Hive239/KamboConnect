@@ -149,8 +149,12 @@ export default function AdminDashboard() {
         </div>
 
         {/* Admin Tools */}
-        <Tabs defaultValue="users" className="w-full">
+        <Tabs defaultValue="analytics" className="w-full">
           <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 gap-1 h-auto bg-muted p-1 rounded-xl">
+            <TabsTrigger value="analytics">
+              <BarChart3 className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Analytics</span>
+            </TabsTrigger>
             <TabsTrigger value="users">
               <Users className="w-4 h-4 sm:mr-2" />
               <span className="hidden sm:inline">Users</span>
@@ -166,10 +170,6 @@ export default function AdminDashboard() {
             <TabsTrigger value="verification">
               <ShieldCheck className="w-4 h-4 sm:mr-2" />
               <span className="hidden sm:inline">Verification</span>
-            </TabsTrigger>
-            <TabsTrigger value="analytics">
-              <BarChart3 className="w-4 h-4 sm:mr-2" />
-              <span className="hidden sm:inline">Analytics</span>
             </TabsTrigger>
             <TabsTrigger value="settings">
               <Settings className="w-4 h-4 sm:mr-2" />

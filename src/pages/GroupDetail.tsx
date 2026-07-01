@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import { Group, GroupMembership, Post, User } from "@/entities/all";
 import { useCurrentUser } from "@/lib/useCurrentUser";
 import { createPageUrl } from "@/utils";
@@ -127,6 +127,29 @@ export default function GroupDetail() {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {members.length > 0 && (
+        <div className="mb-6">
+          <h2 className="mb-3 font-semibold">Members ({group.member_count || members.length})</h2>
+          <div className="flex flex-wrap gap-2">
+            {members.slice(0, 24).map((m: any) => {
+              const inner = (
+                <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-sm">
+                  <Avatar className="h-6 w-6"><AvatarFallback className="text-xs">{(m.user_name || "?")[0]}</AvatarFallback></Avatar>
+                  <span className="text-foreground">{m.user_name || "Member"}</span>
+                  {m.role && m.role !== "member" && <Badge variant="secondary" className="capitalize text-[10px]">{m.role}</Badge>}
+                </span>
+              );
+              return m.user_id ? (
+                <Link key={m.id} to={createPageUrl(`UserProfile?id=${m.user_id}`)} className="hover:opacity-80">{inner}</Link>
+              ) : (
+                <span key={m.id}>{inner}</span>
+              );
+            })}
+            {members.length > 24 && <span className="self-center text-sm text-muted-foreground">+{members.length - 24} more</span>}
+          </div>
+        </div>
       )}
 
       <h2 className="mb-3 font-semibold">Discussions ({posts.length})</h2>

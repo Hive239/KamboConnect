@@ -6,6 +6,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { UsersThree, Check, Plus, Lock } from "@/lib/icons";
 import { emitFeed } from "@/lib/feed";
 import { toast } from "sonner";
@@ -17,6 +22,36 @@ export default function GroupsView() {
   const [me, setMe] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
+  const [showCreate, setShowCreate] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [form, setForm] = useState({ name: "", description: "", category: "", is_private: false });
+
+  const createGroup = async () => {
+    if (!me) { await User.login(); return; }
+    if (!form.name.trim()) { toast.error("Give your group a name"); return; }
+    setCreating(true);
+    try {
+      const g = await Group.create({
+        name: form.name.trim(),
+        description: form.description.trim(),
+        category: form.category.trim() || undefined,
+        is_private: form.is_private,
+        created_by: me.id,
+        member_count: 1,
+      });
+      // Creator becomes the owner.
+      await GroupMembership.create({ group_id: g.id, user_id: me.id, user_name: me.full_name, role: "owner" });
+      toast.success("Group created");
+      setShowCreate(false);
+      setForm({ name: "", description: "", category: "", is_private: false });
+      navigate(createPageUrl(`GroupDetail?id=${g.id}`));
+    } catch (e) {
+      console.error("Failed to create group:", e);
+      toast.error("Couldn't create the group. Please try again.");
+    } finally {
+      setCreating(false);
+    }
+  };
 
   const load = async () => {
     const u = await User.me().catch(() => null);
@@ -55,20 +90,68 @@ export default function GroupsView() {
 
   if (loading) return <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-56 rounded-xl" />)}</div>;
 
+  const openGroup = (g: any) => navigate(createPageUrl(`GroupDetail?id=${g.id}`));
+
+  const header = (
+    <div className="mb-5 flex items-center justify-between">
+      <p className="text-sm text-muted-foreground">{groups.length} {groups.length === 1 ? "group" : "groups"}</p>
+      <Button size="sm" className="gap-1.5" onClick={() => setShowCreate(true)}>
+        <Plus className="h-4 w-4" weight="bold" /> Create Group
+      </Button>
+    </div>
+  );
+
+  const createDialog = (
+    <Dialog open={showCreate} onOpenChange={setShowCreate}>
+      <DialogContent>
+        <DialogHeader><DialogTitle>Create a group</DialogTitle></DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="g-name">Name</Label>
+            <Input id="g-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Integration Circle" className="mt-1" maxLength={80} />
+          </div>
+          <div>
+            <Label htmlFor="g-desc">Description</Label>
+            <Textarea id="g-desc" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} placeholder="What's this group about?" className="mt-1" maxLength={500} />
+          </div>
+          <div>
+            <Label htmlFor="g-cat">Category (optional)</Label>
+            <Input id="g-cat" value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))} placeholder="e.g. Support, Local, Practice" className="mt-1" maxLength={40} />
+          </div>
+          <div className="flex items-center justify-between rounded-lg border border-border p-3">
+            <div>
+              <p className="text-sm font-medium">Private group</p>
+              <p className="text-xs text-muted-foreground">Members must request to join</p>
+            </div>
+            <Switch checked={form.is_private} onCheckedChange={(v) => setForm((f) => ({ ...f, is_private: v }))} />
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setShowCreate(false)}>Cancel</Button>
+            <Button onClick={createGroup} disabled={creating || !form.name.trim()}>{creating ? "Creating…" : "Create group"}</Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+
   if (groups.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-16 text-center">
-        <UsersThree className="h-12 w-12 text-muted-foreground/40" weight="duotone" />
-        <h3 className="mt-4 text-lg font-semibold">No groups yet</h3>
-        <p className="mt-1 max-w-sm text-sm text-muted-foreground">Community groups will appear here once they're created. Check back soon.</p>
-      </div>
+      <>
+        {header}
+        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-16 text-center">
+          <UsersThree className="h-12 w-12 text-muted-foreground/40" weight="duotone" />
+          <h3 className="mt-4 text-lg font-semibold">No groups yet</h3>
+          <p className="mt-1 max-w-sm text-sm text-muted-foreground">Be the first to start one for the community.</p>
+        </div>
+        {createDialog}
+      </>
     );
   }
 
-  const openGroup = (g: any) => navigate(createPageUrl(`GroupDetail?id=${g.id}`));
-
   return (
-    <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+    <>
+      {header}
+      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
       {groups.map((g) => {
         const joined = !!memberships[g.id];
         return (
@@ -98,6 +181,8 @@ export default function GroupsView() {
           </Card>
         );
       })}
-    </div>
+      </div>
+      {createDialog}
+    </>
   );
 }

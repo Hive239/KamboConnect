@@ -3,12 +3,13 @@ import { computePlatformAnalytics, TIER_PRICES, type PlatformAnalytics as PA } f
 import { formatCurrency } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import GeoMap from "./GeoMap";
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip as RTooltip, Legend, PieChart, Pie, Cell, CartesianGrid, LineChart, Line,
 } from "recharts";
 import {
-  DollarSign, Users, ShieldCheck, Briefcase, TrendingUp, Star, Globe, Loader2, Storefront, Calendar,
+  DollarSign, Users, ShieldCheck, Briefcase, TrendingUp, Star, Globe, Loader2, Storefront, Calendar, Download,
 } from "@/lib/icons";
 
 const PIE = ["hsl(var(--primary))", "hsl(var(--clay))", "hsl(var(--info))", "hsl(var(--warning))"];
@@ -41,8 +42,36 @@ export default function PlatformAnalytics() {
     tier: t, count: a.practitioners.tiers[t] || 0, price: TIER_PRICES[t], mrr: a.practitioners.tierRevenue[t] || 0,
   }));
 
+  const exportCsv = () => {
+    const rows: [string, string | number][] = [
+      ["Platform revenue / mo", a.revenue.total], ["Session fees (5%)", a.revenue.sessionFees],
+      ["Subscription MRR", a.revenue.subscriptionMRR], ["Practitioner payouts", a.revenue.practitionerPayouts],
+      ["Annual run-rate", a.revenue.annualRunRate], ["GMV (booked)", a.bookings.gmv],
+      ["Total users", a.users.total], ["Clients", a.clients.total], ["Practitioners", a.practitioners.total],
+      ["Verified", a.practitioners.verified], ["Pending", a.practitioners.pending],
+      ["Tier basic", a.practitioners.tiers.basic], ["Tier preferred", a.practitioners.tiers.preferred], ["Tier featured", a.practitioners.tiers.featured],
+      ["Bookings", a.bookings.total], ["Paid bookings", a.bookings.paid], ["Cancellation %", a.bookingHealth.cancellationRate], ["No-show %", a.bookingHealth.noShowRate],
+      ["DAU", a.engagement.dau], ["WAU", a.engagement.wau], ["MAU", a.engagement.mau],
+      ["Churn %", a.churn.churnRate], ["NRR %", a.churn.nrr], ["Avg client LTV", a.clientValue.avgLtv],
+      ["Waiver completion %", a.safety.waiverCompletion], ["Screenings flagged %", a.safety.flaggedRate],
+      ["Outstanding payouts", a.payouts.liability], ["Refunds", a.payouts.refunds],
+    ];
+    const csv = "Metric,Value\n" + rows.map(([k, v]) => `"${k}",${v}`).join("\n")
+      + "\n\nTop practitioners,Earnings,Bookings,Rating\n" + a.leaderboard.map((p) => `"${p.name}",${p.earnings},${p.bookings},${p.rating}`).join("\n")
+      + "\n\nRegion,Revenue,Practitioners,Bookings\n" + a.geoRevenue.map((g) => `"${g.region}",${g.revenue},${g.practitioners},${g.bookings}`).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const el = document.createElement("a");
+    el.href = url; el.download = `kamboguide-analytics-${new Date().toISOString().slice(0, 10)}.csv`; el.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-8">
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">Platform metrics, updated live.</p>
+        <Button variant="outline" size="sm" onClick={exportCsv} className="gap-2"><Download className="h-4 w-4" /> Export CSV</Button>
+      </div>
       {/* Revenue KPIs */}
       <section>
         <h2 className="mb-3 flex items-center gap-2 font-semibold"><DollarSign className="h-5 w-5 text-primary" weight="duotone" /> Revenue</h2>

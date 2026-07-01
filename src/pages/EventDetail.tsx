@@ -6,7 +6,7 @@ import { useSeo } from "@/lib/useSeo";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, MapPin, Globe, Users, DollarSign, Loader2, ShareIcon, CheckCircle } from "@/lib/icons";
+import { Calendar, Clock, MapPin, Globe, Users, DollarSign, Loader2, ShareIcon, CheckCircle, MessageSquare } from "@/lib/icons";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import AddToCalendar from "@/components/AddToCalendar";
@@ -110,7 +110,14 @@ export default function EventDetail() {
             </p>
           )}
         </div>
-        <Button variant="outline" size="sm" onClick={share} className="gap-1.5"><ShareIcon className="h-4 w-4" /> Share</Button>
+        <div className="flex items-center gap-2">
+          {host && (
+            <Button variant="outline" size="sm" className="gap-1.5" onClick={() => navigate(`${createPageUrl("Messages")}?to=${host.id}&name=${encodeURIComponent(host.full_name || "Host")}`)}>
+              <MessageSquare className="h-4 w-4" /> Message host
+            </Button>
+          )}
+          <Button variant="outline" size="sm" onClick={share} className="gap-1.5"><ShareIcon className="h-4 w-4" /> Share</Button>
+        </div>
       </div>
 
       <Card className="mb-5">
