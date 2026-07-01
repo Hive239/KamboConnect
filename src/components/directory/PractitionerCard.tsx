@@ -50,9 +50,9 @@ export default function PractitionerCard({
                     <UserCircle className="w-16 h-16 text-muted-foreground" />
                  </div>
             )}
-            {/* Verification / tier badge */}
-            {practitioner.is_verified && (
-              <div className="absolute top-3 left-3">
+            {/* Verification / tier + reputation badges */}
+            <div className="absolute top-3 left-3 flex flex-col items-start gap-1.5">
+              {practitioner.is_verified && (
                 <Badge
                   variant={
                     practitioner.listing_tier === 'premium' ? 'premium'
@@ -65,8 +65,13 @@ export default function PractitionerCard({
                     : practitioner.listing_tier === 'featured' ? 'Featured'
                     : 'Verified'}
                 </Badge>
-              </div>
-            )}
+              )}
+              {Number(averageRating) >= 4.5 && reviewCount >= 3 && (
+                <Badge variant="tier" className="rounded-full shadow-sm gap-1">
+                  <Star className="h-3 w-3 fill-warning text-warning" /> Top Rated
+                </Badge>
+              )}
+            </div>
             {/* Distance badge */}
             {practitioner.distance !== null && practitioner.distance !== undefined && (
               <div className="absolute top-3 right-12">

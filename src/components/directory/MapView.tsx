@@ -207,7 +207,7 @@ const MapView = ({
         />
 
         {practitionersWithCoords.map(practitioner => (
-          <Marker 
+          <Marker
             key={practitioner.id}
             position={[practitioner.latitude, practitioner.longitude]}
           >
