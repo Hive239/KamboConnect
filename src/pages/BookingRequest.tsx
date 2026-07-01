@@ -1,7 +1,8 @@
 
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { User, Practitioner, Booking, Notification } from "@/entities/all";
+import { User, Practitioner, Booking, Notification, ScreeningResponse, ConsentRecord } from "@/entities/all";
+import SafetyGate, { type SafetyData } from "@/components/booking/SafetyGate";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +27,7 @@ export default function BookingRequestPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [step, setStep] = useState<"form" | "safety">("form");
 
   const [formData, setFormData] = useState({
     client_name: "",
@@ -71,10 +73,16 @@ export default function BookingRequestPage() {
     loadInitialData();
   }, [practitionerId, navigate]);
 
-  const handleSubmit = async (e) => {
+  // Step 1 → move to the safety gate (health screening + consent) before booking.
+  const handleContinue = (e) => {
     e.preventDefault();
     if (!formData.requested_date || !practitioner) return;
+    setStep("safety");
+  };
 
+  // Step 2 → create the booking and persist screening + consent (safety parity with direct booking).
+  const finalizeBooking = async (safety: SafetyData) => {
+    if (!practitioner) return;
     setIsSubmitting(true);
     try {
       const newBooking = await Booking.create({
@@ -84,6 +92,17 @@ export default function BookingRequestPage() {
         client_id: user?.id,
         price: 150, // Default price, can be adjusted
         payment_status: "unpaid"
+      });
+
+      const clientId = user?.id || newBooking.client_id;
+      await ScreeningResponse.create({
+        booking_id: newBooking.id, user_id: clientId, practitioner_id: practitioner.id,
+        answers: safety.answers, flagged: safety.flagged,
+      });
+      await ConsentRecord.create({
+        booking_id: newBooking.id, user_id: clientId, practitioner_id: practitioner.id,
+        document_version: safety.consent.document_version, agreed: safety.consent.agreed,
+        signature_name: safety.consent.signature_name, agreed_at: safety.consent.agreed_at,
       });
 
       // Notify practitioner
@@ -97,6 +116,14 @@ export default function BookingRequestPage() {
         action_url: createPageUrl('PractitionerDashboard'),
         sender_image_url: user?.profile_image_url
       });
+      if (safety.flagged) {
+        await Notification.create({
+          user_id: practitioner.id, title: "⚠ Screening flags to review",
+          message: `${formData.client_name}'s health screening flagged items — please review before confirming.`,
+          type: "booking", priority: "urgent", related_id: newBooking.id,
+          action_url: createPageUrl('PractitionerDashboard'),
+        });
+      }
 
       setSubmitted(true);
       navigate(createPageUrl("Bookings"));
@@ -135,13 +162,21 @@ export default function BookingRequestPage() {
             <p className="text-muted-foreground">with {practitioner.full_name}</p>
           </CardHeader>
           <CardContent>
+            {step === "safety" ? (
+              <SafetyGate
+                userName={formData.client_name}
+                onBack={() => setStep("form")}
+                onComplete={finalizeBooking}
+              />
+            ) : (
+            <>
             <Alert className="mb-6">
               <AlertDescription>
-                Submit this form to request a session. The practitioner will contact you via email to confirm details and arrange payment.
+                Submit this form to request a session. Next you'll complete a quick health screening and consent, for your safety. The practitioner will contact you to confirm details and arrange payment.
               </AlertDescription>
             </Alert>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleContinue} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="name">Full Name *</Label>
@@ -197,10 +232,12 @@ export default function BookingRequestPage() {
                 </Button>
                 <Button type="submit" disabled={isSubmitting || !formData.client_name || !formData.client_email || !formData.requested_date} className="bg-primary hover:bg-primary/90">
                   <Send className="w-4 h-4 mr-2" />
-                  {isSubmitting ? "Sending..." : "Send Request"}
+                  Continue to Safety Screening
                 </Button>
               </div>
             </form>
+            </>
+            )}
           </CardContent>
         </Card>
       </div>

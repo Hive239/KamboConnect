@@ -13,6 +13,7 @@ import { useSeo } from "@/lib/useSeo";
 import PractitionerCard from "../components/directory/PractitionerCard";
 import PractitionerModal from "../components/directory/PractitionerModal";
 import FilterModal from "../components/directory/FilterModal";
+import SavedSearches from "../components/directory/SavedSearches";
 import MapView from "../components/directory/MapView";
 import DailyQuote from "../components/directory/DailyQuote";
 
@@ -335,6 +336,11 @@ export default function Directory() {
               <SlidersHorizontal className="w-5 h-5 text-muted-foreground" />
             </Button>
           </div>
+          <SavedSearches
+            searchTerm={searchTerm}
+            filters={filters}
+            onApply={(s) => { setSearchTerm(s.search_term || ""); if (s.filters) setFilters((prev) => ({ ...prev, ...s.filters })); }}
+          />
         </motion.div>
       </div>
       

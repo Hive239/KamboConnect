@@ -12,10 +12,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
   Star, MapPin, CheckCircle, Mail, Globe, Phone, MessageSquare, ArrowLeft,
-  Users, Loader2, Calendar as CalendarIcon
+  Users, Loader2, Calendar as CalendarIcon, ShareIcon
 } from "@/lib/icons";
 import { createPageUrl } from "@/utils";
 import { format } from 'date-fns';
+import { toast } from "sonner";
+import FollowButton from "@/components/social/FollowButton";
+import { useSeo } from "@/lib/useSeo";
 
 // Helper function to get embed URL for YouTube or Vimeo
 const getYouTubeEmbedUrl = (url) => {
@@ -151,6 +154,38 @@ export default function PractitionerProfile() {
 
     fetchData();
   }, [practitionerId, navigate, enrichPractitionerData]);
+
+  // SEO + JSON-LD for the public profile (shareable social cards).
+  useSeo(practitioner ? {
+    title: `${practitioner.full_name} — Kambo Practitioner | KamboConnect`,
+    description: (practitioner.bio || `Book a Kambo session with ${practitioner.full_name}.`).slice(0, 155),
+    image: practitioner.profile_image_url,
+    type: "profile",
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      name: practitioner.full_name,
+      description: practitioner.bio,
+      image: practitioner.profile_image_url,
+      address: practitioner.address ? {
+        "@type": "PostalAddress",
+        addressLocality: practitioner.address.city,
+        addressRegion: practitioner.address.state_province,
+      } : undefined,
+      aggregateRating: reviews.length ? {
+        "@type": "AggregateRating", ratingValue: averageRating, reviewCount: reviews.length,
+      } : undefined,
+    },
+  } : {});
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    const title = practitioner ? `${practitioner.full_name} — KamboConnect` : "KamboConnect";
+    try {
+      if (navigator.share) await navigator.share({ title, url });
+      else { await navigator.clipboard.writeText(url); toast.success("Profile link copied"); }
+    } catch { /* user cancelled */ }
+  };
 
   const handleRequestBooking = () => {
     navigate(createPageUrl(`BookingRequest?practitionerId=${practitioner.id}`));
@@ -337,6 +372,19 @@ export default function PractitionerProfile() {
                 )}
                 Send Message
               </Button>
+              <div className="flex gap-2">
+                <FollowButton
+                  followeeId={practitioner.id}
+                  followeeType="practitioner"
+                  followeeName={practitioner.full_name}
+                  followeeImage={practitioner.profile_image_url}
+                  size="default"
+                  className="flex-1"
+                />
+                <Button variant="outline" onClick={handleShare} aria-label="Share profile">
+                  <ShareIcon className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
           </div>
         </div>

@@ -11,6 +11,7 @@ import DirectBookingModal from "../booking/DirectBookingModal";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import FollowButton from "@/components/social/FollowButton";
 
 // Helper to extract video ID from YouTube/Vimeo URL
 const getYouTubeEmbedUrl = (url) => {
@@ -109,6 +110,14 @@ export default function PractitionerModal({
                     <Send className="w-4 h-4 mr-2"/>
                     Request Booking
                 </Button>
+                <FollowButton
+                  followeeId={practitioner.id}
+                  followeeType="practitioner"
+                  followeeName={practitioner.full_name}
+                  followeeImage={practitioner.profile_image_url}
+                  size="default"
+                  className="w-full"
+                />
               </div>
               
               <div className="text-sm space-y-2 pt-4 border-t">
