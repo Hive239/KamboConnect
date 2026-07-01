@@ -29,3 +29,7 @@ export { Credential } from './Credential';
 export { ScreeningResponse } from './ScreeningResponse';
 export { ConsentRecord } from './ConsentRecord';
 export { ModerationCase } from './ModerationCase';
+export { Consultation } from './Consultation';
+export { ClientRecord } from './ClientRecord';
+export { ConsultationNote } from './ConsultationNote';
+export { ClientDocument } from './ClientDocument';

@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { User, Conversation, Message, Practitioner } from "@/entities/all";
 import { subscribe } from "@/data/store";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Loader2, User as UserIcon, MessageSquarePlus } from "@/lib/icons";
 import ConversationList from "../components/messages/ConversationList";
@@ -129,23 +130,20 @@ export default function Messages() {
       setDataLoadAttempted(true);
       
       try {
-        // Load user first
+        // Load user first — only an auth failure here should show the login prompt.
         const currentUser = await User.me();
         setUser(currentUser);
-        
-        // Add delay before next API call
-        
-        // Load conversations
-        await loadConversations(currentUser);
-        
-        // Add delay before final API call
-        
-        // Load practitioners
-        const allPractitioners = await Practitioner.list();
-        setPractitioners(allPractitioners.filter(p => p.id !== currentUser.id));
-        
+
+        // Data fetches below must not log the user out on a transient failure.
+        try {
+          await loadConversations(currentUser);
+          const allPractitioners = await Practitioner.list();
+          setPractitioners(allPractitioners.filter(p => p.id !== currentUser.id));
+        } catch (dataError) {
+          console.error("Failed to load messaging data:", dataError);
+        }
       } catch (error) {
-        console.error("Failed to load initial data:", error);
+        console.error("Not authenticated:", error);
         setUser(null);
       } finally {
         setIsLoading(false);
@@ -192,7 +190,7 @@ export default function Messages() {
         is_read: false,
       });
 
-      // 2. Optimistically add to UI
+      // 2. Add the persisted message to the UI
       setMessages(prev => [...prev, newMessage]);
 
       // 3. Update conversation's last message in the background (with delay to avoid rate limiting)
@@ -220,7 +218,7 @@ export default function Messages() {
 
     } catch (error) {
       console.error("Failed to send message:", error);
-      // Optional: handle UI reversal on failure
+      toast.error("Message failed to send. Please try again.");
     }
   };
   

@@ -39,6 +39,10 @@ export const TABLE: Record<EntityName, string> = {
   ScreeningResponse: 'screening_responses',
   ConsentRecord: 'consent_records',
   ModerationCase: 'moderation_cases',
+  Consultation: 'consultations',
+  ClientRecord: 'client_records',
+  ConsultationNote: 'consultation_notes',
+  ClientDocument: 'client_documents',
 };
 
 function applySort<T>(q: any, sort?: string) {

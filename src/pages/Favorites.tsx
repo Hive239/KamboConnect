@@ -14,6 +14,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
 
 const FavoritePractitionerCard = ({ favorite, onRemove }) => {
   return (
@@ -170,16 +171,23 @@ export default function Favorites() {
       try {
         const currentUser = await User.me();
         setUser(currentUser);
-        
+
         if (currentUser) {
-          const userFavorites = await Favorite.filter(
-            { user_id: currentUser.id },
-            '-created_date'
-          );
-          setFavorites(userFavorites);
+          // A data-fetch failure here must NOT log the user out (was showing the
+          // "Please Log In" screen on transient network errors).
+          try {
+            const userFavorites = await Favorite.filter(
+              { user_id: currentUser.id },
+              '-created_date'
+            );
+            setFavorites(userFavorites);
+          } catch (err) {
+            console.error('Failed to load favorites:', err);
+            toast.error('Could not load your favorites. Please try again.');
+          }
         }
       } catch (error) {
-        console.error('Failed to load favorites:', error);
+        console.error('Not logged in:', error);
         setUser(null);
       } finally {
         setIsLoading(false);
@@ -193,8 +201,10 @@ export default function Favorites() {
     try {
       await Favorite.delete(favoriteId);
       setFavorites(prev => prev.filter(f => f.id !== favoriteId));
+      toast.success('Removed from favorites');
     } catch (error) {
       console.error('Failed to remove favorite:', error);
+      toast.error('Could not remove favorite. Please try again.');
     }
   };
 

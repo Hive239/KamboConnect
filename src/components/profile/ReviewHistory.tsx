@@ -24,14 +24,14 @@ export default function ReviewHistory({ reviews }) {
             <div className="flex justify-between items-start mb-2">
               <div>
                 <p className="text-sm text-muted-foreground">Review for:</p>
-                <p className="font-semibold text-lg">Practitioner Name Placeholder</p>
+                <p className="font-semibold text-lg">{review.practitioner_name || 'Practitioner'}</p>
               </div>
               <p className="text-sm text-muted-foreground">{format(new Date(review.created_date), "MMM d, yyyy")}</p>
             </div>
             
             <div className="flex items-center gap-1 my-2">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} className={`w-5 h-5 ${i < review.rating ? 'text-warning fill-warning' : 'text-muted-foreground/40'}`} />
+                <Star key={i} className={`w-5 h-5 ${i < (review.overall_rating ?? review.rating ?? 0) ? 'text-warning fill-warning' : 'text-muted-foreground/40'}`} />
               ))}
             </div>
             <p className="text-foreground italic">"{review.review_text}"</p>

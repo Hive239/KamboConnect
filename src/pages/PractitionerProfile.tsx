@@ -137,7 +137,7 @@ export default function PractitionerProfile() {
         setReviews(practitionerReviews);
 
         if (practitionerReviews.length > 0) {
-          const totalRating = practitionerReviews.reduce((sum, review) => sum + review.rating, 0);
+          const totalRating = practitionerReviews.reduce((sum, review) => sum + (review.overall_rating ?? review.rating ?? 0), 0);
           setAverageRating((totalRating / practitionerReviews.length).toFixed(1));
         } else {
           setAverageRating(0); // Set to 0 if no reviews
@@ -510,10 +510,23 @@ export default function PractitionerProfile() {
                         </div>
                         <div className="flex items-center gap-1 my-1">
                           {[...Array(5)].map((_, i) => (
-                            <Star key={i} className={`w-4 h-4 ${i < review.rating ? 'text-warning fill-warning' : 'text-muted-foreground/40'}`} />
+                            <Star key={i} className={`w-4 h-4 ${i < (review.overall_rating ?? review.rating ?? 0) ? 'text-warning fill-warning' : 'text-muted-foreground/40'}`} />
                           ))}
                         </div>
                         <p className="text-sm text-foreground leading-relaxed">{review.review_text || review.comment}</p>
+                        {review.response_text && (
+                          <div className="mt-3 rounded-lg border-l-2 border-primary bg-muted/60 p-3">
+                            <p className="text-xs font-semibold text-primary">
+                              Response from {practitioner.full_name}
+                              {review.response_date && (
+                                <span className="ml-2 font-normal text-muted-foreground">
+                                  {format(new Date(review.response_date), "MMM d, yyyy")}
+                                </span>
+                              )}
+                            </p>
+                            <p className="mt-1 text-sm text-foreground leading-relaxed">{review.response_text}</p>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

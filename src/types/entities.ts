@@ -24,7 +24,7 @@ export interface Address {
 }
 
 export type VerificationLevel = 'pending' | 'basic' | 'advanced' | 'master' | 'rejected';
-export type ListingTier = 'verified' | 'featured' | 'premium';
+export type ListingTier = 'basic' | 'preferred' | 'featured';
 export type PricingRange = '$' | '$$' | '$$$' | '$$$$';
 export type DayOfWeek =
   | 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
@@ -33,7 +33,8 @@ export type DayOfWeek =
 export interface User extends BaseRecord {
   email: string;
   full_name?: string;
-  role?: 'admin' | 'user';
+  role?: 'admin' | 'practitioner' | 'client' | 'user';
+  auth_id?: string;
   profile_image_url?: string;
   preferences?: Record<string, unknown>;
   status?: 'active' | 'suspended' | 'banned';
@@ -42,6 +43,7 @@ export interface User extends BaseRecord {
 }
 
 export interface Practitioner extends BaseRecord {
+  user_id?: string; // owner auth id (== practitioners.id == profiles.id)
   full_name: string;
   email: string;
   phone?: string;
@@ -173,6 +175,8 @@ export interface Booking extends BaseRecord {
   status?: 'pending' | 'confirmed' | 'declined' | 'completed' | 'cancelled';
   price?: number;
   payment_status?: 'paid' | 'unpaid' | 'refunded' | 'partially_refunded';
+  consultation_id?: string;
+  waiver_signed?: boolean;
 }
 
 export interface Message extends BaseRecord {
@@ -421,6 +425,8 @@ export interface ConsentRecord extends BaseRecord {
   agreed: boolean;
   signature_name: string;
   agreed_at: string;
+  document_url?: string;
+  waiver_version?: string;
 }
 
 export interface ModerationCase extends BaseRecord {
@@ -437,6 +443,48 @@ export interface ModerationCase extends BaseRecord {
 }
 
 /** Maps every entity name to its record type — used by the generic store. */
+export interface Consultation extends BaseRecord {
+  client_id?: string;
+  client_name?: string;
+  client_email?: string;
+  practitioner_id: string;
+  practitioner_name?: string;
+  requested_time?: string;
+  status?: 'requested' | 'scheduled' | 'completed' | 'declined' | 'converted';
+  message?: string;
+  notes?: string;
+  booking_id?: string;
+}
+
+export interface ClientRecord extends BaseRecord {
+  practitioner_id: string;
+  client_id?: string;
+  client_name?: string;
+  client_email?: string;
+  client_phone?: string;
+  tags?: string[];
+  notes?: string;
+  first_seen?: string;
+  last_seen?: string;
+}
+
+export interface ConsultationNote extends BaseRecord {
+  practitioner_id: string;
+  client_id?: string;
+  booking_id?: string;
+  consultation_id?: string;
+  body: string;
+}
+
+export interface ClientDocument extends BaseRecord {
+  practitioner_id: string;
+  client_id?: string;
+  booking_id?: string;
+  kind?: 'waiver' | 'intake' | 'id' | 'other';
+  title?: string;
+  file_url?: string;
+}
+
 export interface EntityTypeMap {
   User: User;
   Practitioner: Practitioner;
@@ -468,6 +516,10 @@ export interface EntityTypeMap {
   ScreeningResponse: ScreeningResponse;
   ConsentRecord: ConsentRecord;
   ModerationCase: ModerationCase;
+  Consultation: Consultation;
+  ClientRecord: ClientRecord;
+  ConsultationNote: ConsultationNote;
+  ClientDocument: ClientDocument;
 }
 
 export type EntityName = keyof EntityTypeMap;

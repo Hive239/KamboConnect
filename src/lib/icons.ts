@@ -58,6 +58,7 @@ export {
   Info,
   Leaf,
   LinkSimple as Link,
+  ClipboardText,
   ShareNetwork as ShareIcon,
   ListBullets as List,
   CircleNotch as Loader2,

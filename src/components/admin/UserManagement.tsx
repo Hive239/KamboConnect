@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   Search, 
   MoreHorizontal, 
@@ -78,6 +79,7 @@ export default function UserManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedAction, setSelectedAction] = useState(null);
+  const [viewUser, setViewUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const loadUsers = async () => {
@@ -201,7 +203,7 @@ export default function UserManagement() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
-                        <DropdownMenuItem onClick={() => { /* View profile */ }}>
+                        <DropdownMenuItem onClick={() => setViewUser(user)}>
                           <Eye className="w-4 h-4 mr-2" />
                           View Profile
                         </DropdownMenuItem>
@@ -239,6 +241,38 @@ export default function UserManagement() {
         onClose={() => { setSelectedUser(null); setSelectedAction(null); }}
         onConfirm={handleUserAction}
       />
+
+      <Dialog open={!!viewUser} onOpenChange={() => setViewUser(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>User Profile</DialogTitle>
+          </DialogHeader>
+          {viewUser && (
+            <div className="space-y-3 text-sm">
+              <div className="flex items-center gap-4">
+                <Avatar className="w-14 h-14">
+                  <AvatarImage src={viewUser.profile_image_url} />
+                  <AvatarFallback>{viewUser.full_name?.charAt(0) || '?'}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-semibold text-base text-foreground">{viewUser.full_name || 'Unnamed user'}</p>
+                  <Badge className={getRoleColor(viewUser.role)}>{viewUser.role || 'user'}</Badge>
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-2 pt-2 border-t border-border">
+                <span className="text-muted-foreground">Email</span>
+                <span className="col-span-2 text-foreground break-all">{viewUser.email || '—'}</span>
+                <span className="text-muted-foreground">User ID</span>
+                <span className="col-span-2 text-foreground break-all">{viewUser.id}</span>
+                <span className="text-muted-foreground">Joined</span>
+                <span className="col-span-2 text-foreground">
+                  {viewUser.created_date ? format(new Date(viewUser.created_date), 'MMMM d, yyyy') : '—'}
+                </span>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

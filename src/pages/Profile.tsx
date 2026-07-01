@@ -31,14 +31,22 @@ export default function Profile() {
       const currentUser = await User.me();
       setUser(currentUser);
 
-      const [userBookings, userReviews, practitionerRecords] = await Promise.all([
+      const [userBookings, userReviews, practitionerRecords, allPractitioners] = await Promise.all([
         Booking.filter({ client_id: currentUser.id }),
         Review.filter({ reviewer_name: currentUser.full_name }), // Note: this is a stand-in until reviewer_id is available
-        Practitioner.filter({ email: currentUser.email })
+        Practitioner.filter({ email: currentUser.email }),
+        Practitioner.list()
       ]);
 
+      // Resolve each review's practitioner name from its practitioner_id.
+      const nameById = new Map(allPractitioners.map(p => [p.id, p.full_name]));
+      const enrichedReviews = userReviews.map(r => ({
+        ...r,
+        practitioner_name: r.practitioner_name || nameById.get(r.practitioner_id) || 'Practitioner',
+      }));
+
       setBookings(userBookings);
-      setReviews(userReviews);
+      setReviews(enrichedReviews);
       if (practitionerRecords.length > 0) {
         setPractitionerInfo(practitionerRecords[0]);
       }
