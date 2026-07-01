@@ -1,4 +1,6 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -24,7 +26,20 @@ export default function ProductCard({ product, onAdd, onOpen }: { product: Produ
         </button>
         <div className="p-4">
           <h3 className="truncate font-semibold">{product.title}</h3>
-          <p className="truncate text-xs text-muted-foreground">by {product.seller_name}</p>
+          <p className="truncate text-xs text-muted-foreground">
+            by{" "}
+            {product.seller_id ? (
+              <Link
+                to={`${createPageUrl("PractitionerProfile")}?id=${product.seller_id}`}
+                onClick={(e) => e.stopPropagation()}
+                className="text-primary hover:underline"
+              >
+                {product.seller_name}
+              </Link>
+            ) : (
+              product.seller_name
+            )}
+          </p>
           <div className="mt-2 flex items-center justify-between">
             <span className="font-display text-lg font-semibold text-primary">{formatCurrency(product.price, product.currency)}</span>
             {typeof product.rating === "number" && (

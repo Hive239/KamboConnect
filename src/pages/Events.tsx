@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Event, EventRegistration } from "@/entities/all";
+import { Event, EventRegistration, Practitioner } from "@/entities/all";
 import { Button } from "@/components/ui/button";
 import { Calendar, List, ChevronLeft, ChevronRight, Loader2 } from "@/lib/icons";
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSameMonth } from "date-fns";
@@ -13,6 +13,7 @@ export default function Events() {
   const [viewMode, setViewMode] = useState("list");
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [events, setEvents] = useState([]);
+  const [practitionerMap, setPractitionerMap] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [registeringEvent, setRegisteringEvent] = useState(null);
@@ -39,6 +40,12 @@ export default function Events() {
         }));
 
         setEvents(eventsWithDetails);
+
+        // Resolve hosts so events show "hosted by <practitioner>".
+        try {
+          const pracs = await Practitioner.list();
+          setPractitionerMap(Object.fromEntries(pracs.map((p) => [p.id, p])));
+        } catch { /* non-fatal */ }
 
         // If the current month has no events, jump to the next upcoming event's month.
         const now = new Date();
@@ -192,9 +199,10 @@ export default function Events() {
         ) : viewMode === 'list' ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {sortedEvents.map((event) => (
-              <EventCard 
-                key={event.id} 
-                event={event} 
+              <EventCard
+                key={event.id}
+                event={event}
+                practitioner={practitionerMap[event.practitioner_id]}
                 onViewDetails={() => setSelectedEvent(event)}
                 onRegister={() => setRegisteringEvent(event)}
               />
@@ -304,8 +312,9 @@ export default function Events() {
       </div>
       
       {selectedEvent && (
-        <EventModal 
-          event={selectedEvent} 
+        <EventModal
+          event={selectedEvent}
+          practitioner={practitionerMap[selectedEvent.practitioner_id]}
           onClose={() => setSelectedEvent(null)}
           onRegister={() => {
             setRegisteringEvent(selectedEvent);

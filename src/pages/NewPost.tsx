@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Send } from "@/lib/icons";
+import { emitFeed } from "@/lib/feed";
 
 export default function NewPost() {
   const [title, setTitle] = useState("");
@@ -46,6 +47,11 @@ export default function NewPost() {
         author_id: user.id,
         author_name: user.full_name,
         last_reply_date: new Date().toISOString()
+      });
+      await emitFeed({
+        actor_id: user.id, actor_name: user.full_name, actor_image_url: user.profile_image_url,
+        verb: "posted", object_type: "post", object_id: newPost.id,
+        summary: title, action_url: `/Post?id=${newPost.id}`,
       });
       navigate(createPageUrl(`Post?id=${newPost.id}`));
     } catch (error) {

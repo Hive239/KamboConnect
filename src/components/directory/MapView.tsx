@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Button } from '@/components/ui/button';
-import { 
-  Crosshair, Search, Loader2, MapPin
+import { Badge } from '@/components/ui/badge';
+import {
+  Crosshair, Search, Loader2, MapPin, UserCircle
 } from '@/lib/icons';
 import L from 'leaflet';
 
@@ -213,18 +214,34 @@ const MapView = ({
             position={[practitioner.latitude, practitioner.longitude]}
           >
             <Popup>
-              <div className="text-center p-2">
-                <h3 className="font-semibold text-foreground mb-1">{practitioner.full_name}</h3>
-                {practitioner.address && (
-                  <p className="text-sm text-muted-foreground mb-2">
-                    {[practitioner.address.city, practitioner.address.state_province].filter(Boolean).join(", ")}
-                  </p>
-                )}
-                <Button 
-                  size="sm" 
-                  onClick={() => handleViewProfileClick(practitioner)}
-                  className="bg-primary hover:bg-primary/90"
-                >
+              <div className="w-52 p-1">
+                <div className="flex items-center gap-2.5">
+                  {practitioner.profile_image_url ? (
+                    <img loading="lazy" src={practitioner.profile_image_url} alt={practitioner.full_name}
+                      className="h-11 w-11 rounded-full object-cover" />
+                  ) : (
+                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-muted"><UserCircle className="h-7 w-7 text-muted-foreground" /></div>
+                  )}
+                  <div className="min-w-0">
+                    <h3 className="truncate font-semibold text-foreground">{practitioner.full_name}</h3>
+                    {practitioner.address && (
+                      <p className="truncate text-xs text-muted-foreground">
+                        {[practitioner.address.city, practitioner.address.state_province].filter(Boolean).join(", ")}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {practitioner.is_verified && (
+                    <Badge variant={practitioner.listing_tier === 'featured' ? 'featured' : practitioner.listing_tier === 'preferred' ? 'preferred' : 'basic'} className="rounded-full capitalize">
+                      {practitioner.listing_tier === 'featured' ? 'Featured' : practitioner.listing_tier === 'preferred' ? 'Preferred' : 'Verified'}
+                    </Badge>
+                  )}
+                  {(practitioner.specializations || []).slice(0, 2).map((s: string) => (
+                    <Badge key={s} variant="secondary" className="rounded-full">{s}</Badge>
+                  ))}
+                </div>
+                <Button size="sm" onClick={() => handleViewProfileClick(practitioner)} className="mt-2 w-full bg-primary hover:bg-primary/90">
                   View Profile
                 </Button>
               </div>

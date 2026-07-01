@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 import { Product, Order, Payment, User, Notification } from "@/entities/all";
 import { createCheckout } from "@/integrations/Payments";
 import { useCart } from "@/lib/cart";
@@ -94,7 +96,16 @@ export default function Market() {
               <p className="text-sm text-muted-foreground">{detail.description}</p>
               <div className="flex items-center justify-between">
                 <span className="font-display text-2xl font-semibold text-primary">{formatCurrency(detail.price, detail.currency)}</span>
-                <span className="text-sm text-muted-foreground">by {detail.seller_name}</span>
+                <span className="text-sm text-muted-foreground">
+                  by{" "}
+                  {detail.seller_id ? (
+                    <Link to={`${createPageUrl("PractitionerProfile")}?id=${detail.seller_id}`} onClick={() => setDetail(null)} className="text-primary hover:underline">
+                      {detail.seller_name}
+                    </Link>
+                  ) : (
+                    detail.seller_name
+                  )}
+                </span>
               </div>
               <Button className="w-full gap-2" disabled={detail.status === "sold_out"} onClick={() => { cart.add(detail); setDetail(null); setCartOpen(true); }}>
                 <Plus className="h-4 w-4" weight="bold" /> Add to cart

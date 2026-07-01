@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Post, Reply, User, Notification } from "@/entities/all";
+import { Post, Reply, User, Notification, Practitioner } from "@/entities/all";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -20,6 +20,8 @@ export default function PostPage() {
   const [newReply, setNewReply] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false); // Changed from isReplying to isSubmitting
+  // Author names link to a public profile only when the author is a practitioner.
+  const [practitionerIds, setPractitionerIds] = useState(() => new Set());
 
   const postId = new URLSearchParams(location.search).get("id");
 
@@ -38,6 +40,10 @@ export default function PostPage() {
       setUser(currentUser);
       setPost(postData);
       setReplies(postReplies);
+      try {
+        const pracs = await Practitioner.list();
+        setPractitionerIds(new Set(pracs.map((p) => p.id)));
+      } catch { /* author links are a non-critical enhancement */ }
     } catch (error) {
       console.error("Failed to load post data:", error);
       navigate(createPageUrl("Community"));
@@ -135,7 +141,13 @@ export default function PostPage() {
                     <AvatarImage src={post.author_profile_image_url} alt={post.author_name} />
                 )}
               </Avatar>
-              <span>{post.author_name}</span>
+              {post.author_id && practitionerIds.has(post.author_id) ? (
+                <Link to={createPageUrl(`PractitionerProfile?id=${post.author_id}`)} className="text-primary hover:underline">
+                  {post.author_name}
+                </Link>
+              ) : (
+                <span>{post.author_name}</span>
+              )}
               <span>•</span>
               <span>{format(new Date(post.created_date), "MMM d, yyyy")}</span>
             </div>
@@ -162,7 +174,13 @@ export default function PostPage() {
                   </Avatar>
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold">{reply.author_name}</span>
+                      {reply.author_id && practitionerIds.has(reply.author_id) ? (
+                        <Link to={createPageUrl(`PractitionerProfile?id=${reply.author_id}`)} className="font-semibold text-primary hover:underline">
+                          {reply.author_name}
+                        </Link>
+                      ) : (
+                        <span className="font-semibold">{reply.author_name}</span>
+                      )}
                       <span className="text-xs text-muted-foreground">
                         {format(new Date(reply.created_date), "MMM d, yyyy, p")}
                       </span>

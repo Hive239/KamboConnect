@@ -1,6 +1,8 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -95,7 +97,18 @@ export default function EventCard({ event, practitioner, onViewDetails, onRegist
               {event.title}
             </h3>
             <p className="text-sm text-muted-foreground">
-              with {practitioner?.full_name || "Practitioner"}
+              with{" "}
+              {practitioner?.id ? (
+                <Link
+                  to={`${createPageUrl("PractitionerProfile")}?id=${practitioner.id}`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="font-medium text-primary hover:underline"
+                >
+                  {practitioner.full_name}
+                </Link>
+              ) : (
+                practitioner?.full_name || "Practitioner"
+              )}
             </p>
           </div>
 

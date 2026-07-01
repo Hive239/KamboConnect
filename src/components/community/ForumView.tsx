@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Post } from "@/entities/Post";
+import { Practitioner } from "@/entities/Practitioner";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
@@ -32,7 +33,19 @@ const PostListItem = ({ post }) => {
               </Link>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Badge variant="outline" className={`${categoryColors[post.category]} border`}>{post.category}</Badge>
-                <span>by {post.author_name}</span>
+                <span>
+                  by{" "}
+                  {post.author_id && practitionerIds.has(post.author_id) ? (
+                    <Link
+                      to={createPageUrl(`PractitionerProfile?id=${post.author_id}`)}
+                      className="text-primary hover:underline"
+                    >
+                      {post.author_name}
+                    </Link>
+                  ) : (
+                    post.author_name
+                  )}
+                </span>
                 <span>•</span>
                 <span>{formatDistanceToNow(new Date(post.last_reply_date || post.created_date), { addSuffix: true })}</span>
               </div>
@@ -72,6 +85,9 @@ export default function ForumView() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [hasFetched, setHasFetched] = useState(false);
+  // Author names link to a public profile only when the author is a practitioner
+  // (there is no generic user-profile page).
+  const [practitionerIds, setPractitionerIds] = useState(() => new Set());
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -83,9 +99,12 @@ export default function ForumView() {
       try {
         const allPosts = await Post.list("-last_reply_date");
         // Group-scoped posts live on their group page, not the main forum.
-        const forumPosts = allPosts.filter((p) => !p.group_id);
-        const postsWithReplies = forumPosts.map((p, i) => ({...p, reply_count: i % 5 + (p.is_pinned ? 5 : 0) }));
-        setPosts(postsWithReplies);
+        const forumPosts = allPosts.filter((p) => !p.group_id).map((p) => ({ ...p, reply_count: p.reply_count || 0 }));
+        setPosts(forumPosts);
+        try {
+          const pracs = await Practitioner.list();
+          setPractitionerIds(new Set(pracs.map((p) => p.id)));
+        } catch { /* author links are a non-critical enhancement */ }
       } catch (error) {
         console.error("Failed to load posts:", error);
         setPosts([]);

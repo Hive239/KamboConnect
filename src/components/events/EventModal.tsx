@@ -5,6 +5,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -73,7 +75,19 @@ export default function EventModal({ event, practitioner, onClose, onRegister })
               
               <div className="flex items-center gap-2 text-muted-foreground">
                 <User className="w-4 h-4" />
-                <span>Hosted by {practitioner?.full_name || "Practitioner"}</span>
+                <span>
+                  Hosted by{" "}
+                  {practitioner?.id ? (
+                    <Link
+                      to={`${createPageUrl("PractitionerProfile")}?id=${practitioner.id}`}
+                      className="font-medium text-primary hover:underline"
+                    >
+                      {practitioner.full_name}
+                    </Link>
+                  ) : (
+                    practitioner?.full_name || "Practitioner"
+                  )}
+                </span>
               </div>
             </div>
           </div>

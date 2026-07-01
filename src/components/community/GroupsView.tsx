@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UsersThree, Check, Plus, Lock } from "@/lib/icons";
+import { emitFeed } from "@/lib/feed";
 import { toast } from "sonner";
 
 export default function GroupsView() {
@@ -41,6 +42,7 @@ export default function GroupsView() {
       } else {
         const rec = await GroupMembership.create({ group_id: g.id, user_id: me.id, user_name: me.full_name, role: "member" });
         await Group.update(g.id, { member_count: (g.member_count || 0) + 1 });
+        emitFeed({ actor_id: me.id, actor_name: me.full_name, actor_image_url: me.profile_image_url, verb: "joined_group", object_type: "group", object_id: g.id, summary: g.name, action_url: `/GroupDetail?id=${g.id}` });
         setMemberships((m) => ({ ...m, [g.id]: rec.id }));
         setGroups((gs) => gs.map((x) => (x.id === g.id ? { ...x, member_count: (x.member_count || 0) + 1 } : x)));
         toast.success(`Joined ${g.name}`);
