@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Loader2 } from '@/lib/icons';
 import ProfilePictureUpload from '../components/profile/ProfilePictureUpload';
 import AccountSettings from '../components/profile/AccountSettings';
+import SecuritySettings from '../components/account/SecuritySettings';
 import DemoNotificationGenerator from '../components/profile/DemoNotificationGenerator';
 
 export default function MyAccount() {
@@ -58,7 +59,9 @@ export default function MyAccount() {
             </Card>
 
             <AccountSettings user={user} />
-            
+
+            <SecuritySettings />
+
             <Card>
               <CardHeader>
                 <CardTitle>Developer Tools</CardTitle>

@@ -1,10 +1,13 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { User } from "@/entities/all";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Leaf, AlertTriangle, Loader2, CheckCircle, GoogleLogo, GithubLogo } from "@/lib/icons";
@@ -16,11 +19,26 @@ export default function Auth() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [agreed, setAgreed] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
   const done = () => { window.location.assign("/Directory"); };
+
+  const forgotPassword = async () => {
+    setError(""); setNotice("");
+    if (!supabase) { setError("Supabase is not configured."); return; }
+    if (!email) { setError("Enter your email above first, then click reset."); return; }
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/ResetPassword` });
+      if (error) throw error;
+      setNotice("Password reset email sent — check your inbox.");
+    } catch (err: any) {
+      setError(err?.message || "Could not send reset email.");
+    } finally { setBusy(false); }
+  };
 
   const signInWithProvider = async (provider: "google" | "github") => {
     setError(""); setNotice("");
@@ -50,11 +68,12 @@ export default function Auth() {
         if (error) throw error;
         done();
       } else {
+        if (!agreed) { setError("Please agree to the Terms and Privacy Policy to continue."); setBusy(false); return; }
         const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { full_name: fullName } } });
         if (error) throw error;
         if (data.session) {
           // Email confirmation disabled → session active; create profile now.
-          try { await User.create({ id: data.user!.id, email, full_name: fullName || email.split("@")[0], role: "user" } as any); } catch { /* ensured on load too */ }
+          try { await User.create({ id: data.user!.id, email, full_name: fullName || email.split("@")[0], role: "client" } as any); } catch { /* ensured on load too */ }
           done();
         } else {
           setNotice("Account created. Check your email to confirm, then sign in.");
@@ -120,7 +139,16 @@ export default function Auth() {
               <div>
                 <Label htmlFor="password">Password</Label>
                 <Input id="password" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="mt-1" />
+                {mode === "signin" && (
+                  <button type="button" onClick={forgotPassword} className="mt-1.5 text-xs text-primary hover:underline">Forgot password?</button>
+                )}
               </div>
+              <TabsContent value="signup" className="m-0">
+                <label className="flex items-start gap-2 text-sm text-muted-foreground">
+                  <Checkbox checked={agreed} onCheckedChange={(v) => setAgreed(!!v)} className="mt-0.5" />
+                  <span>I agree to the <Link to={createPageUrl("Terms")} target="_blank" className="text-primary hover:underline">Terms</Link> and <Link to={createPageUrl("Privacy")} target="_blank" className="text-primary hover:underline">Privacy Policy</Link>.</span>
+                </label>
+              </TabsContent>
               <Button type="submit" className="w-full gap-2" disabled={busy}>
                 {busy && <Loader2 className="h-4 w-4 animate-spin" />}
                 {mode === "signin" ? "Sign in" : "Create account"}

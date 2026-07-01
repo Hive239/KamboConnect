@@ -32,6 +32,9 @@ export const PAGES = {
     "Map": lazy(() => import('./pages/Map')),
     "Orders": lazy(() => import('./pages/Orders')),
     "GroupDetail": lazy(() => import('./pages/GroupDetail')),
+    "Privacy": lazy(() => import('./pages/Privacy')),
+    "Terms": lazy(() => import('./pages/Terms')),
+    "ResetPassword": lazy(() => import('./pages/ResetPassword')),
 }
 
 export const pagesConfig = {

@@ -12,7 +12,25 @@ module.exports = {
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
-  			sm: 'calc(var(--radius) - 4px)'
+  			sm: 'calc(var(--radius) - 4px)',
+  			xl: 'calc(var(--radius) + 4px)',
+  			'2xl': 'calc(var(--radius) + 10px)',
+  			'3xl': 'calc(var(--radius) + 18px)'
+  		},
+  		boxShadow: {
+  			xs: 'var(--shadow-xs)',
+  			sm: 'var(--shadow-sm)',
+  			DEFAULT: 'var(--shadow-md)',
+  			md: 'var(--shadow-md)',
+  			lg: 'var(--shadow-lg)',
+  			xl: 'var(--shadow-xl)',
+  			glow: 'var(--shadow-glow)',
+  			none: 'none'
+  		},
+  		fontSize: {
+  			'display-lg': ['clamp(2.75rem, 6vw, 4.75rem)', { lineHeight: '1.02', letterSpacing: '-0.035em' }],
+  			display: ['clamp(2.25rem, 4.6vw, 3.5rem)', { lineHeight: '1.05', letterSpacing: '-0.028em' }],
+  			hero: ['clamp(1.75rem, 3vw, 2.5rem)', { lineHeight: '1.12', letterSpacing: '-0.02em' }]
   		},
   		colors: {
   			clay: {
@@ -98,11 +116,37 @@ module.exports = {
   				to: {
   					height: '0'
   				}
+  			},
+  			'fade-up': {
+  				from: { opacity: '0', transform: 'translateY(14px)' },
+  				to: { opacity: '1', transform: 'translateY(0)' }
+  			},
+  			aurora: {
+  				'0%, 100%': { transform: 'translate3d(0,0,0) scale(1)' },
+  				'33%': { transform: 'translate3d(3%,-4%,0) scale(1.08)' },
+  				'66%': { transform: 'translate3d(-3%,3%,0) scale(0.96)' }
+  			},
+  			'float-slow': {
+  				'0%, 100%': { transform: 'translateY(0)' },
+  				'50%': { transform: 'translateY(-10px)' }
+  			},
+  			marquee: {
+  				from: { transform: 'translateX(0)' },
+  				to: { transform: 'translateX(-50%)' }
+  			},
+  			shimmer: {
+  				from: { backgroundPosition: '100% 0' },
+  				to: { backgroundPosition: '0 0' }
   			}
   		},
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
-  			'accordion-up': 'accordion-up 0.2s ease-out'
+  			'accordion-up': 'accordion-up 0.2s ease-out',
+  			'fade-up': 'fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both',
+  			aurora: 'aurora 18s ease-in-out infinite',
+  			'float-slow': 'float-slow 6s ease-in-out infinite',
+  			marquee: 'marquee 40s linear infinite',
+  			shimmer: 'shimmer 1.4s ease-in-out infinite'
   		}
   	}
   },

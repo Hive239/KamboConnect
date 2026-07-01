@@ -25,7 +25,7 @@ const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   : <>{children}</>;
 
 // Routes that render standalone (no app sidebar): marketing + auth.
-const BARE_ROUTES = new Set(['Auth', 'Landing']);
+const BARE_ROUTES = new Set(['Auth', 'Landing', 'ResetPassword']);
 
 const Spinner = () => (
   <div className="fixed inset-0 flex items-center justify-center">
