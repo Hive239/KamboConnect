@@ -9,6 +9,9 @@
  */
 import type { BaseRecord, EntityName, EntityTypeMap } from '@/types/entities';
 import { buildSeed } from './seed';
+import { emit } from './events';
+import { isSupabaseConfigured } from '@/lib/supabase';
+import { makeSupabaseEntity } from './supabaseStore';
 
 const DB_KEY = 'kc_mockdb_v2';
 
@@ -50,51 +53,9 @@ export function resetDB() {
   emit('*', 'reset', null);
 }
 
-// ---------------------------------------------------------------------------
-// Write-time pub/sub — mirrors the listener pattern in session.ts so every
-// entity is observable. This is what gives the app a "real-time" feel (live
-// messaging, feeds, notifications) without a backend. On Supabase migration,
-// this is replaced by Realtime channels with the same subscribe() contract.
-// ---------------------------------------------------------------------------
-export type StoreOp = 'create' | 'update' | 'delete' | 'reset';
-export interface StoreChange {
-  entity: EntityName | '*';
-  op: StoreOp;
-  record: any | null;
-}
-type StoreListener = (change: StoreChange) => void;
-
-const listeners = new Set<StoreListener>();
-
-function emit(entity: EntityName | '*', op: StoreOp, record: any) {
-  const change: StoreChange = { entity, op, record };
-  listeners.forEach((l) => {
-    try {
-      l(change);
-    } catch {
-      /* a bad listener shouldn't break a write */
-    }
-  });
-}
-
-/**
- * Subscribe to data changes. Pass an entity name to only hear about that
- * entity, or omit/"*" for all. Returns an unsubscribe function.
- */
-export function subscribe(
-  entityOrCb: EntityName | '*' | StoreListener,
-  maybeCb?: StoreListener,
-): () => void {
-  const filterEntity = typeof entityOrCb === 'function' ? '*' : entityOrCb;
-  const cb = (typeof entityOrCb === 'function' ? entityOrCb : maybeCb) as StoreListener;
-  const wrapped: StoreListener = (change) => {
-    if (filterEntity === '*' || change.entity === filterEntity || change.entity === '*') cb(change);
-  };
-  listeners.add(wrapped);
-  return () => {
-    listeners.delete(wrapped);
-  };
-}
+// Write-time pub/sub lives in ./events (shared by the mock + Supabase stores).
+export { subscribe } from './events';
+export type { StoreChange, StoreOp } from './events';
 
 // Cross-tab sync: another tab wrote to the DB → drop our cache and notify.
 if (typeof window !== 'undefined') {
@@ -160,6 +121,8 @@ export interface EntityClient<T extends BaseRecord> {
 export function makeEntity<K extends EntityName>(
   name: K,
 ): EntityClient<EntityTypeMap[K]> {
+  // When Supabase is configured (.env present), use the real backend.
+  if (isSupabaseConfigured) return makeSupabaseEntity(name);
   type T = EntityTypeMap[K];
   return {
     async list(sort, limit) {
