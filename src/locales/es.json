@@ -1,0 +1,30 @@
+{
+  "nav": {
+    "directory": "Directorio",
+    "matchmaking": "Encuentra tu conexión",
+    "community": "Comunidad",
+    "events": "Eventos",
+    "bookings": "Mis reservas",
+    "messages": "Mensajes",
+    "favorites": "Mis favoritos",
+    "market": "Mercado",
+    "learn": "Aprender",
+    "profile": "Perfil",
+    "account": "Mi cuenta",
+    "practitionerDashboard": "Panel del practicante",
+    "billing": "Facturación y crecimiento",
+    "adminDashboard": "Panel de administración",
+    "trustSafety": "Confianza y seguridad",
+    "verification": "Verificación (admin)",
+    "disclaimer": "Aviso legal"
+  },
+  "common": {
+    "search": "Buscar practicantes, eventos, temas…",
+    "signIn": "Iniciar sesión",
+    "signOut": "Cerrar sesión",
+    "skipToContent": "Saltar al contenido",
+    "language": "Idioma",
+    "guest": "Navegando como invitado",
+    "signedInAs": "Sesión iniciada como {{name}}"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "name": "CommunityResource",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "url": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "Community Guidelines",
+        "Safety Protocols",
+        "Integration Practices",
+        "Further Reading"
+      ]
+    },
+    "resource_type": {
+      "type": "string",
+      "enum": [
+        "Article",
+        "Video",
+        "Book",
+        "Website"
+      ],
+      "default": "Article"
+    }
+  },
+  "required": [
+    "title",
+    "url",
+    "category"
+  ]
+}

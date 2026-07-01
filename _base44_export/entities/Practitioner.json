@@ -1,0 +1,174 @@
+{
+  "name": "Practitioner",
+  "type": "object",
+  "properties": {
+    "full_name": {
+      "type": "string",
+      "description": "Full name of the practitioner"
+    },
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "address": {
+      "type": "object",
+      "properties": {
+        "street": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "state_province": {
+          "type": "string"
+        },
+        "postal_code": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        }
+      },
+      "description": "Structured address for the practitioner"
+    },
+    "latitude": {
+      "type": "number",
+      "description": "Latitude for map location"
+    },
+    "longitude": {
+      "type": "number",
+      "description": "Longitude for map location"
+    },
+    "bio": {
+      "type": "string",
+      "description": "Professional biography"
+    },
+    "years_experience": {
+      "type": "number",
+      "description": "Years practicing Kambo"
+    },
+    "certifications": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of certifications and training"
+    },
+    "specializations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Areas of specialization"
+    },
+    "is_verified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the practitioner has been verified"
+    },
+    "verification_level": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "basic",
+        "advanced",
+        "master",
+        "rejected"
+      ],
+      "default": "pending"
+    },
+    "rejection_reason": {
+      "type": "string",
+      "description": "Reason for application rejection, if applicable"
+    },
+    "listing_tier": {
+      "type": "string",
+      "enum": [
+        "verified",
+        "featured",
+        "premium"
+      ],
+      "default": "verified",
+      "description": "The monetization listing tier for the practitioner"
+    },
+    "video_interview_url": {
+      "type": "string",
+      "description": "URL for an embedded video interview (e.g., YouTube, Vimeo)"
+    },
+    "website_url": {
+      "type": "string"
+    },
+    "social_media": {
+      "type": "object",
+      "properties": {
+        "instagram": {
+          "type": "string"
+        },
+        "facebook": {
+          "type": "string"
+        }
+      }
+    },
+    "profile_image_url": {
+      "type": "string",
+      "description": "URL for the practitioner's profile picture"
+    },
+    "image_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Array of additional images (ceremonies, space, etc.)"
+    },
+    "pricing_range": {
+      "type": "string",
+      "enum": [
+        "$",
+        "$$",
+        "$$$",
+        "$$$$"
+      ]
+    },
+    "languages": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "availability_notes": {
+      "type": "string"
+    },
+    "safety_protocols": {
+      "type": "string",
+      "description": "Description of safety measures and protocols"
+    },
+    "training_background": {
+      "type": "string",
+      "description": "Detailed training background"
+    },
+    "why_practitioner": {
+      "type": "string",
+      "description": "Why they practice Kambo"
+    },
+    "cpr_certification_url": {
+      "type": "string",
+      "description": "URL to uploaded CPR certification document"
+    },
+    "cpr_expiration_date": {
+      "type": "string",
+      "format": "date",
+      "description": "CPR certification expiration date"
+    },
+    "kambo_certification_url": {
+      "type": "string",
+      "description": "URL to uploaded Kambo certification document"
+    }
+  },
+  "required": [
+    "full_name",
+    "email"
+  ]
+}

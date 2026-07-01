@@ -1,0 +1,44 @@
+{
+  "name": "PractitionerAvailability",
+  "type": "object",
+  "properties": {
+    "practitioner_id": {
+      "type": "string",
+      "description": "ID of the practitioner"
+    },
+    "day_of_week": {
+      "type": "string",
+      "enum": [
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+        "sunday"
+      ]
+    },
+    "start_time": {
+      "type": "string",
+      "description": "Start time in HH:MM format"
+    },
+    "end_time": {
+      "type": "string",
+      "description": "End time in HH:MM format"
+    },
+    "is_available": {
+      "type": "boolean",
+      "default": true
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional availability notes"
+    }
+  },
+  "required": [
+    "practitioner_id",
+    "day_of_week",
+    "start_time",
+    "end_time"
+  ]
+}

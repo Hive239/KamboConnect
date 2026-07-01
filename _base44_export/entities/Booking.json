@@ -1,0 +1,80 @@
+{
+  "name": "Booking",
+  "type": "object",
+  "properties": {
+    "practitioner_id": {
+      "type": "string",
+      "description": "ID of the practitioner being booked"
+    },
+    "practitioner_name": {
+      "type": "string",
+      "description": "Name of the practitioner"
+    },
+    "client_id": {
+      "type": "string",
+      "description": "ID of the user making the booking, if logged in"
+    },
+    "client_name": {
+      "type": "string",
+      "description": "Name of the client making the request"
+    },
+    "client_email": {
+      "type": "string",
+      "format": "email",
+      "description": "Email of the client"
+    },
+    "client_phone": {
+      "type": "string",
+      "description": "Phone number of the client"
+    },
+    "service_type": {
+      "type": "string",
+      "enum": [
+        "Private Session",
+        "Group Circle",
+        "Consultation"
+      ],
+      "default": "Private Session"
+    },
+    "requested_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Client's preferred date for the session"
+    },
+    "message": {
+      "type": "string",
+      "description": "A message from the client to the practitioner"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "confirmed",
+        "declined",
+        "completed",
+        "cancelled"
+      ],
+      "default": "pending"
+    },
+    "price": {
+      "type": "number",
+      "description": "Price of the session"
+    },
+    "payment_status": {
+      "type": "string",
+      "enum": [
+        "paid",
+        "unpaid",
+        "refunded",
+        "partially_refunded"
+      ],
+      "default": "unpaid"
+    }
+  },
+  "required": [
+    "practitioner_id",
+    "client_name",
+    "client_email",
+    "requested_date"
+  ]
+}

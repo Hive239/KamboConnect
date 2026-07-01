@@ -1,0 +1,51 @@
+{
+  "name": "PractitionerBlockedDate",
+  "type": "object",
+  "properties": {
+    "practitioner_id": {
+      "type": "string",
+      "description": "ID of the practitioner"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "The blocked date in YYYY-MM-DD format"
+    },
+    "start_time": {
+      "type": "string",
+      "description": "Start time in HH:MM format (optional - if not provided, blocks entire day)"
+    },
+    "end_time": {
+      "type": "string",
+      "description": "End time in HH:MM format (optional - if not provided, blocks entire day)"
+    },
+    "block_type": {
+      "type": "string",
+      "enum": [
+        "full_day",
+        "partial_day",
+        "exception"
+      ],
+      "default": "full_day",
+      "description": "Type of block - full day, partial day, or exception to regular availability"
+    },
+    "reason": {
+      "type": "string",
+      "description": "Optional reason for blocking (vacation, personal, etc.)"
+    },
+    "recurring": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this block repeats (e.g., annually)"
+    },
+    "external_calendar_event_id": {
+      "type": "string",
+      "description": "ID from external calendar system (Google Calendar, etc.)"
+    }
+  },
+  "required": [
+    "practitioner_id",
+    "date",
+    "block_type"
+  ]
+}

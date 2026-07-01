@@ -1,0 +1,28 @@
+{
+  "name": "Reply",
+  "type": "object",
+  "properties": {
+    "post_id": {
+      "type": "string",
+      "description": "The ID of the post this reply belongs to"
+    },
+    "content": {
+      "type": "string",
+      "description": "The content of the reply, can be HTML"
+    },
+    "author_id": {
+      "type": "string",
+      "description": "The ID of the user who wrote the reply"
+    },
+    "author_name": {
+      "type": "string",
+      "description": "The name of the user who wrote the reply"
+    }
+  },
+  "required": [
+    "post_id",
+    "content",
+    "author_id",
+    "author_name"
+  ]
+}

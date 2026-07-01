@@ -1,0 +1,30 @@
+{
+  "nav": {
+    "directory": "Directory",
+    "matchmaking": "Find Your Match",
+    "community": "Community",
+    "events": "Events",
+    "bookings": "My Bookings",
+    "messages": "Messages",
+    "favorites": "My Favorites",
+    "market": "Market",
+    "learn": "Learn",
+    "profile": "Profile",
+    "account": "My Account",
+    "practitionerDashboard": "Practitioner Dashboard",
+    "billing": "Billing & Growth",
+    "adminDashboard": "Admin Dashboard",
+    "trustSafety": "Trust & Safety",
+    "verification": "Admin Verification",
+    "disclaimer": "Legal Disclaimer"
+  },
+  "common": {
+    "search": "Search practitioners, events, topics…",
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "skipToContent": "Skip to content",
+    "language": "Language",
+    "guest": "Browsing as guest",
+    "signedInAs": "Signed in as {{name}}"
+  }
+}

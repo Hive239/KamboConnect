@@ -1,0 +1,53 @@
+{
+  "name": "Conversation",
+  "type": "object",
+  "properties": {
+    "participant_1_id": {
+      "type": "string",
+      "description": "ID of first participant"
+    },
+    "participant_2_id": {
+      "type": "string",
+      "description": "ID of second participant"
+    },
+    "participant_1_name": {
+      "type": "string",
+      "description": "Name of first participant"
+    },
+    "participant_2_name": {
+      "type": "string",
+      "description": "Name of second participant"
+    },
+    "conversation_type": {
+      "type": "string",
+      "enum": [
+        "direct",
+        "support",
+        "community"
+      ],
+      "default": "direct"
+    },
+    "last_message": {
+      "type": "string",
+      "description": "Preview of last message"
+    },
+    "last_message_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "related_booking_id": {
+      "type": "string",
+      "description": "Associated booking if conversation started from booking"
+    }
+  },
+  "required": [
+    "participant_1_id",
+    "participant_2_id",
+    "participant_1_name",
+    "participant_2_name"
+  ]
+}

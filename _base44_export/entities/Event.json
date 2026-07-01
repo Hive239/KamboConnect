@@ -1,0 +1,125 @@
+{
+  "name": "Event",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Event title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed event description"
+    },
+    "practitioner_id": {
+      "type": "string",
+      "description": "ID of the practitioner hosting the event"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "circle",
+        "workshop",
+        "retreat",
+        "meetup",
+        "training"
+      ],
+      "description": "Type of event"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Event start date and time"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Event end date and time"
+    },
+    "address": {
+      "type": "object",
+      "properties": {
+        "street": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "state_province": {
+          "type": "string"
+        },
+        "postal_code": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        }
+      },
+      "description": "Structured address for the event"
+    },
+    "location_details": {
+      "type": "string",
+      "description": "Additional details about the location (e.g., 'Studio A', 'Main entrance')"
+    },
+    "price": {
+      "type": "number",
+      "description": "Event price"
+    },
+    "currency": {
+      "type": "string",
+      "default": "USD",
+      "description": "Price currency"
+    },
+    "max_participants": {
+      "type": "number",
+      "description": "Maximum number of participants"
+    },
+    "current_participants": {
+      "type": "number",
+      "default": 0,
+      "description": "Current number of registered participants"
+    },
+    "requirements": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Requirements or preparations needed"
+    },
+    "what_to_bring": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "What participants should bring"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "Event image URL"
+    },
+    "is_online": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the event is online"
+    },
+    "meeting_link": {
+      "type": "string",
+      "description": "Online meeting link if applicable"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "upcoming",
+        "ongoing",
+        "completed",
+        "cancelled"
+      ],
+      "default": "upcoming"
+    }
+  },
+  "required": [
+    "title",
+    "practitioner_id",
+    "start_date",
+    "price"
+  ]
+}

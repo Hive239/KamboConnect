@@ -1,0 +1,67 @@
+{
+  "name": "EventRegistration",
+  "type": "object",
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "description": "ID of the event"
+    },
+    "participant_name": {
+      "type": "string",
+      "description": "Name of the participant"
+    },
+    "participant_email": {
+      "type": "string",
+      "format": "email",
+      "description": "Email of the participant"
+    },
+    "participant_phone": {
+      "type": "string",
+      "description": "Phone number of the participant"
+    },
+    "emergency_contact": {
+      "type": "string",
+      "description": "Emergency contact information"
+    },
+    "medical_conditions": {
+      "type": "string",
+      "description": "Any medical conditions or medications"
+    },
+    "previous_kambo_experience": {
+      "type": "boolean",
+      "description": "Whether the participant has previous Kambo experience"
+    },
+    "special_requirements": {
+      "type": "string",
+      "description": "Any special requirements or dietary restrictions"
+    },
+    "registration_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "confirmed",
+        "cancelled",
+        "waitlist"
+      ],
+      "default": "pending"
+    },
+    "payment_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "paid",
+        "refunded"
+      ],
+      "default": "pending"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes from participant"
+    }
+  },
+  "required": [
+    "event_id",
+    "participant_name",
+    "participant_email"
+  ]
+}

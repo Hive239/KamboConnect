@@ -1,0 +1,51 @@
+{
+  "name": "Favorite",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "ID of the user who favorited the item"
+    },
+    "item_id": {
+      "type": "string",
+      "description": "ID of the favorited item (practitioner_id, event_id, post_id)"
+    },
+    "item_type": {
+      "type": "string",
+      "enum": [
+        "practitioner",
+        "event",
+        "post"
+      ],
+      "description": "Type of item being favorited"
+    },
+    "item_title": {
+      "type": "string",
+      "description": "Title/name of the favorited item for display"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional data about the favorited item",
+      "properties": {
+        "practitioner_name": {
+          "type": "string"
+        },
+        "event_date": {
+          "type": "string"
+        },
+        "post_author": {
+          "type": "string"
+        },
+        "image_url": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "required": [
+    "user_id",
+    "item_id",
+    "item_type",
+    "item_title"
+  ]
+}

@@ -1,0 +1,1214 @@
+{
+  "Practitioner": {
+    "name": "Practitioner",
+    "type": "object",
+    "properties": {
+      "full_name": {
+        "type": "string",
+        "description": "Full name of the practitioner"
+      },
+      "email": {
+        "type": "string",
+        "format": "email"
+      },
+      "phone": {
+        "type": "string"
+      },
+      "address": {
+        "type": "object",
+        "properties": {
+          "street": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "state_province": {
+            "type": "string"
+          },
+          "postal_code": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          }
+        },
+        "description": "Structured address for the practitioner"
+      },
+      "latitude": {
+        "type": "number",
+        "description": "Latitude for map location"
+      },
+      "longitude": {
+        "type": "number",
+        "description": "Longitude for map location"
+      },
+      "bio": {
+        "type": "string",
+        "description": "Professional biography"
+      },
+      "years_experience": {
+        "type": "number",
+        "description": "Years practicing Kambo"
+      },
+      "certifications": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "List of certifications and training"
+      },
+      "specializations": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Areas of specialization"
+      },
+      "is_verified": {
+        "type": "boolean",
+        "default": false,
+        "description": "Whether the practitioner has been verified"
+      },
+      "verification_level": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "basic",
+          "advanced",
+          "master",
+          "rejected"
+        ],
+        "default": "pending"
+      },
+      "rejection_reason": {
+        "type": "string",
+        "description": "Reason for application rejection, if applicable"
+      },
+      "listing_tier": {
+        "type": "string",
+        "enum": [
+          "verified",
+          "featured",
+          "premium"
+        ],
+        "default": "verified",
+        "description": "The monetization listing tier for the practitioner"
+      },
+      "video_interview_url": {
+        "type": "string",
+        "description": "URL for an embedded video interview (e.g., YouTube, Vimeo)"
+      },
+      "website_url": {
+        "type": "string"
+      },
+      "social_media": {
+        "type": "object",
+        "properties": {
+          "instagram": {
+            "type": "string"
+          },
+          "facebook": {
+            "type": "string"
+          }
+        }
+      },
+      "profile_image_url": {
+        "type": "string",
+        "description": "URL for the practitioner's profile picture"
+      },
+      "image_urls": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Array of additional images (ceremonies, space, etc.)"
+      },
+      "pricing_range": {
+        "type": "string",
+        "enum": [
+          "$",
+          "$$",
+          "$$$",
+          "$$$$"
+        ]
+      },
+      "languages": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "availability_notes": {
+        "type": "string"
+      },
+      "safety_protocols": {
+        "type": "string",
+        "description": "Description of safety measures and protocols"
+      },
+      "training_background": {
+        "type": "string",
+        "description": "Detailed training background"
+      },
+      "why_practitioner": {
+        "type": "string",
+        "description": "Why they practice Kambo"
+      },
+      "cpr_certification_url": {
+        "type": "string",
+        "description": "URL to uploaded CPR certification document"
+      },
+      "cpr_expiration_date": {
+        "type": "string",
+        "format": "date",
+        "description": "CPR certification expiration date"
+      },
+      "kambo_certification_url": {
+        "type": "string",
+        "description": "URL to uploaded Kambo certification document"
+      }
+    },
+    "required": [
+      "full_name",
+      "email"
+    ]
+  },
+  "Review": {
+    "name": "Review",
+    "type": "object",
+    "properties": {
+      "practitioner_id": {
+        "type": "string",
+        "description": "ID of the practitioner being reviewed"
+      },
+      "booking_id": {
+        "type": "string",
+        "description": "ID of the completed booking this review is for"
+      },
+      "reviewer_name": {
+        "type": "string",
+        "description": "Name of the person leaving the review"
+      },
+      "reviewer_id": {
+        "type": "string",
+        "description": "ID of the user leaving the review"
+      },
+      "session_date": {
+        "type": "string",
+        "format": "date",
+        "description": "Date of the Kambo session"
+      },
+      "overall_rating": {
+        "type": "number",
+        "minimum": 1,
+        "maximum": 5,
+        "description": "Overall rating from 1-5 stars"
+      },
+      "safety_rating": {
+        "type": "number",
+        "minimum": 1,
+        "maximum": 5,
+        "description": "Safety protocols rating"
+      },
+      "communication_rating": {
+        "type": "number",
+        "minimum": 1,
+        "maximum": 5,
+        "description": "Communication quality rating"
+      },
+      "environment_rating": {
+        "type": "number",
+        "minimum": 1,
+        "maximum": 5,
+        "description": "Session environment rating"
+      },
+      "professionalism_rating": {
+        "type": "number",
+        "minimum": 1,
+        "maximum": 5,
+        "description": "Professionalism rating"
+      },
+      "review_text": {
+        "type": "string",
+        "description": "Detailed review text"
+      },
+      "would_recommend": {
+        "type": "boolean",
+        "description": "Whether the reviewer would recommend this practitioner"
+      },
+      "verified_client": {
+        "type": "boolean",
+        "default": true,
+        "description": "Whether this is a verified client review (true if linked to a booking)"
+      },
+      "session_type": {
+        "type": "string",
+        "enum": [
+          "Private Session",
+          "Group Circle",
+          "Consultation"
+        ],
+        "description": "Type of session attended"
+      }
+    },
+    "required": [
+      "practitioner_id",
+      "booking_id",
+      "reviewer_name",
+      "session_date",
+      "overall_rating",
+      "review_text",
+      "would_recommend"
+    ]
+  },
+  "Event": {
+    "name": "Event",
+    "type": "object",
+    "properties": {
+      "title": {
+        "type": "string",
+        "description": "Event title"
+      },
+      "description": {
+        "type": "string",
+        "description": "Detailed event description"
+      },
+      "practitioner_id": {
+        "type": "string",
+        "description": "ID of the practitioner hosting the event"
+      },
+      "event_type": {
+        "type": "string",
+        "enum": [
+          "circle",
+          "workshop",
+          "retreat",
+          "meetup",
+          "training"
+        ],
+        "description": "Type of event"
+      },
+      "start_date": {
+        "type": "string",
+        "format": "date-time",
+        "description": "Event start date and time"
+      },
+      "end_date": {
+        "type": "string",
+        "format": "date-time",
+        "description": "Event end date and time"
+      },
+      "address": {
+        "type": "object",
+        "properties": {
+          "street": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "state_province": {
+            "type": "string"
+          },
+          "postal_code": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          }
+        },
+        "description": "Structured address for the event"
+      },
+      "location_details": {
+        "type": "string",
+        "description": "Additional details about the location (e.g., 'Studio A', 'Main entrance')"
+      },
+      "price": {
+        "type": "number",
+        "description": "Event price"
+      },
+      "currency": {
+        "type": "string",
+        "default": "USD",
+        "description": "Price currency"
+      },
+      "max_participants": {
+        "type": "number",
+        "description": "Maximum number of participants"
+      },
+      "current_participants": {
+        "type": "number",
+        "default": 0,
+        "description": "Current number of registered participants"
+      },
+      "requirements": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Requirements or preparations needed"
+      },
+      "what_to_bring": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "What participants should bring"
+      },
+      "image_url": {
+        "type": "string",
+        "description": "Event image URL"
+      },
+      "is_online": {
+        "type": "boolean",
+        "default": false,
+        "description": "Whether the event is online"
+      },
+      "meeting_link": {
+        "type": "string",
+        "description": "Online meeting link if applicable"
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "upcoming",
+          "ongoing",
+          "completed",
+          "cancelled"
+        ],
+        "default": "upcoming"
+      }
+    },
+    "required": [
+      "title",
+      "practitioner_id",
+      "start_date",
+      "price"
+    ]
+  },
+  "EventRegistration": {
+    "name": "EventRegistration",
+    "type": "object",
+    "properties": {
+      "event_id": {
+        "type": "string",
+        "description": "ID of the event"
+      },
+      "participant_name": {
+        "type": "string",
+        "description": "Name of the participant"
+      },
+      "participant_email": {
+        "type": "string",
+        "format": "email",
+        "description": "Email of the participant"
+      },
+      "participant_phone": {
+        "type": "string",
+        "description": "Phone number of the participant"
+      },
+      "emergency_contact": {
+        "type": "string",
+        "description": "Emergency contact information"
+      },
+      "medical_conditions": {
+        "type": "string",
+        "description": "Any medical conditions or medications"
+      },
+      "previous_kambo_experience": {
+        "type": "boolean",
+        "description": "Whether the participant has previous Kambo experience"
+      },
+      "special_requirements": {
+        "type": "string",
+        "description": "Any special requirements or dietary restrictions"
+      },
+      "registration_status": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "confirmed",
+          "cancelled",
+          "waitlist"
+        ],
+        "default": "pending"
+      },
+      "payment_status": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "paid",
+          "refunded"
+        ],
+        "default": "pending"
+      },
+      "notes": {
+        "type": "string",
+        "description": "Additional notes from participant"
+      }
+    },
+    "required": [
+      "event_id",
+      "participant_name",
+      "participant_email"
+    ]
+  },
+  "Post": {
+    "name": "Post",
+    "type": "object",
+    "properties": {
+      "title": {
+        "type": "string",
+        "description": "The title of the forum post"
+      },
+      "content": {
+        "type": "string",
+        "description": "The main content of the post, can be HTML"
+      },
+      "author_id": {
+        "type": "string",
+        "description": "The ID of the user who created the post"
+      },
+      "author_name": {
+        "type": "string",
+        "description": "The name of the user who created the post"
+      },
+      "category": {
+        "type": "string",
+        "enum": [
+          "General Discussion",
+          "Experience Sharing",
+          "Q&A",
+          "Integration"
+        ],
+        "default": "General Discussion"
+      },
+      "reply_count": {
+        "type": "number",
+        "default": 0
+      },
+      "is_pinned": {
+        "type": "boolean",
+        "default": false
+      },
+      "is_locked": {
+        "type": "boolean",
+        "default": false
+      },
+      "last_reply_date": {
+        "type": "string",
+        "format": "date-time"
+      }
+    },
+    "required": [
+      "title",
+      "content",
+      "author_id",
+      "author_name"
+    ]
+  },
+  "Reply": {
+    "name": "Reply",
+    "type": "object",
+    "properties": {
+      "post_id": {
+        "type": "string",
+        "description": "The ID of the post this reply belongs to"
+      },
+      "content": {
+        "type": "string",
+        "description": "The content of the reply, can be HTML"
+      },
+      "author_id": {
+        "type": "string",
+        "description": "The ID of the user who wrote the reply"
+      },
+      "author_name": {
+        "type": "string",
+        "description": "The name of the user who wrote the reply"
+      }
+    },
+    "required": [
+      "post_id",
+      "content",
+      "author_id",
+      "author_name"
+    ]
+  },
+  "CommunityResource": {
+    "name": "CommunityResource",
+    "type": "object",
+    "properties": {
+      "title": {
+        "type": "string"
+      },
+      "description": {
+        "type": "string"
+      },
+      "url": {
+        "type": "string"
+      },
+      "category": {
+        "type": "string",
+        "enum": [
+          "Community Guidelines",
+          "Safety Protocols",
+          "Integration Practices",
+          "Further Reading"
+        ]
+      },
+      "resource_type": {
+        "type": "string",
+        "enum": [
+          "Article",
+          "Video",
+          "Book",
+          "Website"
+        ],
+        "default": "Article"
+      }
+    },
+    "required": [
+      "title",
+      "url",
+      "category"
+    ]
+  },
+  "Booking": {
+    "name": "Booking",
+    "type": "object",
+    "properties": {
+      "practitioner_id": {
+        "type": "string",
+        "description": "ID of the practitioner being booked"
+      },
+      "practitioner_name": {
+        "type": "string",
+        "description": "Name of the practitioner"
+      },
+      "client_id": {
+        "type": "string",
+        "description": "ID of the user making the booking, if logged in"
+      },
+      "client_name": {
+        "type": "string",
+        "description": "Name of the client making the request"
+      },
+      "client_email": {
+        "type": "string",
+        "format": "email",
+        "description": "Email of the client"
+      },
+      "client_phone": {
+        "type": "string",
+        "description": "Phone number of the client"
+      },
+      "service_type": {
+        "type": "string",
+        "enum": [
+          "Private Session",
+          "Group Circle",
+          "Consultation"
+        ],
+        "default": "Private Session"
+      },
+      "requested_date": {
+        "type": "string",
+        "format": "date",
+        "description": "Client's preferred date for the session"
+      },
+      "message": {
+        "type": "string",
+        "description": "A message from the client to the practitioner"
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "confirmed",
+          "declined",
+          "completed",
+          "cancelled"
+        ],
+        "default": "pending"
+      },
+      "price": {
+        "type": "number",
+        "description": "Price of the session"
+      },
+      "payment_status": {
+        "type": "string",
+        "enum": [
+          "paid",
+          "unpaid",
+          "refunded",
+          "partially_refunded"
+        ],
+        "default": "unpaid"
+      }
+    },
+    "required": [
+      "practitioner_id",
+      "client_name",
+      "client_email",
+      "requested_date"
+    ]
+  },
+  "Message": {
+    "name": "Message",
+    "type": "object",
+    "properties": {
+      "conversation_id": {
+        "type": "string",
+        "description": "ID of the conversation this message belongs to"
+      },
+      "booking_id": {
+        "type": "string",
+        "description": "ID of the booking this message relates to (if applicable)"
+      },
+      "sender_id": {
+        "type": "string",
+        "description": "ID of the user sending the message"
+      },
+      "receiver_id": {
+        "type": "string",
+        "description": "ID of the user receiving the message"
+      },
+      "sender_name": {
+        "type": "string",
+        "description": "Name of the sender"
+      },
+      "content": {
+        "type": "string",
+        "description": "Message content"
+      },
+      "message_type": {
+        "type": "string",
+        "enum": [
+          "user",
+          "automated",
+          "system",
+          "file"
+        ],
+        "default": "user"
+      },
+      "file_url": {
+        "type": "string",
+        "description": "URL to attached file if message_type is file"
+      },
+      "is_read": {
+        "type": "boolean",
+        "default": false
+      },
+      "read_date": {
+        "type": "string",
+        "format": "date-time",
+        "description": "When the message was read"
+      }
+    },
+    "required": [
+      "conversation_id",
+      "sender_id",
+      "receiver_id",
+      "sender_name",
+      "content"
+    ]
+  },
+  "PractitionerAvailability": {
+    "name": "PractitionerAvailability",
+    "type": "object",
+    "properties": {
+      "practitioner_id": {
+        "type": "string",
+        "description": "ID of the practitioner"
+      },
+      "day_of_week": {
+        "type": "string",
+        "enum": [
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday",
+          "saturday",
+          "sunday"
+        ]
+      },
+      "start_time": {
+        "type": "string",
+        "description": "Start time in HH:MM format"
+      },
+      "end_time": {
+        "type": "string",
+        "description": "End time in HH:MM format"
+      },
+      "is_available": {
+        "type": "boolean",
+        "default": true
+      },
+      "notes": {
+        "type": "string",
+        "description": "Additional availability notes"
+      }
+    },
+    "required": [
+      "practitioner_id",
+      "day_of_week",
+      "start_time",
+      "end_time"
+    ]
+  },
+  "Payment": {
+    "name": "Payment",
+    "type": "object",
+    "properties": {
+      "event_id": {
+        "type": "string",
+        "description": "ID of the event being paid for (if applicable)"
+      },
+      "booking_id": {
+        "type": "string",
+        "description": "ID of the booking this payment relates to (if applicable)"
+      },
+      "user_id": {
+        "type": "string",
+        "description": "ID of the user making payment"
+      },
+      "practitioner_id": {
+        "type": "string",
+        "description": "ID of the practitioner receiving payment (if applicable)"
+      },
+      "amount": {
+        "type": "number",
+        "description": "Payment amount"
+      },
+      "currency": {
+        "type": "string",
+        "default": "USD"
+      },
+      "payment_type": {
+        "type": "string",
+        "enum": [
+          "booking",
+          "event_registration",
+          "cancellation_fee",
+          "product"
+        ],
+        "default": "booking"
+      },
+      "payment_status": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "completed",
+          "failed",
+          "refunded"
+        ],
+        "default": "pending"
+      },
+      "payment_method": {
+        "type": "string",
+        "description": "Payment method used"
+      },
+      "stripe_payment_id": {
+        "type": "string",
+        "description": "Stripe payment ID for tracking"
+      },
+      "payment_date": {
+        "type": "string",
+        "format": "date-time"
+      }
+    },
+    "required": [
+      "user_id",
+      "amount"
+    ]
+  },
+  "Conversation": {
+    "name": "Conversation",
+    "type": "object",
+    "properties": {
+      "participant_1_id": {
+        "type": "string",
+        "description": "ID of first participant"
+      },
+      "participant_2_id": {
+        "type": "string",
+        "description": "ID of second participant"
+      },
+      "participant_1_name": {
+        "type": "string",
+        "description": "Name of first participant"
+      },
+      "participant_2_name": {
+        "type": "string",
+        "description": "Name of second participant"
+      },
+      "conversation_type": {
+        "type": "string",
+        "enum": [
+          "direct",
+          "support",
+          "community"
+        ],
+        "default": "direct"
+      },
+      "last_message": {
+        "type": "string",
+        "description": "Preview of last message"
+      },
+      "last_message_date": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "is_active": {
+        "type": "boolean",
+        "default": true
+      },
+      "related_booking_id": {
+        "type": "string",
+        "description": "Associated booking if conversation started from booking"
+      }
+    },
+    "required": [
+      "participant_1_id",
+      "participant_2_id",
+      "participant_1_name",
+      "participant_2_name"
+    ]
+  },
+  "Notification": {
+    "name": "Notification",
+    "type": "object",
+    "properties": {
+      "user_id": {
+        "type": "string",
+        "description": "ID of the user receiving the notification"
+      },
+      "title": {
+        "type": "string",
+        "description": "Notification title/headline"
+      },
+      "message": {
+        "type": "string",
+        "description": "Notification message content"
+      },
+      "type": {
+        "type": "string",
+        "enum": [
+          "booking",
+          "message",
+          "event",
+          "community",
+          "review",
+          "system"
+        ],
+        "description": "Type of notification"
+      },
+      "priority": {
+        "type": "string",
+        "enum": [
+          "low",
+          "normal",
+          "high",
+          "urgent"
+        ],
+        "default": "normal",
+        "description": "Notification priority level"
+      },
+      "related_id": {
+        "type": "string",
+        "description": "ID of related entity (booking_id, message_id, event_id, etc.)"
+      },
+      "action_url": {
+        "type": "string",
+        "description": "URL to navigate to when notification is clicked"
+      },
+      "sender_image_url": {
+        "type": "string",
+        "description": "URL of the sender's profile image for display"
+      },
+      "is_read": {
+        "type": "boolean",
+        "default": false
+      },
+      "read_date": {
+        "type": "string",
+        "format": "date-time",
+        "description": "When the notification was read"
+      },
+      "expires_at": {
+        "type": "string",
+        "format": "date-time",
+        "description": "When the notification expires (optional)"
+      },
+      "metadata": {
+        "type": "object",
+        "description": "Additional data specific to notification type",
+        "properties": {
+          "sender_name": {
+            "type": "string"
+          },
+          "event_title": {
+            "type": "string"
+          },
+          "booking_status": {
+            "type": "string"
+          },
+          "practitioner_name": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "required": [
+      "user_id",
+      "title",
+      "message",
+      "type"
+    ]
+  },
+  "Favorite": {
+    "name": "Favorite",
+    "type": "object",
+    "properties": {
+      "user_id": {
+        "type": "string",
+        "description": "ID of the user who favorited the item"
+      },
+      "item_id": {
+        "type": "string",
+        "description": "ID of the favorited item (practitioner_id, event_id, post_id)"
+      },
+      "item_type": {
+        "type": "string",
+        "enum": [
+          "practitioner",
+          "event",
+          "post"
+        ],
+        "description": "Type of item being favorited"
+      },
+      "item_title": {
+        "type": "string",
+        "description": "Title/name of the favorited item for display"
+      },
+      "metadata": {
+        "type": "object",
+        "description": "Additional data about the favorited item",
+        "properties": {
+          "practitioner_name": {
+            "type": "string"
+          },
+          "event_date": {
+            "type": "string"
+          },
+          "post_author": {
+            "type": "string"
+          },
+          "image_url": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "required": [
+      "user_id",
+      "item_id",
+      "item_type",
+      "item_title"
+    ]
+  },
+  "PractitionerBlockedDate": {
+    "name": "PractitionerBlockedDate",
+    "type": "object",
+    "properties": {
+      "practitioner_id": {
+        "type": "string",
+        "description": "ID of the practitioner"
+      },
+      "date": {
+        "type": "string",
+        "format": "date",
+        "description": "The blocked date in YYYY-MM-DD format"
+      },
+      "start_time": {
+        "type": "string",
+        "description": "Start time in HH:MM format (optional - if not provided, blocks entire day)"
+      },
+      "end_time": {
+        "type": "string",
+        "description": "End time in HH:MM format (optional - if not provided, blocks entire day)"
+      },
+      "block_type": {
+        "type": "string",
+        "enum": [
+          "full_day",
+          "partial_day",
+          "exception"
+        ],
+        "default": "full_day",
+        "description": "Type of block - full day, partial day, or exception to regular availability"
+      },
+      "reason": {
+        "type": "string",
+        "description": "Optional reason for blocking (vacation, personal, etc.)"
+      },
+      "recurring": {
+        "type": "boolean",
+        "default": false,
+        "description": "Whether this block repeats (e.g., annually)"
+      },
+      "external_calendar_event_id": {
+        "type": "string",
+        "description": "ID from external calendar system (Google Calendar, etc.)"
+      }
+    },
+    "required": [
+      "practitioner_id",
+      "date",
+      "block_type"
+    ]
+  },
+  "PractitionerException": {
+    "name": "PractitionerException",
+    "type": "object",
+    "properties": {
+      "practitioner_id": {
+        "type": "string",
+        "description": "ID of the practitioner"
+      },
+      "date": {
+        "type": "string",
+        "format": "date",
+        "description": "The specific date for this exception"
+      },
+      "day_of_week": {
+        "type": "string",
+        "enum": [
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday",
+          "saturday",
+          "sunday"
+        ],
+        "description": "Day of week this exception applies to"
+      },
+      "exception_type": {
+        "type": "string",
+        "enum": [
+          "override",
+          "additional",
+          "remove"
+        ],
+        "description": "Override normal hours, add extra availability, or remove availability"
+      },
+      "start_time": {
+        "type": "string",
+        "description": "Exception start time in HH:MM format"
+      },
+      "end_time": {
+        "type": "string",
+        "description": "Exception end time in HH:MM format"
+      },
+      "notes": {
+        "type": "string",
+        "description": "Additional notes about this exception"
+      }
+    },
+    "required": [
+      "practitioner_id",
+      "date",
+      "exception_type"
+    ]
+  },
+  "Report": {
+    "name": "Report",
+    "type": "object",
+    "properties": {
+      "reported_item_type": {
+        "type": "string",
+        "enum": [
+          "user",
+          "practitioner",
+          "post",
+          "reply",
+          "booking",
+          "event"
+        ],
+        "description": "Type of content being reported"
+      },
+      "reported_item_id": {
+        "type": "string",
+        "description": "ID of the reported item"
+      },
+      "reporter_id": {
+        "type": "string",
+        "description": "ID of the user making the report"
+      },
+      "reporter_email": {
+        "type": "string",
+        "format": "email",
+        "description": "Email of the reporter"
+      },
+      "reason": {
+        "type": "string",
+        "enum": [
+          "spam",
+          "harassment",
+          "inappropriate_content",
+          "safety_concern",
+          "fraud",
+          "other"
+        ],
+        "description": "Reason for the report"
+      },
+      "description": {
+        "type": "string",
+        "description": "Detailed description of the issue"
+      },
+      "priority": {
+        "type": "string",
+        "enum": [
+          "low",
+          "medium",
+          "high",
+          "urgent"
+        ],
+        "default": "medium",
+        "description": "Priority level of the report"
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "investigating",
+          "resolved",
+          "dismissed"
+        ],
+        "default": "pending"
+      },
+      "admin_notes": {
+        "type": "string",
+        "description": "Internal admin notes"
+      },
+      "resolution_action": {
+        "type": "string",
+        "description": "Action taken to resolve the report"
+      },
+      "resolved_date": {
+        "type": "string",
+        "format": "date-time",
+        "description": "When the report was resolved"
+      }
+    },
+    "required": [
+      "reported_item_type",
+      "reported_item_id",
+      "reporter_id",
+      "reason"
+    ]
+  }
+}

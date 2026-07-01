@@ -1,0 +1,60 @@
+{
+  "name": "Message",
+  "type": "object",
+  "properties": {
+    "conversation_id": {
+      "type": "string",
+      "description": "ID of the conversation this message belongs to"
+    },
+    "booking_id": {
+      "type": "string",
+      "description": "ID of the booking this message relates to (if applicable)"
+    },
+    "sender_id": {
+      "type": "string",
+      "description": "ID of the user sending the message"
+    },
+    "receiver_id": {
+      "type": "string",
+      "description": "ID of the user receiving the message"
+    },
+    "sender_name": {
+      "type": "string",
+      "description": "Name of the sender"
+    },
+    "content": {
+      "type": "string",
+      "description": "Message content"
+    },
+    "message_type": {
+      "type": "string",
+      "enum": [
+        "user",
+        "automated",
+        "system",
+        "file"
+      ],
+      "default": "user"
+    },
+    "file_url": {
+      "type": "string",
+      "description": "URL to attached file if message_type is file"
+    },
+    "is_read": {
+      "type": "boolean",
+      "default": false
+    },
+    "read_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the message was read"
+    }
+  },
+  "required": [
+    "conversation_id",
+    "sender_id",
+    "receiver_id",
+    "sender_name",
+    "content"
+  ]
+}

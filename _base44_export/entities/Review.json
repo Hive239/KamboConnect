@@ -1,0 +1,88 @@
+{
+  "name": "Review",
+  "type": "object",
+  "properties": {
+    "practitioner_id": {
+      "type": "string",
+      "description": "ID of the practitioner being reviewed"
+    },
+    "booking_id": {
+      "type": "string",
+      "description": "ID of the completed booking this review is for"
+    },
+    "reviewer_name": {
+      "type": "string",
+      "description": "Name of the person leaving the review"
+    },
+    "reviewer_id": {
+      "type": "string",
+      "description": "ID of the user leaving the review"
+    },
+    "session_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of the Kambo session"
+    },
+    "overall_rating": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Overall rating from 1-5 stars"
+    },
+    "safety_rating": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Safety protocols rating"
+    },
+    "communication_rating": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Communication quality rating"
+    },
+    "environment_rating": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Session environment rating"
+    },
+    "professionalism_rating": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Professionalism rating"
+    },
+    "review_text": {
+      "type": "string",
+      "description": "Detailed review text"
+    },
+    "would_recommend": {
+      "type": "boolean",
+      "description": "Whether the reviewer would recommend this practitioner"
+    },
+    "verified_client": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this is a verified client review (true if linked to a booking)"
+    },
+    "session_type": {
+      "type": "string",
+      "enum": [
+        "Private Session",
+        "Group Circle",
+        "Consultation"
+      ],
+      "description": "Type of session attended"
+    }
+  },
+  "required": [
+    "practitioner_id",
+    "booking_id",
+    "reviewer_name",
+    "session_date",
+    "overall_rating",
+    "review_text",
+    "would_recommend"
+  ]
+}

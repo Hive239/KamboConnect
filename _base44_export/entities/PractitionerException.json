@@ -1,0 +1,54 @@
+{
+  "name": "PractitionerException",
+  "type": "object",
+  "properties": {
+    "practitioner_id": {
+      "type": "string",
+      "description": "ID of the practitioner"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "The specific date for this exception"
+    },
+    "day_of_week": {
+      "type": "string",
+      "enum": [
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+        "sunday"
+      ],
+      "description": "Day of week this exception applies to"
+    },
+    "exception_type": {
+      "type": "string",
+      "enum": [
+        "override",
+        "additional",
+        "remove"
+      ],
+      "description": "Override normal hours, add extra availability, or remove availability"
+    },
+    "start_time": {
+      "type": "string",
+      "description": "Exception start time in HH:MM format"
+    },
+    "end_time": {
+      "type": "string",
+      "description": "Exception end time in HH:MM format"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes about this exception"
+    }
+  },
+  "required": [
+    "practitioner_id",
+    "date",
+    "exception_type"
+  ]
+}

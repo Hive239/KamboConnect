@@ -1,0 +1,91 @@
+{
+  "name": "Notification",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "ID of the user receiving the notification"
+    },
+    "title": {
+      "type": "string",
+      "description": "Notification title/headline"
+    },
+    "message": {
+      "type": "string",
+      "description": "Notification message content"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "booking",
+        "message",
+        "event",
+        "community",
+        "review",
+        "system"
+      ],
+      "description": "Type of notification"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "normal",
+        "high",
+        "urgent"
+      ],
+      "default": "normal",
+      "description": "Notification priority level"
+    },
+    "related_id": {
+      "type": "string",
+      "description": "ID of related entity (booking_id, message_id, event_id, etc.)"
+    },
+    "action_url": {
+      "type": "string",
+      "description": "URL to navigate to when notification is clicked"
+    },
+    "sender_image_url": {
+      "type": "string",
+      "description": "URL of the sender's profile image for display"
+    },
+    "is_read": {
+      "type": "boolean",
+      "default": false
+    },
+    "read_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the notification was read"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the notification expires (optional)"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional data specific to notification type",
+      "properties": {
+        "sender_name": {
+          "type": "string"
+        },
+        "event_title": {
+          "type": "string"
+        },
+        "booking_status": {
+          "type": "string"
+        },
+        "practitioner_name": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "required": [
+    "user_id",
+    "title",
+    "message",
+    "type"
+  ]
+}

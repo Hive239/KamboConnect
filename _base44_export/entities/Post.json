@@ -1,0 +1,54 @@
+{
+  "name": "Post",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "The title of the forum post"
+    },
+    "content": {
+      "type": "string",
+      "description": "The main content of the post, can be HTML"
+    },
+    "author_id": {
+      "type": "string",
+      "description": "The ID of the user who created the post"
+    },
+    "author_name": {
+      "type": "string",
+      "description": "The name of the user who created the post"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "General Discussion",
+        "Experience Sharing",
+        "Q&A",
+        "Integration"
+      ],
+      "default": "General Discussion"
+    },
+    "reply_count": {
+      "type": "number",
+      "default": 0
+    },
+    "is_pinned": {
+      "type": "boolean",
+      "default": false
+    },
+    "is_locked": {
+      "type": "boolean",
+      "default": false
+    },
+    "last_reply_date": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "title",
+    "content",
+    "author_id",
+    "author_name"
+  ]
+}

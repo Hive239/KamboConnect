@@ -1,0 +1,140 @@
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { createPageUrl } from "@/utils";
+import { User } from "@/entities/User";
+import { Post } from "@/entities/Post";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowLeft, Send } from "@/lib/icons";
+
+export default function NewPost() {
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [category, setCategory] = useState("General Discussion");
+  const [user, setUser] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const currentUser = await User.me();
+        setUser(currentUser);
+      } catch (error) {
+        // Not logged in, redirect or handle
+        navigate(createPageUrl("Community"));
+      }
+    };
+    fetchUser();
+  }, [navigate]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!title.trim() || !content.trim() || !user) return;
+
+    setIsSubmitting(true);
+    try {
+      const newPost = await Post.create({
+        title,
+        content,
+        category,
+        author_id: user.id,
+        author_name: user.full_name,
+        last_reply_date: new Date().toISOString()
+      });
+      navigate(createPageUrl(`Post?id=${newPost.id}`));
+    } catch (error) {
+      console.error("Failed to create post:", error);
+      // Handle error, e.g., show a toast message
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
+  const quillModules = {
+    toolbar: [
+      [{ 'header': [1, 2, false] }],
+      ['bold', 'italic', 'underline','strike', 'blockquote'],
+      [{'list': 'ordered'}, {'list': 'bullet'}],
+      ['link'],
+      ['clean']
+    ],
+  };
+
+  return (
+    <div className="bg-card min-h-screen p-4 sm:p-6">
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-6">
+          <Link to={createPageUrl("Community")} className="flex items-center gap-2 text-muted-foreground hover:text-foreground">
+            <ArrowLeft className="w-4 h-4" />
+            Back to Community
+          </Link>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-2xl">Create a New Post</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="sm:col-span-2">
+                  <label htmlFor="title" className="block text-sm font-medium text-foreground mb-1">Title</label>
+                  <Input
+                    id="title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Enter a descriptive title"
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="category" className="block text-sm font-medium text-foreground mb-1">Category</label>
+                  <Select value={category} onValueChange={setCategory}>
+                    <SelectTrigger id="category">
+                      <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="General Discussion">General Discussion</SelectItem>
+                      <SelectItem value="Experience Sharing">Experience Sharing</SelectItem>
+                      <SelectItem value="Q&A">Q&A</SelectItem>
+                      <SelectItem value="Integration">Integration</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">Content</label>
+                <div className="bg-card">
+                   <ReactQuill 
+                    theme="snow" 
+                    value={content} 
+                    onChange={setContent}
+                    modules={quillModules}
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end">
+                <Button
+                  type="submit"
+                  disabled={isSubmitting || !title.trim() || content.trim() === "<p><br></p>" || !content.trim()}
+                  className="bg-primary hover:bg-primary/90"
+                >
+                  <Send className="w-4 h-4 mr-2" />
+                  {isSubmitting ? "Posting..." : "Create Post"}
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}

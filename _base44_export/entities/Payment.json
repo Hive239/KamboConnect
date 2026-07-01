@@ -1,0 +1,66 @@
+{
+  "name": "Payment",
+  "type": "object",
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "description": "ID of the event being paid for (if applicable)"
+    },
+    "booking_id": {
+      "type": "string",
+      "description": "ID of the booking this payment relates to (if applicable)"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "ID of the user making payment"
+    },
+    "practitioner_id": {
+      "type": "string",
+      "description": "ID of the practitioner receiving payment (if applicable)"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Payment amount"
+    },
+    "currency": {
+      "type": "string",
+      "default": "USD"
+    },
+    "payment_type": {
+      "type": "string",
+      "enum": [
+        "booking",
+        "event_registration",
+        "cancellation_fee",
+        "product"
+      ],
+      "default": "booking"
+    },
+    "payment_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "completed",
+        "failed",
+        "refunded"
+      ],
+      "default": "pending"
+    },
+    "payment_method": {
+      "type": "string",
+      "description": "Payment method used"
+    },
+    "stripe_payment_id": {
+      "type": "string",
+      "description": "Stripe payment ID for tracking"
+    },
+    "payment_date": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "user_id",
+    "amount"
+  ]
+}
