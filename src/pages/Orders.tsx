@@ -18,7 +18,7 @@ const STATUS_VARIANT: Record<string, any> = {
 
 /** My Orders — marketplace order history (upgrade #11). */
 export default function Orders() {
-  useSeo({ title: "My Orders — KamboConnect" });
+  useSeo({ title: "My Orders — KamboGuide" });
   const { data: me } = useCurrentUser();
   const navigate = useNavigate();
   const cart = useCart();

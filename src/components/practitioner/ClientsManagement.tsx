@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ClientRecord, Booking, Consultation, ScreeningResponse, ConsentRecord, ClientDocument, ConsultationNote } from "@/entities/all";
 import { upsertClientRecord } from "@/lib/fileWaiver";
+import { openDoc } from "@/lib/storage";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -135,7 +136,7 @@ function ClientDrawer({ practitioner, client, onClose }: { practitioner: any; cl
                 <>
                   <p className="text-xs text-muted-foreground">{latestWaiver.waiver_version || latestWaiver.document_version} · {latestWaiver.agreed_at ? formatDate(latestWaiver.agreed_at) : ""}</p>
                   {latestWaiver.document_url
-                    ? <a href={latestWaiver.document_url} target="_blank" rel="noreferrer" className="text-primary hover:underline">View PDF</a>
+                    ? <button type="button" onClick={() => openDoc(latestWaiver.document_url)} className="text-primary hover:underline">View PDF</button>
                     : <span className="text-xs text-muted-foreground">Signed (no PDF)</span>}
                 </>
               ) : <p className="text-xs text-muted-foreground">Not yet signed.</p>}
@@ -168,7 +169,7 @@ function ClientDrawer({ practitioner, client, onClose }: { practitioner: any; cl
             <div>
               <p className="mb-2 font-medium">Documents</p>
               <div className="space-y-1.5">
-                {docs.map((d) => <a key={d.id} href={d.file_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 rounded-md bg-muted/50 px-3 py-2 hover:bg-muted"><FileText className="h-4 w-4" /> {d.title || d.kind}</a>)}
+                {docs.map((d) => <button type="button" key={d.id} onClick={() => openDoc(d.file_url)} className="flex items-center gap-2 rounded-md bg-muted/50 px-3 py-2 text-left hover:bg-muted"><FileText className="h-4 w-4" /> {d.title || d.kind}</button>)}
               </div>
             </div>
           )}

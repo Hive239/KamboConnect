@@ -238,7 +238,7 @@ const ClientBookingsView = ({ bookings, onUpdate }) => {
               booking_id: booking.id,
               sender_id: currentUser.id,
               receiver_id: practitionerUser[0].id,
-              sender_name: "KamboConnect System",
+              sender_name: "KamboGuide System",
               content: `Booking Cancelled: Your session with ${booking.client_name} for ${format(new Date(booking.requested_date), 'PPP')} was cancelled. A 20% cancellation fee of $${cancellationFee} has been processed.`,
               message_type: 'system',
               is_read: false

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Practitioner } from "@/entities/Practitioner";
 import { makeEntity } from "@/data/store";
+import { openDoc } from "@/lib/storage";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -82,26 +83,24 @@ const ApplicationCard = ({ application, onAction, onUpgrade }) => {
                   <h4 className="font-medium mb-2">Documents:</h4>
                   <div className="space-y-2">
                     {application.cpr_certification_url && (
-                      <a 
-                        href={application.cpr_certification_url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
+                      <button
+                        type="button"
+                        onClick={() => openDoc(application.cpr_certification_url)}
                         className="flex items-center gap-2 text-sm text-blue-600 hover:underline"
                       >
                         <ExternalLink className="w-3 h-3" />
                         CPR Certification
-                      </a>
+                      </button>
                     )}
                     {application.kambo_certification_url && (
-                      <a 
-                        href={application.kambo_certification_url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
+                      <button
+                        type="button"
+                        onClick={() => openDoc(application.kambo_certification_url)}
                         className="flex items-center gap-2 text-sm text-blue-600 hover:underline"
                       >
                         <ExternalLink className="w-3 h-3" />
                         Kambo Training Certificate
-                      </a>
+                      </button>
                     )}
                   </div>
                 </div>

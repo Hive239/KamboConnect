@@ -6,7 +6,7 @@
 @tailwind utilities;
 
 /*
-  KamboConnect design tokens — single source of truth.
+  KamboGuide design tokens — single source of truth.
   Direction: "elevated earthy / healing" — deep forest green primary, warm
   sand/stone neutrals, terracotta clay accent, organic Fraunces display serif.
   (The old runtime <style> override that lived in Layout.tsx has been removed.)

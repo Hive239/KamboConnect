@@ -26,8 +26,8 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 const SYNTHETIC_PUBLIC_SETTINGS = {
-  id: 'kamboconnect',
-  public_settings: { name: 'KamboConnect', requiresAuth: false },
+  id: 'kamboguide',
+  public_settings: { name: 'KamboGuide', requiresAuth: false },
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

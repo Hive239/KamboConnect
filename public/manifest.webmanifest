@@ -1,6 +1,6 @@
 {
-  "name": "KamboConnect",
-  "short_name": "KamboConnect",
+  "name": "KamboGuide",
+  "short_name": "KamboGuide",
   "description": "Find trusted Kambo practitioners, connect with the community, and learn.",
   "start_url": "/",
   "scope": "/",

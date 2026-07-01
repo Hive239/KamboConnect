@@ -15,7 +15,7 @@ export default function ApplicationSuccess({ practitioner }) {
         </div>
         <h1 className="text-3xl font-bold text-foreground mb-4">Application Submitted Successfully!</h1>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Thank you for applying to become a verified practitioner on KamboConnect. 
+          Thank you for applying to become a verified practitioner on KamboGuide. 
           Your application is now under review.
         </p>
       </div>

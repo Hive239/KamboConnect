@@ -15,7 +15,7 @@ const STEPS = [
 
 export default function Landing() {
   useSeo({
-    title: "KamboConnect — Find trusted Kambo practitioners",
+    title: "KamboGuide — Find trusted Kambo practitioners",
     description: "Discover verified Kambo practitioners near you. Consult, book safely with health screening and informed consent, and connect with a supportive community.",
     type: "website",
   });
@@ -34,7 +34,7 @@ export default function Landing() {
       <header className="mx-auto flex max-w-6xl items-center justify-between p-5">
         <span className="flex items-center gap-2 font-display text-xl font-semibold">
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10"><Leaf className="h-5 w-5 text-primary" weight="duotone" /></span>
-          <span className="bg-gradient-to-r from-primary to-clay bg-clip-text text-transparent">KamboConnect</span>
+          <span className="bg-gradient-to-r from-primary to-clay bg-clip-text text-transparent">KamboGuide</span>
         </span>
         <div className="flex items-center gap-2">
           <Link to={createPageUrl("Directory")}><Button variant="ghost">Explore</Button></Link>
@@ -120,7 +120,7 @@ export default function Landing() {
           <Link to={createPageUrl("Events")} className="hover:text-foreground">Events</Link>
           <Link to={createPageUrl("Community")} className="hover:text-foreground">Community</Link>
           <Link to={createPageUrl("Disclaimer")} className="hover:text-foreground">Legal</Link>
-          <span>© {new Date().getFullYear()} KamboConnect</span>
+          <span>© {new Date().getFullYear()} KamboGuide</span>
         </div>
       </footer>
     </div>

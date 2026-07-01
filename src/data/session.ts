@@ -18,7 +18,7 @@ async function ensureProfile(authUser: any): Promise<User> {
     id: authUser.id,
     email: authUser.email,
     full_name: authUser.user_metadata?.full_name || (authUser.email || '').split('@')[0],
-    role: 'user',
+    role: 'client',
   } as any);
 }
 const SESSION_KEY = 'kc_session_user_id';
@@ -52,17 +52,20 @@ export function onSessionChange(cb: () => void): () => void {
 export function getCurrentUserId(): string | null {
   const v = typeof localStorage !== 'undefined' ? localStorage.getItem(SESSION_KEY) : null;
   if (v === LOGGED_OUT) return null;
-  return v || 'user-client'; // default: auto-signed-in as the client for convenience
+  return v || null; // no auto-login; logged-out until a real (or dev) session exists
 }
 
 export async function getCurrentUser(): Promise<User | null> {
-  // Prefer a real Supabase auth session; fall back to the demo/dev session.
+  // Real-auth mode (Supabase configured): the auth session is the ONLY source of
+  // identity — required for RLS. No mock fallback (that would defeat per-user RLS).
   if (supabase) {
     try {
       const { data } = await supabase.auth.getSession();
       if (data.session?.user) return await ensureProfile(data.session.user);
-    } catch { /* fall through to demo session */ }
+    } catch { /* not signed in */ }
+    return null;
   }
+  // Local dev without Supabase env → the mock/dev session.
   const id = getCurrentUserId();
   if (!id) return null;
   try {

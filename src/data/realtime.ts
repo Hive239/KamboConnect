@@ -12,6 +12,7 @@ const TABLE_TO_ENTITY: Record<string, EntityName> = {
   notifications: 'Notification',
   feed_items: 'FeedItem',
   conversations: 'Conversation',
+  follows: 'Follow', // FeedView listens for Follow changes to refresh the "Following" feed
 };
 
 let started = false;

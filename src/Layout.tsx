@@ -136,7 +136,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const Wordmark = ({ onClick }: { onClick?: () => void }) => (
     <Link to={createPageUrl("Directory")} onClick={onClick} className="flex items-center gap-2">
       <span className="font-display text-xl font-semibold bg-gradient-to-r from-primary to-clay bg-clip-text text-transparent">
-        KamboConnect
+        KamboGuide
       </span>
     </Link>
   );

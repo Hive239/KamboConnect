@@ -18,7 +18,7 @@ const TIERS = [
 ];
 
 export default function Billing() {
-  useSeo({ title: "Billing & Growth — KamboConnect" });
+  useSeo({ title: "Billing & Growth — KamboGuide" });
   const navigate = useNavigate();
   const [prac, setPrac] = useState<any>(null);
   const [loading, setLoading] = useState(true);

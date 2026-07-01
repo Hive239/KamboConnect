@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { User, Practitioner, Notification } from "@/entities/all";
 import { SendEmail } from "@/integrations/Core";
+import { openDoc } from "@/lib/storage";
 import { createPageUrl } from "@/utils";
 import {
   ShieldCheck, AlertCircle, Loader2, User as UserIcon, Check, X, ExternalLink, ArrowLeft
@@ -91,16 +92,12 @@ const ApplicationDetails = ({ application, onApprove, onReject, onBack }) => {
 
         <h3 className="font-semibold text-lg mb-4">Documents</h3>
         <div className="grid md:grid-cols-2 gap-4">
-            <a href={application.cpr_certification_url} target="_blank" rel="noopener noreferrer" className="block">
-                <Button variant="outline" className="w-full justify-between">
-                    View CPR Certification <ExternalLink className="w-4 h-4"/>
-                </Button>
-            </a>
-            <a href={application.kambo_certification_url} target="_blank" rel="noopener noreferrer" className="block">
-                <Button variant="outline" className="w-full justify-between">
-                    View Kambo Certification <ExternalLink className="w-4 h-4"/>
-                </Button>
-            </a>
+            <Button variant="outline" className="w-full justify-between" onClick={() => openDoc(application.cpr_certification_url)}>
+                View CPR Certification <ExternalLink className="w-4 h-4"/>
+            </Button>
+            <Button variant="outline" className="w-full justify-between" onClick={() => openDoc(application.kambo_certification_url)}>
+                View Kambo Certification <ExternalLink className="w-4 h-4"/>
+            </Button>
         </div>
         <p className="text-sm text-muted-foreground">CPR Expiration: {application.cpr_expiration_date}</p>
 
@@ -171,8 +168,8 @@ export default function VerificationPage() {
     
     await SendEmail({
         to: application.email,
-        subject: "Your KamboConnect Application has been Approved!",
-        body: `<h1>Congratulations, ${application.full_name}!</h1><p>We are pleased to inform you that your application to become a practitioner on KamboConnect has been approved. Your profile is now live and visible in our directory.</p><p>Welcome to the community!</p><p>The KamboConnect Team</p>`
+        subject: "Your KamboGuide Application has been Approved!",
+        body: `<h1>Congratulations, ${application.full_name}!</h1><p>We are pleased to inform you that your application to become a practitioner on KamboGuide has been approved. Your profile is now live and visible in our directory.</p><p>Welcome to the community!</p><p>The KamboGuide Team</p>`
     });
     
     await Notification.create({
@@ -196,8 +193,8 @@ export default function VerificationPage() {
     
     await SendEmail({
         to: application.email,
-        subject: "Update on your KamboConnect Application",
-        body: `<h1>Update on Your KamboConnect Application</h1><p>Hello ${application.full_name},</p><p>Thank you for your interest in becoming a practitioner on KamboConnect. After reviewing your application, we are unable to approve it at this time.</p><p><strong>Reason:</strong> ${reason}</p><p>We invite you to address these points and re-apply in the future if you wish.</p><p>Sincerely,<br/>The KamboConnect Team</p>`
+        subject: "Update on your KamboGuide Application",
+        body: `<h1>Update on Your KamboGuide Application</h1><p>Hello ${application.full_name},</p><p>Thank you for your interest in becoming a practitioner on KamboGuide. After reviewing your application, we are unable to approve it at this time.</p><p><strong>Reason:</strong> ${reason}</p><p>We invite you to address these points and re-apply in the future if you wish.</p><p>Sincerely,<br/>The KamboGuide Team</p>`
     });
 
     setSelectedApplication(null);

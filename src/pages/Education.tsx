@@ -147,7 +147,7 @@ export default function Education() {
             imageUrl="https://images.unsplash.com/photo-1529070538774-1843cb3265df?q=80&w=2070&auto=format=fit"
             content={() => (
               <>
-                <p>As part of the KamboConnect community, practitioners are expected to adhere to the highest ethical standards. These include:</p>
+                <p>As part of the KamboGuide community, practitioners are expected to adhere to the highest ethical standards. These include:</p>
                 <ul className="list-disc list-inside space-y-2">
                   <li><strong>Integrity:</strong> Representing your training, experience, and the medicine itself with honesty and humility.</li>
                   <li><strong>Respect:</strong> Honoring the indigenous origins of Kambo and the sacred nature of the frog.</li>

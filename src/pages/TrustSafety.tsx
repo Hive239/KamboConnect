@@ -9,7 +9,7 @@ import { ShieldCheck, AlertTriangle, Flag, Clock, CheckCircle, XCircle } from "@
 import { useSeo } from "@/lib/useSeo";
 
 export default function TrustSafety() {
-  useSeo({ title: "Trust & Safety — KamboConnect" });
+  useSeo({ title: "Trust & Safety — KamboGuide" });
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [cases, setCases] = useState<any[]>([]);

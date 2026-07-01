@@ -11,7 +11,7 @@ import { Leaf, AlertTriangle, Loader2, CheckCircle, GoogleLogo, GithubLogo } fro
 import { useSeo } from "@/lib/useSeo";
 
 export default function Auth() {
-  useSeo({ title: "Sign in — KamboConnect" });
+  useSeo({ title: "Sign in — KamboGuide" });
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -74,7 +74,7 @@ export default function Auth() {
         <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
           <Leaf className="h-6 w-6 text-primary" weight="duotone" />
         </div>
-        <h1 className="font-display text-2xl font-semibold">Welcome to KamboConnect</h1>
+        <h1 className="font-display text-2xl font-semibold">Welcome to KamboGuide</h1>
         <p className="text-sm text-muted-foreground">Sign in or create an account to continue.</p>
       </div>
 

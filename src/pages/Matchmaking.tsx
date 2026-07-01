@@ -17,7 +17,7 @@ const MODALITIES = ["Traditional Kambo", "Sananga", "Hapé / Rapé", "Integratio
 const LANGUAGES = ["English", "Spanish", "Portuguese", "French"];
 
 export default function Matchmaking() {
-  useSeo({ title: "Find Your Match — KamboConnect", description: "Answer a few questions and we'll match you with trusted Kambo practitioners." });
+  useSeo({ title: "Find Your Match — KamboGuide", description: "Answer a few questions and we'll match you with trusted Kambo practitioners." });
   const [step, setStep] = useState(0);
   const [prefs, setPrefs] = useState<MatchPrefs>({ modalities: [], languages: [], maxPrice: 3, requireVerified: true, preferOnline: false, experienceLevel: "any", maxDistance: 100 });
   const [results, setResults] = useState<MatchResult[] | null>(null);

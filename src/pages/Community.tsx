@@ -10,7 +10,7 @@ import ResourcesView from "../components/community/ResourcesView";
 const triggerCls = "rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm data-[state=active]:text-primary gap-2";
 
 export default function Community() {
-  useSeo({ title: "Community — KamboConnect", description: "Connect, share, and learn with the Kambo community." });
+  useSeo({ title: "Community — KamboGuide", description: "Connect, share, and learn with the Kambo community." });
   return (
     <div className="bg-muted min-h-screen">
       <div className="p-4 sm:p-6">

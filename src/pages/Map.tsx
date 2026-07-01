@@ -8,7 +8,7 @@ import { Loader2 } from "@/lib/icons";
 
 /** Standalone full-page practitioner map (upgrade #1 discoverability). */
 export default function MapPage() {
-  useSeo({ title: "Practitioner Map — KamboConnect", description: "Find Kambo practitioners near you on the map." });
+  useSeo({ title: "Practitioner Map — KamboGuide", description: "Find Kambo practitioners near you on the map." });
   const navigate = useNavigate();
   const [practitioners, setPractitioners] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

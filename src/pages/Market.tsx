@@ -17,7 +17,7 @@ import { ShoppingCart, Plus, Minus, X, CheckCircle, Package, Loader2, Storefront
 const CATEGORIES = ["All", "Rapé", "Tepi", "Tools", "Apparel", "Books", "Digital", "Other"];
 
 export default function Market() {
-  useSeo({ title: "Marketplace — KamboConnect", description: "Ethically sourced ceremonial tools, rapé, and integration resources." });
+  useSeo({ title: "Marketplace — KamboGuide", description: "Ethically sourced ceremonial tools, rapé, and integration resources." });
   const cart = useCart();
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

@@ -52,7 +52,7 @@ const DisputeCard = ({ report, onUpdate }) => {
       if (report.reporter_email) {
         await SendEmail({
           to: report.reporter_email,
-          subject: `Update on your KamboConnect report #${report.id}`,
+          subject: `Update on your KamboGuide report #${report.id}`,
           body: `
             <h2>Report Update</h2>
             <p>Your report has been reviewed and resolved.</p>

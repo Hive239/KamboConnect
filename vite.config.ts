@@ -16,14 +16,25 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        // Split heavy, self-contained vendors into their own chunks so they
-        // load only on the routes that use them (keeps the main bundle lean).
-        manualChunks: {
-          'vendor-charts': ['recharts'],
-          'vendor-maps': ['leaflet', 'react-leaflet'],
-          'vendor-editor': ['react-quill'],
-          'vendor-pdf': ['pdf-lib'],
-          'vendor-motion': ['framer-motion'],
+        // Split heavy vendors into their own chunks. Route-specific libs
+        // (charts/maps/editor/pdf) load only where used; shared framework libs
+        // (react/radix/supabase) are one cacheable chunk instead of bloating
+        // every route's entry.
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return undefined;
+          if (id.includes('recharts') || id.includes('d3-')) return 'vendor-charts';
+          if (id.includes('leaflet')) return 'vendor-maps';
+          if (id.includes('react-quill') || id.includes('quill')) return 'vendor-editor';
+          if (id.includes('pdf-lib')) return 'vendor-pdf';
+          if (id.includes('framer-motion')) return 'vendor-motion';
+          if (id.includes('@radix-ui')) return 'vendor-radix';
+          if (id.includes('@supabase')) return 'vendor-supabase';
+          if (id.includes('@tanstack')) return 'vendor-query';
+          if (id.includes('@phosphor-icons')) return 'vendor-icons';
+          if (id.includes('date-fns')) return 'vendor-date';
+          if (id.includes('i18next')) return 'vendor-i18n';
+          if (id.includes('/react-dom/') || id.includes('/react-router') || id.includes('/scheduler/') || id.includes('/react/')) return 'vendor-react';
+          return 'vendor';
         },
       },
     },

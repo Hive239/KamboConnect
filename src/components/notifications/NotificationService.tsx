@@ -134,7 +134,7 @@ export class NotificationService {
     try {
       await SendEmail({
         to: userEmail,
-        subject: `KamboConnect: ${subject}`,
+        subject: `KamboGuide: ${subject}`,
         body: message
       });
     } catch (error) {

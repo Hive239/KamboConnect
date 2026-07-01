@@ -194,8 +194,8 @@ export default function PractitionerApplicationForm({ onSuccess }) {
         try {
           await SendEmail({
             to: formData.email,
-            subject: "We've Received Your KamboConnect Application",
-            body: `<h1>Thank You, ${formData.full_name}!</h1><p>We have successfully received your practitioner application. Our team will review it within the next 5-7 business days. We'll notify you via email once your application has been processed.</p><p>The KamboConnect Team</p>`
+            subject: "We've Received Your KamboGuide Application",
+            body: `<h1>Thank You, ${formData.full_name}!</h1><p>We have successfully received your practitioner application. Our team will review it within the next 5-7 business days. We'll notify you via email once your application has been processed.</p><p>The KamboGuide Team</p>`
           });
           console.log("✅ Confirmation email sent");
         } catch (emailError) {

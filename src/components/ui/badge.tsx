@@ -15,7 +15,7 @@ const badgeVariants = cva(
         destructive:
           "border-transparent bg-destructive text-destructive-foreground shadow hover:bg-destructive/80",
         outline: "text-foreground",
-        // KamboConnect semantic + marketplace variants
+        // KamboGuide semantic + marketplace variants
         success: "border-transparent bg-success text-success-foreground shadow",
         warning: "border-transparent bg-warning text-warning-foreground shadow",
         info: "border-transparent bg-info text-info-foreground shadow",

@@ -188,7 +188,7 @@ export default function PractitionerProfile() {
 
   // SEO + JSON-LD for the public profile (shareable social cards).
   useSeo(practitioner ? {
-    title: `${practitioner.full_name} — Kambo Practitioner | KamboConnect`,
+    title: `${practitioner.full_name} — Kambo Practitioner | KamboGuide`,
     description: (practitioner.bio || `Book a Kambo session with ${practitioner.full_name}.`).slice(0, 155),
     image: practitioner.profile_image_url,
     type: "profile",
@@ -211,7 +211,7 @@ export default function PractitionerProfile() {
 
   const handleShare = async () => {
     const url = window.location.href;
-    const title = practitioner ? `${practitioner.full_name} — KamboConnect` : "KamboConnect";
+    const title = practitioner ? `${practitioner.full_name} — KamboGuide` : "KamboGuide";
     try {
       if (navigator.share) await navigator.share({ title, url });
       else { await navigator.clipboard.writeText(url); toast.success("Profile link copied"); }

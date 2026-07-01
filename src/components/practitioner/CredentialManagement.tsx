@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Credential } from "@/entities/all";
 import { UploadPrivateFile } from "@/integrations/Core";
+import { openDoc } from "@/lib/storage";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -104,7 +105,7 @@ export default function CredentialManagement({ practitioner }: { practitioner: a
                       {c.expiry_date ? ` · expires ${formatDate(c.expiry_date)}` : ""}
                     </p>
                   </div>
-                  {c.file_uri && <a href={c.file_uri} target="_blank" rel="noreferrer" className="text-sm text-primary hover:underline">View</a>}
+                  {c.file_uri && <button type="button" onClick={() => openDoc(c.file_uri)} className="text-sm text-primary hover:underline">View</button>}
                   <button onClick={() => remove(c.id)} aria-label="Delete credential"><Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" /></button>
                 </CardContent>
               </Card>

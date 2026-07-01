@@ -26,9 +26,9 @@ const formatAddress = (address) => {
 export default function Directory() {
   const navigate = useNavigate();
   useSeo({
-    title: "Find Trusted Kambo Practitioners — KamboConnect",
+    title: "Find Trusted Kambo Practitioners — KamboGuide",
     description: "Discover verified Kambo practitioners near you. Search by location, modality, language, and price.",
-    jsonLd: { "@context": "https://schema.org", "@type": "WebSite", name: "KamboConnect", url: "https://kamboconnect.app" },
+    jsonLd: { "@context": "https://schema.org", "@type": "WebSite", name: "KamboGuide", url: "https://kamboguide.app" },
   });
   const [practitioners, setPractitioners] = useState([]);
   const [reviews, setReviews] = useState([]);

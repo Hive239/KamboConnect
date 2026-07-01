@@ -48,11 +48,11 @@ function escapeIcs(text: string): string {
 
 export function buildIcs(ev: CalendarEvent): string {
   const { start, end } = resolveRange(ev);
-  const uid = `${toStamp(start)}-${Math.abs(hashCode(ev.title))}@kamboconnect`;
+  const uid = `${toStamp(start)}-${Math.abs(hashCode(ev.title))}@kamboguide`;
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//KamboConnect//EN",
+    "PRODID:-//KamboGuide//EN",
     "CALSCALE:GREGORIAN",
     "BEGIN:VEVENT",
     `UID:${uid}`,

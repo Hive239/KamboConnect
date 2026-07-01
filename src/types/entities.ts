@@ -1,5 +1,5 @@
 /**
- * TypeScript interfaces for every KamboConnect entity.
+ * TypeScript interfaces for every KamboGuide entity.
  * Generated from the Base44 schemas in `_base44_export/entities/*.json`.
  *
  * These are the typed core of the app. The mock data layer (src/data/*) and the

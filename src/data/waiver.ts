@@ -60,7 +60,7 @@ export const WAIVER_SECTIONS: WaiverSection[] = [
   {
     heading: '7. Release & Waiver of Liability',
     body:
-      'To the fullest extent permitted by law, I release, waive, and hold harmless the practitioner, KamboConnect, and their ' +
+      'To the fullest extent permitted by law, I release, waive, and hold harmless the practitioner, KamboGuide, and their ' +
       'respective affiliates, agents, and hosts from any and all claims, demands, liabilities, damages, or expenses arising out ' +
       'of or related to my participation, except for harm caused by gross negligence or willful misconduct. This release binds ' +
       'my heirs, executors, and assigns.',

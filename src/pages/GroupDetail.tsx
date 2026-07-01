@@ -27,7 +27,7 @@ export default function GroupDetail() {
   const [busy, setBusy] = useState(false);
   const [draft, setDraft] = useState({ title: "", content: "" });
 
-  useSeo(group ? { title: `${group.name} — KamboConnect`, description: group.description } : {});
+  useSeo(group ? { title: `${group.name} — KamboGuide`, description: group.description } : {});
 
   const load = async () => {
     if (!groupId) { navigate(createPageUrl("Community")); return; }
