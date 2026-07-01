@@ -1,7 +1,8 @@
 import { useLocation } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-
+import { Leaf, Home, Search } from '@/lib/icons';
+import { GradientMesh } from '@/components/ui/GradientMesh';
 
 export default function PageNotFound({}) {
     const location = useLocation();
@@ -18,58 +19,45 @@ export default function PageNotFound({}) {
             }
         }
     });
-    
+
     return (
-        <div className="min-h-screen flex items-center justify-center p-6 bg-muted">
-            <div className="max-w-md w-full">
-                <div className="text-center space-y-6">
-                    {/* 404 Error Code */}
-                    <div className="space-y-2">
-                        <h1 className="text-7xl font-light text-muted-foreground/40">404</h1>
-                        <div className="h-0.5 w-16 bg-muted mx-auto"></div>
-                    </div>
-                    
-                    {/* Main Message */}
-                    <div className="space-y-3">
-                        <h2 className="text-2xl font-medium text-foreground">
-                            Page Not Found
-                        </h2>
-                        <p className="text-muted-foreground leading-relaxed">
-                            The page <span className="font-medium text-foreground">"{pageName}"</span> could not be found in this application.
+        <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background p-6 grain">
+            <GradientMesh intensity="soft" />
+            <div className="relative z-10 w-full max-w-md text-center">
+                <span className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 shadow-glow">
+                    <Leaf className="h-7 w-7 text-primary" weight="duotone" />
+                </span>
+                <h1 className="font-display text-display-lg font-semibold text-gradient-brand">404</h1>
+                <h2 className="mt-2 font-display text-2xl font-semibold text-foreground">This path leads nowhere</h2>
+                <p className="mt-3 text-muted-foreground text-pretty">
+                    The page <span className="font-medium text-foreground">"{pageName}"</span> could not be found.
+                    Let's guide you back.
+                </p>
+
+                {isFetched && authData?.isAuthenticated && authData.user?.role === 'admin' && (
+                    <div className="mt-6 rounded-xl border border-border bg-card p-4 text-left shadow-sm">
+                        <p className="text-sm font-medium text-foreground">Admin note</p>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                            This route may not be implemented yet.
                         </p>
                     </div>
-                    
-                    {/* Admin Note */}
-                    {isFetched && authData.isAuthenticated && authData.user?.role === 'admin' && (
-                        <div className="mt-8 p-4 bg-muted rounded-lg border border-border">
-                            <div className="flex items-start space-x-3">
-                                <div className="flex-shrink-0 w-5 h-5 rounded-full bg-orange-100 flex items-center justify-center mt-0.5">
-                                    <div className="w-2 h-2 rounded-full bg-orange-400"></div>
-                                </div>
-                                <div className="text-left space-y-1">
-                                    <p className="text-sm font-medium text-foreground">Admin Note</p>
-                                    <p className="text-sm text-muted-foreground leading-relaxed">
-                                        This could mean that the AI hasn't implemented this page yet. Ask it to implement it in the chat.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                    
-                    {/* Action Button */}
-                    <div className="pt-6">
-                        <button 
-                            onClick={() => window.location.href = '/'} 
-                            className="inline-flex items-center px-4 py-2 text-sm font-medium text-foreground bg-card border border-border rounded-lg hover:bg-muted hover:border-input transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500"
-                        >
-                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                            </svg>
-                            Go Home
-                        </button>
-                    </div>
+                )}
+
+                <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+                    <a
+                        href="/"
+                        className="inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-b from-primary to-[hsl(var(--primary)/0.9)] px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:shadow-md hover:brightness-105"
+                    >
+                        <Home className="h-4 w-4" weight="duotone" /> Go home
+                    </a>
+                    <a
+                        href="/Directory"
+                        className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-5 py-2.5 text-sm font-semibold transition-colors hover:bg-accent"
+                    >
+                        <Search className="h-4 w-4" /> Browse the directory
+                    </a>
                 </div>
             </div>
         </div>
-    )
+    );
 }

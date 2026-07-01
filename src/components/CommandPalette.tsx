@@ -7,10 +7,12 @@ import {
 } from '@/components/ui/command';
 import {
   Search, MapPin, Sparkle, Users, Calendar, Briefcase, MessageSquare, Heart,
-  Store, BookOpen, User as UserIcon, Package,
+  Store, BookOpen, User as UserIcon, Package, Home,
 } from '@/lib/icons';
 
 const DESTINATIONS = [
+  { label: 'For You', page: 'ForYou', icon: Home },
+  { label: 'Ask the Guide', page: 'Guide', icon: Sparkle },
   { label: 'Directory', page: 'Directory', icon: Search },
   { label: 'Map', page: 'Map', icon: MapPin },
   { label: 'Find Your Match', page: 'Matchmaking', icon: Sparkle },

@@ -79,9 +79,9 @@ export default function BookingsPage() {
   if (isLoading) {
     return (
         <div className="p-6">
-            <div className="h-8 w-1/3 bg-muted rounded animate-pulse mb-2"></div>
-            <div className="h-6 w-1/2 bg-muted rounded animate-pulse mb-6"></div>
-            <div className="w-full h-96 bg-muted rounded-lg animate-pulse"></div>
+            <div className="h-8 w-1/3 shimmer rounded mb-2"></div>
+            <div className="h-6 w-1/2 shimmer rounded mb-6"></div>
+            <div className="w-full h-96 shimmer rounded-lg"></div>
         </div>
     );
   }

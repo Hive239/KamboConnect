@@ -86,7 +86,6 @@ export default function Events() {
       try {
         const location = await getCurrentLocation();
         setUserLocation(location);
-        console.log("User location for events:", location);
       } catch (error) {
         console.warn("Could not get user location for events:", error.message);
         setUserLocation(null);
@@ -97,9 +96,31 @@ export default function Events() {
   }, [sortBy]);
 
   const handleRegistrationSubmit = async (registrationData) => {
-    // In a real app, you'd probably want to show a success/error toast
+    const ev = events.find((e) => e.id === registrationData.event_id);
+    // Guard against duplicate registrations (same email + event) — the create path
+    // never checked, so re-registering created dupes AND inflated the counter.
+    if (registrationData.participant_email) {
+      const existing = await EventRegistration.filter({
+        event_id: registrationData.event_id,
+        participant_email: registrationData.participant_email,
+      }).catch(() => []);
+      if (existing.length > 0) throw new Error("You're already registered for this event.");
+    }
+    // Capacity enforcement — don't overbook.
+    if (ev && ev.max_participants && (ev.current_participants || 0) >= ev.max_participants) {
+      throw new Error("This event is full.");
+    }
+
     await EventRegistration.create(registrationData);
-    setRegisteringEvent(null);
+    // Increment the event's participant count (was never updated — capacity/"spots
+    // left" stayed at seed values and sold-out was never enforced).
+    if (ev) {
+      const next = (ev.current_participants || 0) + 1;
+      try { await Event.update(ev.id, { current_participants: next }); } catch { /* non-fatal */ }
+      setEvents((prev) => prev.map((e) => (e.id === ev.id ? { ...e, current_participants: next } : e)));
+    }
+    // Do NOT close here — RegistrationModal shows its own success + Add-to-Calendar
+    // screen and closes via its Done button / onClose.
   };
 
   const getEventsForDate = (date) => {

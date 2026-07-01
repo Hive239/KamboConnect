@@ -68,7 +68,7 @@ export default function RegistrationModal({ event, onClose, onSubmitRegistration
       setRegistered(true);
     } catch (error) {
       console.error("Registration failed:", error);
-      alert("Registration failed. Please try again.");
+      alert(error?.message || "Registration failed. Please try again.");
     } finally {
       setIsSubmitting(false);
     }

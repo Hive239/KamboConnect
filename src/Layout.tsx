@@ -7,7 +7,7 @@ import { User } from "@/entities/User";
 import {
   Search, Users, Calendar, Store, BookOpen, Menu, Heart, User as UserIcon,
   LogOut, Shield, Briefcase, Settings, LogIn, MessageSquare, ShieldCheck,
-  PanelLeft, Sparkle, Trophy, MapPin, Package,
+  PanelLeft, Sparkle, Trophy, MapPin, Package, Home, Crosshair,
 } from "@/lib/icons";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -20,9 +20,11 @@ import ProfileMenu from "@/components/layout/ProfileMenu";
 
 // Main navigation (Desktop rail + Mobile sheet + Mobile bottom nav source)
 const mainNavItems = [
+  { title: "For You", tKey: "nav.forYou", url: createPageUrl("ForYou"), icon: Home, isPublic: false },
+  { title: "Ask the Guide", tKey: "nav.guide", url: createPageUrl("Guide"), icon: Sparkle, isPublic: true },
   { title: "Directory", tKey: "nav.directory", url: createPageUrl("Directory"), icon: Search, isPublic: true },
   { title: "Map", tKey: "nav.map", url: createPageUrl("Map"), icon: MapPin, isPublic: true },
-  { title: "Find Your Match", tKey: "nav.matchmaking", url: createPageUrl("Matchmaking"), icon: Sparkle, isPublic: true },
+  { title: "Find Your Match", tKey: "nav.matchmaking", url: createPageUrl("Matchmaking"), icon: Crosshair, isPublic: true },
   { title: "Community", tKey: "nav.community", url: createPageUrl("Community"), icon: Users, isPublic: true },
   { title: "Events", tKey: "nav.events", url: createPageUrl("Events"), icon: Calendar, isPublic: true },
   { title: "My Bookings", tKey: "nav.bookings", url: createPageUrl("Bookings"), icon: Briefcase, isPublic: false },
@@ -87,14 +89,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const visibleMainNav = mainNavItems.filter((i) => i.isPublic || !!user);
   const visibleUserItems = userDrawerItems.filter((i) => !i.adminOnly || (user && user.role === "admin"));
   const navByTitle = (title: string) => mainNavItems.find((i) => i.title === title)!;
-  const mobileBottomNav = [
-    navByTitle("Directory"), navByTitle("Community"),
-    ...(user ? [navByTitle("Events")] : []),
-    navByTitle("Find Your Match"),
-    user
-      ? { title: "Profile", url: createPageUrl("Profile"), icon: UserIcon, isPublic: false }
-      : { title: "Learn", url: createPageUrl("Education"), icon: BookOpen, isPublic: true },
-  ];
+  const mobileBottomNav = user
+    ? [
+        navByTitle("For You"), navByTitle("Directory"), navByTitle("Ask the Guide"),
+        navByTitle("Community"),
+        { title: "Profile", tKey: "nav.profile", url: createPageUrl("Profile"), icon: UserIcon },
+      ]
+    : [
+        navByTitle("Directory"), navByTitle("Ask the Guide"), navByTitle("Community"),
+        navByTitle("Events"),
+        { title: "Learn", tKey: "nav.learn", url: createPageUrl("Education"), icon: BookOpen },
+      ];
 
   const isActive = (url: string) => location.pathname === url;
 
@@ -273,7 +278,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
 
         {/* ---------- Mobile bottom nav ---------- */}
-        <footer className="fixed bottom-0 z-40 w-full border-t border-border bg-card/95 backdrop-blur-sm md:hidden">
+        <footer className="safe-b fixed bottom-0 z-40 w-full border-t border-border bg-card/95 shadow-[0_-8px_24px_-12px_hsl(var(--shadow-color)/0.4)] backdrop-blur-sm md:hidden">
           <nav className="grid grid-cols-5 px-1 py-1">
             {mobileBottomNav.map((item) => {
               const active = isActive(item.url);
@@ -284,7 +289,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   to={item.url}
                   aria-label={item.tKey ? t(item.tKey) : item.title}
                   aria-current={active ? "page" : undefined}
-                  className="relative flex h-16 w-full flex-col items-center justify-center gap-1 rounded-lg"
+                  className="relative flex h-16 w-full flex-col items-center justify-center gap-1 rounded-lg transition-transform active:scale-95"
                 >
                   {active && (
                     <motion.span

@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import { Practitioner } from "@/entities/Practitioner";
 import { Review } from "@/entities/Review";
+import { Credential } from "@/entities/all";
 import { User } from "@/entities/User";
 import { Conversation } from "@/entities/Conversation";
 import { Event } from "@/entities/Event";
@@ -26,6 +27,7 @@ import ProductCard from "@/components/market/ProductCard";
 import PageBreadcrumbs from "@/components/PageBreadcrumbs";
 import { useSeo } from "@/lib/useSeo";
 import { requestConsultation } from "@/lib/consultations";
+import TrustScoreCard from "@/components/directory/TrustScoreCard";
 
 // Helper function to get embed URL for YouTube or Vimeo
 const getYouTubeEmbedUrl = (url) => {
@@ -61,6 +63,7 @@ export default function PractitionerProfile() {
 
   const [practitioner, setPractitioner] = useState(null);
   const [reviews, setReviews] = useState([]);
+  const [credentials, setCredentials] = useState([]);
   const [practitionerEvents, setPractitionerEvents] = useState([]);
   const [practitionerProducts, setPractitionerProducts] = useState([]);
   const [availability, setAvailability] = useState([]);
@@ -145,6 +148,7 @@ export default function PractitionerProfile() {
         const allReviews = await Review.list();
         const practitionerReviews = allReviews.filter(r => r.practitioner_id === practitionerId);
         setReviews(practitionerReviews);
+        try { setCredentials(await Credential.filter({ practitioner_id: practitionerId })); } catch { /* non-fatal */ }
 
         if (practitionerReviews.length > 0) {
           const totalRating = practitionerReviews.reduce((sum, review) => sum + (review.overall_rating ?? review.rating ?? 0), 0);
@@ -296,15 +300,15 @@ export default function PractitionerProfile() {
     return (
       <div className="p-6 bg-muted min-h-screen">
         <div className="max-w-6xl mx-auto space-y-6">
-          <div className="h-48 bg-muted rounded-2xl animate-pulse"></div>
+          <div className="h-48 rounded-2xl shimmer"></div>
           <div className="flex flex-col md:flex-row gap-6 mt-8">
             <div className="md:w-2/3 space-y-6">
-              <div className="h-64 bg-muted rounded-2xl animate-pulse"></div>
-              <div className="h-48 bg-muted rounded-2xl animate-pulse"></div>
+              <div className="h-64 rounded-2xl shimmer"></div>
+              <div className="h-48 rounded-2xl shimmer"></div>
             </div>
             <div className="md:w-1/3 space-y-6">
-              <div className="h-40 bg-muted rounded-2xl animate-pulse"></div>
-              <div className="h-32 bg-muted rounded-2xl animate-pulse"></div>
+              <div className="h-40 rounded-2xl shimmer"></div>
+              <div className="h-32 rounded-2xl shimmer"></div>
             </div>
           </div>
         </div>
@@ -337,13 +341,14 @@ export default function PractitionerProfile() {
 
   return (
     <div className="bg-muted min-h-screen">
-      <div className="w-full h-48 md:h-64 bg-gradient-to-br from-primary/5 to-clay/20 relative">
+      <div className="w-full h-48 md:h-72 bg-gradient-to-br from-primary/10 via-background to-clay/20 relative overflow-hidden grain">
         <img loading="lazy"
           src={practitioner.image_urls?.[0] || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=2070&auto=format&fit=crop'}
           alt="Cover"
-          className="w-full h-full object-cover opacity-20"
+          className="w-full h-full object-cover opacity-25"
         />
-         <div className="absolute top-4 left-4">
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-muted via-muted/20 to-transparent" />
+         <div className="absolute top-4 left-4 z-10">
             <Button variant="secondary" onClick={() => navigate(createPageUrl('Directory'))} className="rounded-full">
               <ArrowLeft className="w-4 h-4 mr-2"/>
               Back to Directory
@@ -590,6 +595,11 @@ export default function PractitionerProfile() {
             </div>
           </div>
         )}
+
+        {/* Trust score */}
+        <div className="mt-8">
+          <TrustScoreCard practitioner={practitioner} reviews={reviews} credentials={credentials} />
+        </div>
 
         {/* Reviews Section */}
         <div className="mt-8">

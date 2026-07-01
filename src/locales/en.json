@@ -1,5 +1,7 @@
 {
   "nav": {
+    "forYou": "For You",
+    "guide": "Ask the Guide",
     "directory": "Directory",
     "map": "Map",
     "orders": "My Orders",

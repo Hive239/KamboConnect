@@ -68,34 +68,50 @@ export default function NotificationCenter() {
         console.warn("Failed to mark notification as read silently.", error.message);
       }
     }
-    if (notification.action_url && notification.action_url.trim() !== "#") {
+    // Only follow internal, path-relative targets — action_url comes from a
+    // world-writable table, so never navigate to absolute/external/scheme URLs.
+    const target = notification.action_url?.trim();
+    if (target && target !== "#" && target.startsWith("/") && !target.startsWith("//")) {
       setIsOpen(false);
-      navigate(notification.action_url);
+      navigate(target);
     }
   }, [navigate]);
 
   useEffect(() => {
+    // Cleanup handles must live in the effect scope — an async function's return
+    // value is NOT received by React, so returning cleanup from inside `init`
+    // leaked a setInterval + store subscription on every mount.
+    let intervalId: any;
+    let unsub: () => void = () => {};
     const init = async () => {
       try {
         const currentUser = await User.me();
         setUser(currentUser);
         if (currentUser) {
           await fetchNotifications(currentUser, true); // Force initial fetch
-          // Set up periodic refresh with longer interval
-          const intervalId = setInterval(() => {
+          intervalId = setInterval(() => {
             if (!isFailing) {
               fetchNotifications(currentUser);
             }
           }, NOTIFICATION_CHECK_INTERVAL);
           // Live refresh on realtime notification changes (cross-device)
-          const unsub = subscribe('Notification', () => fetchNotifications(currentUser, true));
-          return () => { clearInterval(intervalId); unsub(); };
+          unsub = subscribe('Notification', (change: any) => {
+            fetchNotifications(currentUser, true);
+            // Fire a native browser notification for new ones (if the user opted in).
+            if (change?.op === 'create' && typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+              const n = change.record || {};
+              if (n.user_id === currentUser.id) {
+                try { new Notification(n.title || 'KamboGuide', { body: n.message || '', icon: '/icon.svg' }); } catch { /* ignore */ }
+              }
+            }
+          });
         }
       } catch (e) {
         setUser(null);
       }
     };
     init();
+    return () => { if (intervalId) clearInterval(intervalId); unsub(); };
   }, []); // Remove fetchNotifications from dependencies to prevent re-initialization
 
   const getNotificationIcon = (type) => {

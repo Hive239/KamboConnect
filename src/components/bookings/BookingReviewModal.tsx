@@ -98,6 +98,14 @@ export default function BookingReviewModal({ booking, onClose, onSubmit }) {
     setError("");
     
     try {
+      // Guard against a duplicate review for this booking (UI hides the button,
+      // but stale state / two tabs / direct re-entry could still double-submit).
+      const already = await Review.filter({ booking_id: booking.id }).catch(() => []);
+      if (already.length > 0) {
+        setError("You've already reviewed this session.");
+        setIsSubmitting(false);
+        return;
+      }
       // AI moderation pass (integrity / anti-abuse) before publishing
       const mod = await moderateContent(reviewData.review_text.trim());
       const newReview = await Review.create({

@@ -5,6 +5,8 @@ import __Layout from './Layout';
 // bundle small; heavy libs like recharts/leaflet/react-quill/pdf-lib only load
 // on the routes that use them). The Layout shell stays eager.
 export const PAGES = {
+    "ForYou": lazy(() => import('./pages/ForYou')),
+    "Guide": lazy(() => import('./pages/Guide')),
     "Directory": lazy(() => import('./pages/Directory')),
     "Matchmaking": lazy(() => import('./pages/Matchmaking')),
     "Education": lazy(() => import('./pages/Education')),
@@ -39,7 +41,7 @@ export const PAGES = {
 }
 
 export const pagesConfig = {
-    mainPage: "Directory",
+    mainPage: "ForYou",
     Pages: PAGES,
     Layout: __Layout,
 };

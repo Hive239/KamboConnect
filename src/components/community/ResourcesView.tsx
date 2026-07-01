@@ -142,15 +142,15 @@ export default function ResourcesView() {
           {[...Array(3)].map((_, i) => (
             <div key={i}>
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-muted rounded-lg animate-pulse"></div>
+                <div className="w-12 h-12 shimmer rounded-lg"></div>
                 <div>
-                  <div className="h-6 w-48 bg-muted rounded animate-pulse mb-2"></div>
-                  <div className="h-4 w-24 bg-muted rounded animate-pulse"></div>
+                  <div className="h-6 w-48 shimmer rounded mb-2"></div>
+                  <div className="h-4 w-24 shimmer rounded"></div>
                 </div>
               </div>
               <div className="grid md:grid-cols-2 gap-6">
-                <div className="h-64 bg-muted rounded-lg animate-pulse"></div>
-                <div className="h-64 bg-muted rounded-lg animate-pulse"></div>
+                <div className="h-64 shimmer rounded-lg"></div>
+                <div className="h-64 shimmer rounded-lg"></div>
               </div>
             </div>
           ))}

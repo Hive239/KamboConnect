@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Post, Reply, Report } from "@/entities/all";
 import { moderateContent } from "@/integrations/Moderation";
+import { sanitizeHtml } from "@/lib/sanitize";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -43,10 +44,10 @@ const ContentItem = ({ content, type, onAction, ai }) => {
                 </Badge>
               )}
             </div>
-            <div 
+            <div
               className="prose prose-sm max-w-none"
-              dangerouslySetInnerHTML={{ 
-                __html: isExpanded ? content.content : truncateText(content.content) 
+              dangerouslySetInnerHTML={{
+                __html: sanitizeHtml(isExpanded ? content.content : truncateText(content.content))
               }}
             />
             {content.content.length > 150 && (
@@ -146,13 +147,29 @@ export default function ContentModeration() {
           await Entity.update(contentId, { is_hidden: true });
           loadContent(); // Refresh
           break;
-        case 'delete':
+        case 'delete': {
           const confirmDelete = window.confirm('Are you sure you want to delete this content? This action cannot be undone.');
           if (confirmDelete) {
-            await Entity.delete(contentId); // Reply.delete for replies, Post.delete for posts
+            if (type === 'reply') {
+              const reply = replies.find((r) => r.id === contentId);
+              await Reply.delete(contentId);
+              // Keep the parent post's reply_count in sync (was never decremented).
+              if (reply?.post_id) {
+                const post = posts.find((p) => p.id === reply.post_id) || await Post.get(reply.post_id).catch(() => null);
+                if (post) await Post.update(reply.post_id, { reply_count: Math.max(0, (post.reply_count || 1) - 1) });
+              }
+            } else {
+              await Post.delete(contentId);
+              // Clean up orphaned replies (no FK cascades in the schema).
+              try {
+                const childReplies = await Reply.filter({ post_id: contentId });
+                await Promise.all(childReplies.map((r) => Reply.delete(r.id)));
+              } catch { /* best-effort cleanup */ }
+            }
             loadContent(); // Refresh
           }
           break;
+        }
       }
     } catch (error) {
       console.error(`Failed to ${action} content:`, error);

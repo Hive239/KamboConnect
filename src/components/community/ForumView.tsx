@@ -11,7 +11,7 @@ import { Plus, Search, MessageSquare, Pin, ArrowRight } from "@/lib/icons";
 import { formatDistanceToNow } from "date-fns";
 import FavoriteButton from "../favorites/FavoriteButton";
 
-const PostListItem = ({ post }) => {
+const PostListItem = ({ post, practitionerIds }) => {
   const categoryColors = {
     "General Discussion": "bg-blue-100 text-blue-800 border-blue-200",
     "Experience Sharing": "bg-primary/10 text-primary border-primary/20",
@@ -146,13 +146,13 @@ export default function ForumView() {
       {isLoading ? (
         <div className="space-y-4">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-24 bg-muted rounded-lg animate-pulse"></div>
+            <div key={i} className="h-24 shimmer rounded-lg"></div>
           ))}
         </div>
       ) : filteredPosts.length > 0 ? (
         <div className="space-y-3">
-          {pinnedPosts.map(post => <PostListItem key={post.id} post={post} />)}
-          {regularPosts.map(post => <PostListItem key={post.id} post={post} />)}
+          {pinnedPosts.map(post => <PostListItem key={post.id} post={post} practitionerIds={practitionerIds} />)}
+          {regularPosts.map(post => <PostListItem key={post.id} post={post} practitionerIds={practitionerIds} />)}
         </div>
       ) : (
         <div className="text-center py-12">

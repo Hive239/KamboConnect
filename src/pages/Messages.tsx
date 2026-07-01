@@ -63,6 +63,7 @@ export default function Messages() {
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isMessagesLoading, setIsMessagesLoading] = useState(false);
+  const [isSending, setIsSending] = useState(false);
   const [isNewConvoModalOpen, setIsNewConvoModalOpen] = useState(false);
   const [practitioners, setPractitioners] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -172,8 +173,9 @@ export default function Messages() {
   }, [conversations, isLoading, location.search, selectedConversation, handleConversationSelect]); // Fixed dependencies for useEffect
 
   const sendMessage = async (messageData) => {
-    if (!selectedConversation || !user) return;
+    if (!selectedConversation || !user || isSending) return; // guard double-submit
 
+    setIsSending(true);
     try {
       const otherId = selectedConversation.participant_1_id === user.id
         ? selectedConversation.participant_2_id
@@ -219,9 +221,11 @@ export default function Messages() {
     } catch (error) {
       console.error("Failed to send message:", error);
       toast.error("Message failed to send. Please try again.");
+    } finally {
+      setIsSending(false);
     }
   };
-  
+
   // Real-time: live-update the open thread + conversation list on data changes (incl. cross-tab)
   useEffect(() => {
     const unsub = subscribe((c) => {
@@ -336,7 +340,7 @@ export default function Messages() {
                         messages={messages}
                         currentUser={user}
                         onSendMessage={sendMessage}
-                        isSending={isMessagesLoading}
+                        isSending={isSending}
                         onBack={() => setSelectedConversation(null)}
                     />
                 ) : conversations.length > 0 ? (

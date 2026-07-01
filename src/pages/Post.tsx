@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Loader2, MessageSquare } from "@/lib/icons";
 import PageBreadcrumbs from "@/components/PageBreadcrumbs";
+import { sanitizeHtml } from "@/lib/sanitize";
 import { format } from "date-fns";
 import 'react-quill/dist/quill.snow.css';
 
@@ -160,7 +161,7 @@ export default function PostPage() {
           <CardContent>
             <div
               className="prose max-w-none"
-              dangerouslySetInnerHTML={{ __html: post.content }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content) }}
             />
           </CardContent>
         </Card>

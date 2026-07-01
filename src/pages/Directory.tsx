@@ -11,6 +11,7 @@ import { getCurrentLocation, sortByDistance, filterByRadius } from "../component
 import { useSeo } from "@/lib/useSeo";
 
 import PractitionerCard from "../components/directory/PractitionerCard";
+import { EmptyState } from "@/components/ui/EmptyState";
 import PractitionerModal from "../components/directory/PractitionerModal";
 import FilterModal from "../components/directory/FilterModal";
 import SavedSearches from "../components/directory/SavedSearches";
@@ -380,7 +381,7 @@ export default function Directory() {
                     </div>
                   </div>
                   
-                  <div className="flex gap-6 overflow-x-auto pb-4">
+                  <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
                       {spotlightedPractitioners.map(practitioner => (
                         <PractitionerCard 
                           key={practitioner.id}
@@ -402,13 +403,13 @@ export default function Directory() {
                   <p className="text-muted-foreground mb-6">Premium verified practitioners with excellent ratings</p>
                   
                   {isLoading ? (
-                     <div className="flex gap-4 overflow-x-auto pb-4">
+                     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                         {[...Array(5)].map((_, i) => (
-                            <div key={i} className="w-48 h-60 bg-muted rounded-2xl animate-pulse flex-shrink-0"></div>
+                            <div key={i} className="h-72 w-full rounded-2xl shimmer"></div>
                         ))}
                     </div>
                   ) : (
-                    <div className="flex gap-4 overflow-x-auto pb-4">
+                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                         {recommendedPractitioners.map(practitioner => (
                         <PractitionerCard 
                             key={practitioner.id}
@@ -431,13 +432,13 @@ export default function Directory() {
                   <p className="text-muted-foreground mb-6">Verified practitioners with enhanced profiles</p>
                   
                   {isLoading ? (
-                     <div className="flex gap-4 overflow-x-auto pb-4">
+                     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                         {[...Array(5)].map((_, i) => (
-                            <div key={i} className="w-48 h-60 bg-muted rounded-2xl animate-pulse flex-shrink-0"></div>
+                            <div key={i} className="h-72 w-full rounded-2xl shimmer"></div>
                         ))}
                     </div>
                   ) : (
-                    <div className="flex gap-4 overflow-x-auto pb-4">
+                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                         {featuredPractitioners.map(practitioner => (
                         <PractitionerCard 
                             key={practitioner.id}
@@ -460,13 +461,13 @@ export default function Directory() {
                   <p className="text-muted-foreground mb-6">Verified practitioners who have met our safety standards</p>
                   
                   {isLoading ? (
-                     <div className="flex gap-4 overflow-x-auto pb-4">
+                     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                         {[...Array(5)].map((_, i) => (
-                            <div key={i} className="w-48 h-60 bg-muted rounded-2xl animate-pulse flex-shrink-0"></div>
+                            <div key={i} className="h-72 w-full rounded-2xl shimmer"></div>
                         ))}
                     </div>
                   ) : (
-                    <div className="flex gap-4 overflow-x-auto pb-4">
+                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                         {vettedPractitioners.map(practitioner => (
                             <PractitionerCard 
                             key={practitioner.id}
@@ -489,13 +490,13 @@ export default function Directory() {
                   <p className="text-muted-foreground mb-6">New practitioners awaiting verification - exercise extra caution</p>
                   
                   {isLoading ? (
-                    <div className="flex gap-4 overflow-x-auto pb-4">
+                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                         {[...Array(3)].map((_, i) => (
-                            <div key={i} className="w-48 h-60 bg-muted rounded-2xl animate-pulse flex-shrink-0"></div>
+                            <div key={i} className="h-72 w-full rounded-2xl shimmer"></div>
                         ))}
                     </div>
                   ) : (
-                    <div className="flex gap-4 overflow-x-auto pb-4">
+                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                         {unvettedPractitioners.map(practitioner => (
                             <PractitionerCard 
                             key={practitioner.id}
@@ -513,11 +514,11 @@ export default function Directory() {
 
               {/* Overall No Results Message */}
               {!isLoading && filteredPractitioners.length === 0 && (
-                    <div className="text-center py-16">
-                        <Search className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                        <h3 className="text-lg font-semibold text-foreground mb-2">No practitioners found</h3>
-                        <p className="text-muted-foreground">Try adjusting your search terms or filters.</p>
-                    </div>
+                    <EmptyState
+                      icon={Search}
+                      title="No practitioners found"
+                      description="Try adjusting your search terms or filters — or ask the Guide to help you find a match."
+                    />
               )}
             </div>
           ) : (

@@ -17,6 +17,22 @@ import { Magnetic } from "@/components/ui/Magnetic";
 import {
   Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext,
 } from "@/components/ui/carousel";
+import {
+  Accordion, AccordionContent, AccordionItem, AccordionTrigger,
+} from "@/components/ui/accordion";
+
+const MODALITIES = [
+  "Kambo ceremonies", "Rapé & Hapé", "Sananga", "Integration support",
+  "Online consultations", "Group circles", "Aftercare", "Breathwork",
+];
+
+const FAQS = [
+  { q: "Is Kambo safe?", a: "For healthy adults with a trained practitioner, Kambo is generally well-tolerated — but it isn't right for everyone. Every booking here includes a health screening and informed-consent waiver, and our Guide can walk you through contraindications before you commit." },
+  { q: "How do I find the right practitioner?", a: "Browse the directory and map, or let the Guide match you based on location, modality, language, and budget. Every verified practitioner has reviewed credentials." },
+  { q: "What does a session cost?", a: "Pricing varies by practitioner and region. Most offer a free initial consultation so you can find the right fit before booking a paid session." },
+  { q: "Do I have to pay to join?", a: "No — creating an account is free for seekers. Practitioners can list a basic profile free and upgrade for more visibility." },
+  { q: "Is my information private?", a: "Yes. Health-screening answers are shared only with the practitioner you book, and you control what's on your public profile." },
+];
 
 const ROTATING = ["trusted", "verified", "caring", "local"];
 
@@ -144,7 +160,7 @@ export default function Landing() {
 
         {/* ---------- Hero ---------- */}
         <section className="relative overflow-hidden grain">
-          <GradientMesh intensity="soft" />
+          <GradientMesh intensity="vivid" />
           <div className="relative z-10 mx-auto grid max-w-6xl gap-10 px-5 py-20 sm:py-28 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
             <div className="text-center lg:text-left">
               <motion.div
@@ -174,6 +190,23 @@ export default function Landing() {
                 <ShieldCheck className="h-4 w-4 text-success" weight="duotone" />
                 Screening &amp; consent on every booking
               </p>
+
+              {/* Social proof row */}
+              <div className="mt-7 flex items-center justify-center gap-3 lg:justify-start">
+                {avatars.length > 0 && (
+                  <div className="flex -space-x-2.5">
+                    {avatars.slice(0, 4).map((p) => (
+                      <img key={p.id} src={p.profile_image_url} alt="" loading="lazy" className="h-9 w-9 rounded-full border-2 border-background object-cover shadow-sm" />
+                    ))}
+                  </div>
+                )}
+                <div className="text-left">
+                  <div className="flex items-center gap-0.5 text-warning">
+                    {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="h-3.5 w-3.5 fill-warning" weight="fill" />)}
+                  </div>
+                  <p className="text-xs text-muted-foreground">Loved by <span className="font-semibold text-foreground">12,000+</span> seekers</p>
+                </div>
+              </div>
             </div>
 
             {/* Floating verified-practitioner avatars */}
@@ -212,6 +245,23 @@ export default function Landing() {
           <Reveal stagger className="mx-auto grid max-w-5xl grid-cols-2 gap-8 px-5 py-12 md:grid-cols-4">
             {STATS.map((s) => (
               <Reveal.Item key={s.label}><Stat stat={s} /></Reveal.Item>
+            ))}
+          </Reveal>
+        </section>
+
+        {/* ---------- What you'll find ---------- */}
+        <section className="mx-auto max-w-5xl px-5 pt-16 text-center">
+          <Reveal>
+            <span className="text-sm font-semibold uppercase tracking-widest text-primary">What you'll find</span>
+            <h2 className="mt-1 font-display text-hero font-semibold">Guidance for every step of the path</h2>
+          </Reveal>
+          <Reveal stagger step={0.05} className="mt-6 flex flex-wrap justify-center gap-2.5">
+            {MODALITIES.map((m) => (
+              <Reveal.Item key={m}>
+                <span className="inline-block rounded-full border border-border bg-card px-4 py-2 text-sm font-medium shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:text-primary hover:shadow-md">
+                  {m}
+                </span>
+              </Reveal.Item>
             ))}
           </Reveal>
         </section>
@@ -345,6 +395,28 @@ export default function Landing() {
           </Reveal>
         </section>
 
+        {/* ---------- FAQ ---------- */}
+        <section className="mx-auto max-w-3xl px-5 py-20">
+          <Reveal className="mb-8 text-center">
+            <span className="text-sm font-semibold uppercase tracking-widest text-primary">Questions</span>
+            <h2 className="mt-1 font-display text-display font-semibold">Good to know</h2>
+          </Reveal>
+          <Reveal>
+            <Accordion type="single" collapsible className="w-full">
+              {FAQS.map((f, i) => (
+                <AccordionItem key={i} value={`faq-${i}`} className="border-border">
+                  <AccordionTrigger className="text-left font-medium hover:no-underline">{f.q}</AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground">{f.a}</AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </Reveal>
+          <p className="mt-8 text-center text-sm text-muted-foreground">
+            Still curious?{" "}
+            <Link to={createPageUrl("Guide")} className="font-medium text-primary hover:underline">Ask the Guide →</Link>
+          </p>
+        </section>
+
         {/* ---------- CTA ---------- */}
         <section className="mx-auto my-16 max-w-5xl px-5">
           <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-primary to-clay p-12 text-center text-primary-foreground shadow-xl grain">
@@ -378,6 +450,8 @@ export default function Landing() {
               <Link to={createPageUrl("Community")} className="hover:text-foreground">Community</Link>
               <Link to={createPageUrl("Education")} className="hover:text-foreground">Learn</Link>
               <Link to={createPageUrl("Disclaimer")} className="hover:text-foreground">Legal</Link>
+              <Link to={createPageUrl("Privacy")} className="hover:text-foreground">Privacy</Link>
+              <Link to={createPageUrl("Terms")} className="hover:text-foreground">Terms</Link>
             </div>
             <span className="text-sm text-muted-foreground">© {new Date().getFullYear()} KamboGuide</span>
           </div>
