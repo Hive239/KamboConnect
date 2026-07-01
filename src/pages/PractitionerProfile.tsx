@@ -69,7 +69,7 @@ export default function PractitionerProfile() {
     const enrichedData = {
       ...practitionerData,
       is_verified: practitionerData.is_verified !== false,
-      listing_tier: practitionerData.listing_tier || 'verified',
+      listing_tier: practitionerData.listing_tier || 'basic',
       years_experience: practitionerData.years_experience || 5,
       pricing_range: practitionerData.pricing_range || '$$',
       profile_image_url: practitionerData.profile_image_url || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800',

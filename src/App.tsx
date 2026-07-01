@@ -10,6 +10,8 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import RoleSwitcher from '@/components/dev/RoleSwitcher';
 import { ThemeProvider } from 'next-themes';
 import { CartProvider } from '@/lib/cart';
+import ErrorBoundary from '@/components/ErrorBoundary';
+import CommandPalette from '@/components/CommandPalette';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -76,7 +78,10 @@ function App() {
         <QueryClientProvider client={queryClientInstance}>
           <Router>
             <NavigationTracker />
-            <AuthenticatedApp />
+            <CommandPalette />
+            <ErrorBoundary>
+              <AuthenticatedApp />
+            </ErrorBoundary>
           </Router>
           <Toaster />
           {import.meta.env.DEV && <RoleSwitcher />}

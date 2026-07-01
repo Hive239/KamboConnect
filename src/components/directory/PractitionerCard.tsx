@@ -55,14 +55,14 @@ export default function PractitionerCard({
               {practitioner.is_verified && (
                 <Badge
                   variant={
-                    practitioner.listing_tier === 'premium' ? 'premium'
-                      : practitioner.listing_tier === 'featured' ? 'featured'
-                      : 'verified'
+                    practitioner.listing_tier === 'featured' ? 'featured'
+                      : practitioner.listing_tier === 'preferred' ? 'preferred'
+                      : 'basic'
                   }
                   className="rounded-full shadow-sm capitalize"
                 >
-                  {practitioner.listing_tier === 'premium' ? 'Premium'
-                    : practitioner.listing_tier === 'featured' ? 'Featured'
+                  {practitioner.listing_tier === 'featured' ? 'Featured'
+                    : practitioner.listing_tier === 'preferred' ? 'Preferred'
                     : 'Verified'}
                 </Badge>
               )}

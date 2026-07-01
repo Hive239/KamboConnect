@@ -202,9 +202,9 @@ const replies = [
   { id: 'rep-3', post_id: 'post-2', author_id: 'user-client', author_name: 'Jordan Rivera', content: 'Thank you for sharing — the journaling prompt was perfect.' },
 ];
 const communityResources = [
-  { id: 'res-1', title: 'Kambo Safety Protocols', url: '#', category: 'Safety Protocols', resource_type: 'Article', description: 'Core safety standards every practitioner should follow.' },
-  { id: 'res-2', title: 'Community Guidelines', url: '#', category: 'Community Guidelines', resource_type: 'Article', description: 'How we keep this space respectful and safe.' },
-  { id: 'res-3', title: 'Integration Practices', url: '#', category: 'Integration Practices', resource_type: 'Video', description: 'Practices to support post-session integration.' },
+  { id: 'res-1', title: 'Kambo Safety Protocols', url: '/Education', category: 'Safety Protocols', resource_type: 'Article', description: 'Core safety standards every practitioner should follow.' },
+  { id: 'res-2', title: 'Community Guidelines', url: '/Disclaimer', category: 'Community Guidelines', resource_type: 'Article', description: 'How we keep this space respectful and safe.' },
+  { id: 'res-3', title: 'Integration Practices', url: '/Education', category: 'Integration Practices', resource_type: 'Video', description: 'Practices to support post-session integration.' },
 ];
 
 // ---- Bookings / payments ---------------------------------------------------

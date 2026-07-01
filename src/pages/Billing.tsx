@@ -12,9 +12,9 @@ import { CheckCircle, Trophy, Star, Briefcase, DollarSign, Loader2 } from "@/lib
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip as RTooltip, CartesianGrid } from "recharts";
 
 const TIERS = [
-  { id: "verified", name: "Verified", price: 0, blurb: "Your verified listing in the directory.", features: ["Verified badge", "Directory listing", "Client messaging"] },
-  { id: "featured", name: "Featured", price: 29, blurb: "Stand out with priority placement.", features: ["Everything in Verified", "Featured badge & placement", "Profile gallery & video", "Analytics dashboard"] },
-  { id: "premium", name: "Premium", price: 49, blurb: "Maximum visibility & growth tools.", features: ["Everything in Featured", "Top spotlight placement", "Priority in matchmaking", "Lead inbox & promo tools"] },
+  { id: "basic", name: "Basic", price: 0, blurb: "Your verified listing in the directory.", features: ["Verified badge", "Directory listing", "Client messaging"] },
+  { id: "preferred", name: "Preferred", price: 29, blurb: "Stand out with priority placement.", features: ["Everything in Basic", "Preferred badge & placement", "Profile gallery & video", "Analytics dashboard"] },
+  { id: "featured", name: "Featured", price: 49, blurb: "Maximum visibility & growth tools.", features: ["Everything in Preferred", "Top spotlight placement", "Priority in matchmaking", "Lead inbox & promo tools"] },
 ];
 
 export default function Billing() {
@@ -108,7 +108,7 @@ export default function Billing() {
               <CardContent className="p-6">
                 <div className="mb-2 flex items-center justify-between">
                   <h3 className="font-display text-xl font-semibold">{t.name}</h3>
-                  {t.id === "premium" && <Badge variant="premium">Best</Badge>}
+                  {t.id === "featured" && <Badge variant="featured">Best</Badge>}
                 </div>
                 <p className="mb-4 text-sm text-muted-foreground">{t.blurb}</p>
                 <p className="mb-4 font-display text-3xl font-semibold">{t.price === 0 ? "Free" : <>{formatCurrency(t.price)}<span className="text-sm font-normal text-muted-foreground">/mo</span></>}</p>

@@ -93,14 +93,11 @@ export default function Directory() {
     try {
       const practitionersData = await Practitioner.list("-created_date");
 
-      // Ensure essential fields have defaults and assign listing tiers
+      // Ensure essential fields have defaults. Tier comes from the practitioner's
+      // active subscription (set on the row); default to 'basic' when unset.
       const practitionersWithDetails = practitionersData.map(p => {
         if (!p.address) p.address = {};
-        if (!p.listing_tier) {
-          if (p.is_verified && (p.years_experience || 0) >= 8) p.listing_tier = 'premium';
-          else if (p.is_verified && (p.years_experience || 0) >= 3) p.listing_tier = 'featured';
-          else p.listing_tier = 'verified';
-        }
+        if (!p.listing_tier) p.listing_tier = 'basic';
         return p;
       });
 
@@ -249,19 +246,19 @@ export default function Directory() {
   
   // Updated categorization logic for 5 sections
   const spotlightedPractitioners = filteredPractitioners
-    .filter(p => p.is_verified && p.listing_tier === 'premium' && getAverageRating(p.id) >= 4.0 && (p.years_experience >= 5))
+    .filter(p => p.is_verified && p.listing_tier === 'featured' && getAverageRating(p.id) >= 4.0 && (p.years_experience >= 5))
     .sort((a, b) => (b.years_experience || 0) - (a.years_experience || 0));
 
   const recommendedPractitioners = filteredPractitioners
-    .filter(p => p.is_verified && (p.listing_tier === 'premium' || p.listing_tier === 'featured') && getAverageRating(p.id) >= 3.5 && !spotlightedPractitioners.some(spotP => spotP.id === p.id))
+    .filter(p => p.is_verified && (p.listing_tier === 'featured' || p.listing_tier === 'preferred') && getAverageRating(p.id) >= 3.5 && !spotlightedPractitioners.some(spotP => spotP.id === p.id))
     .sort((a, b) => getAverageRating(b.id) - getAverageRating(a.id));
 
   const featuredPractitioners = filteredPractitioners
-    .filter(p => p.is_verified && p.listing_tier === 'featured' && !spotlightedPractitioners.some(spotP => spotP.id === p.id) && !recommendedPractitioners.some(recP => recP.id === p.id))
+    .filter(p => p.is_verified && p.listing_tier === 'preferred' && !spotlightedPractitioners.some(spotP => spotP.id === p.id) && !recommendedPractitioners.some(recP => recP.id === p.id))
     .sort((a, b) => getAverageRating(b.id) - getAverageRating(a.id));
 
   const vettedPractitioners = filteredPractitioners
-    .filter(p => p.is_verified && (p.listing_tier === 'verified' || !p.listing_tier) && 
+    .filter(p => p.is_verified && (p.listing_tier === 'basic' || !p.listing_tier) &&
       !spotlightedPractitioners.some(spotP => spotP.id === p.id) && 
       !recommendedPractitioners.some(recP => recP.id === p.id) && 
       !featuredPractitioners.some(featP => featP.id === p.id))

@@ -20,7 +20,11 @@ const badgeVariants = cva(
         warning: "border-transparent bg-warning text-warning-foreground shadow",
         info: "border-transparent bg-info text-info-foreground shadow",
         verified: "border-transparent bg-primary text-primary-foreground shadow",
-        featured: "border-transparent bg-clay text-clay-foreground shadow",
+        // Subscription tiers: basic → preferred → featured (top)
+        basic: "border-transparent bg-primary text-primary-foreground shadow",
+        preferred: "border-transparent bg-clay text-clay-foreground shadow",
+        featured:
+          "border-transparent bg-gradient-to-r from-primary to-clay text-primary-foreground shadow",
         premium:
           "border-transparent bg-gradient-to-r from-primary to-clay text-primary-foreground shadow",
         tier: "border-primary/30 bg-primary/10 text-primary",

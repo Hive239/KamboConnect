@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { CommunityResource } from "@/entities/CommunityResource";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -34,8 +35,20 @@ const ResourceCard = ({ resource }) => {
     "Further Reading": "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=800"
   };
 
+  // Internal app routes ("/Education") navigate in-app; real external links open a new tab.
+  const isInternal = resource.url?.startsWith("/");
+  const hasLink = resource.url && resource.url !== "#";
+  const Wrapper = ({ children }) =>
+    !hasLink ? (
+      <div className="block group">{children}</div>
+    ) : isInternal ? (
+      <Link to={resource.url} className="block group">{children}</Link>
+    ) : (
+      <a href={resource.url} target="_blank" rel="noopener noreferrer" className="block group">{children}</a>
+    );
+
   return (
-    <a href={resource.url} target="_blank" rel="noopener noreferrer" className="block group">
+    <Wrapper>
       <Card className="shadow-sm border-border hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden">
         <div className={`h-32 bg-gradient-to-br ${categoryColors[resource.category]} relative overflow-hidden`}>
           {categoryImages[resource.category] && (
@@ -67,7 +80,7 @@ const ResourceCard = ({ resource }) => {
           </CardDescription>
         </CardContent>
       </Card>
-    </a>
+    </Wrapper>
   );
 };
 

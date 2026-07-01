@@ -23,6 +23,7 @@ import {
   LogIn
 } from "@/lib/icons";
 
+import { resolvePractitionerForUser } from "@/lib/practitionerForUser";
 import ProfileManagement from "../components/practitioner/ProfileManagement";
 import ReviewsManagement from "../components/practitioner/ReviewsManagement";
 import CredentialManagement from "../components/practitioner/CredentialManagement";
@@ -55,32 +56,10 @@ export default function PractitionerDashboard() {
         return;
       }
 
-      let foundPractitioners = [];
+      // Unified identity: resolve the practitioner listing by user id (email fallback).
+      const profile = await resolvePractitionerForUser(currentUser);
 
-      // Method 1: Exact email match
-      foundPractitioners = await Practitioner.filter({ email: currentUser.email });
-
-      // Method 2: Case-insensitive search through all practitioners
-      if (foundPractitioners.length === 0) {
-        const allPractitioners = await Practitioner.list('-created_date', 100);
-        foundPractitioners = allPractitioners.filter(p =>
-          p.email && p.email.toLowerCase().trim() === currentUser.email.toLowerCase().trim()
-        );
-      }
-
-      // Method 3: Fuzzy match (remove spaces, special characters)
-      if (foundPractitioners.length === 0) {
-        const allPractitioners = await Practitioner.list('-created_date', 100);
-        const cleanUserEmail = currentUser.email.replace(/[\s\W_]+/g, '').toLowerCase(); // Remove spaces and non-alphanumeric
-        foundPractitioners = allPractitioners.filter(p => {
-          if (!p.email) return false;
-          const cleanPractitionerEmail = p.email.replace(/[\s\W_]+/g, '').toLowerCase();
-          return cleanPractitionerEmail === cleanUserEmail;
-        });
-      }
-
-      if (foundPractitioners.length > 0) {
-        const profile = foundPractitioners[0];
+      if (profile) {
         setPractitionerProfile(profile);
 
         // Load practitioner-specific data

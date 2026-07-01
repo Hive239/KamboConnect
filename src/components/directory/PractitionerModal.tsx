@@ -44,11 +44,11 @@ export default function PractitionerModal({
   const [showDirectBooking, setShowDirectBooking] = useState(false);
   const embedUrl = getYouTubeEmbedUrl(practitioner.video_interview_url);
 
-  const canShowReviews = practitioner.listing_tier === 'featured' || practitioner.listing_tier === 'premium';
-  const canShowGallery = practitioner.listing_tier === 'featured' || practitioner.listing_tier === 'premium';
-  const canShowVideo = practitioner.listing_tier === 'premium';
-  const isFeatured = practitioner.listing_tier === 'featured';
-  const isPremium = practitioner.listing_tier === 'premium';
+  const canShowReviews = practitioner.listing_tier === 'preferred' || practitioner.listing_tier === 'featured';
+  const canShowGallery = practitioner.listing_tier === 'preferred' || practitioner.listing_tier === 'featured';
+  const canShowVideo = practitioner.listing_tier === 'featured';
+  const isFeatured = practitioner.listing_tier === 'preferred' || practitioner.listing_tier === 'featured';
+  const isPremium = practitioner.listing_tier === 'featured';
 
   const fullProfileUrl = createPageUrl(`PractitionerProfile?id=${practitioner.id}`);
   
