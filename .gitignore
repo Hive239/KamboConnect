@@ -28,3 +28,8 @@ dist-ssr
 *.sw?
 
 .env
+# Environment / secrets (never commit)
+.env
+.env.*
+!.env.example
+supabase/.env
