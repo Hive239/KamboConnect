@@ -12,6 +12,10 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import FollowButton from "@/components/social/FollowButton";
+import { useCurrentUser } from "@/lib/useCurrentUser";
+import { requestConsultation } from "@/lib/consultations";
+import { User } from "@/entities/all";
+import { toast } from "sonner";
 
 // Helper to extract video ID from YouTube/Vimeo URL
 const getYouTubeEmbedUrl = (url) => {
@@ -42,6 +46,15 @@ export default function PractitionerModal({
   const [showVideo, setShowVideo] = useState(false);
   const [selectedGalleryImage, setSelectedGalleryImage] = useState(null);
   const [showDirectBooking, setShowDirectBooking] = useState(false);
+  const [requestingConsult, setRequestingConsult] = useState(false);
+  const { data: currentUser } = useCurrentUser();
+  const handleRequestConsultation = async () => {
+    if (!currentUser) { await User.login(); return; }
+    setRequestingConsult(true);
+    try { await requestConsultation(practitioner, currentUser); toast.success("Consultation requested."); }
+    catch { toast.error("Could not request consultation."); }
+    finally { setRequestingConsult(false); }
+  };
   const embedUrl = getYouTubeEmbedUrl(practitioner.video_interview_url);
 
   const canShowReviews = practitioner.listing_tier === 'preferred' || practitioner.listing_tier === 'featured';
@@ -106,7 +119,11 @@ export default function PractitionerModal({
                     <Calendar className="w-4 h-4 mr-2"/>
                     Book Now
                 </Button>
-                <Button onClick={onRequestBooking} variant="outline" className="w-full">
+                <Button onClick={handleRequestConsultation} disabled={requestingConsult} variant="outline" className="w-full">
+                    <Mail className="w-4 h-4 mr-2"/>
+                    {requestingConsult ? "Requesting…" : "Request Consultation"}
+                </Button>
+                <Button onClick={onRequestBooking} variant="ghost" className="w-full">
                     <Send className="w-4 h-4 mr-2"/>
                     Request Booking
                 </Button>

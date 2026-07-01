@@ -29,6 +29,7 @@ import ProfileManagement from "../components/practitioner/ProfileManagement";
 import ReviewsManagement from "../components/practitioner/ReviewsManagement";
 import CredentialManagement from "../components/practitioner/CredentialManagement";
 import ClientsManagement from "../components/practitioner/ClientsManagement";
+import ConsultationsManager from "../components/practitioner/ConsultationsManager";
 import BookingCalendar from "../components/practitioner/BookingCalendar";
 import MessagingCenter from "../components/practitioner/MessagingCenter";
 import EventManagement from "../components/practitioner/EventManagement";
@@ -286,6 +287,7 @@ export default function PractitionerDashboard() {
           </TabsContent>
 
           <TabsContent value="bookings" className="py-6">
+            <ConsultationsManager practitioner={practitionerProfile} />
             <BookingCalendar
               bookings={bookings}
               practitioner={practitionerProfile} // Pass renamed prop

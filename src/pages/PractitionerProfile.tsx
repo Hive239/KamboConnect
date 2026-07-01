@@ -19,6 +19,7 @@ import { format } from 'date-fns';
 import { toast } from "sonner";
 import FollowButton from "@/components/social/FollowButton";
 import { useSeo } from "@/lib/useSeo";
+import { requestConsultation } from "@/lib/consultations";
 
 // Helper function to get embed URL for YouTube or Vimeo
 const getYouTubeEmbedUrl = (url) => {
@@ -191,54 +192,51 @@ export default function PractitionerProfile() {
     navigate(createPageUrl(`BookingRequest?practitionerId=${practitioner.id}`));
   };
 
+  const [requestingConsult, setRequestingConsult] = useState(false);
+  const handleRequestConsultation = async () => {
+    if (!currentUser) { await User.login(); return; }
+    setRequestingConsult(true);
+    try {
+      await requestConsultation(practitioner, currentUser);
+      toast.success("Consultation requested — the practitioner will reach out to schedule.");
+    } catch (e) {
+      toast.error("Could not request consultation. Please try again.");
+    } finally { setRequestingConsult(false); }
+  };
+
   const handleSendMessage = async () => {
-    console.log("=== SEND MESSAGE CLICKED ===");
-    console.log("currentUser:", currentUser);
-    console.log("practitioner:", practitioner);
     
     if (!currentUser) {
-      console.log("No current user - redirecting to login");
       await User.login();
       return;
     }
-    console.log("Current user exists:", currentUser.id, currentUser.email);
 
     if (!practitioner) {
-      console.log("ERROR: No practitioner found");
       alert("Error: Practitioner data not loaded");
       return;
     }
-    console.log("Practitioner exists:", practitioner.id, practitioner.email);
     
     if (practitioner.email === currentUser.email) {
-      console.log("Same user - cannot message self");
       alert("You cannot send a message to yourself.");
       return;
     }
 
     setIsSendingMessage(true);
-    console.log("Starting message creation process...");
     
     try {
-      console.log("Step 1: Fetching all conversations");
       const allConversations = await Conversation.list();
-      console.log("Found conversations:", allConversations.length);
       
-      console.log("Step 2: Looking for existing conversation");
       const existing = allConversations.find(c => {
         const match = (c.participant_1_id === currentUser.id && c.participant_2_id === practitioner.id) ||
                      (c.participant_2_id === currentUser.id && c.participant_1_id === practitioner.id);
         if (match) {
-          console.log("Found existing conversation:", c.id);
         }
         return match;
       });
 
       let convoId = existing?.id;
-      console.log("Existing conversation ID:", convoId);
 
       if (!convoId) {
-        console.log("Step 3: Creating new conversation");
         const conversationData = {
           participant_1_id: currentUser.id,
           participant_2_id: practitioner.id,
@@ -247,25 +245,19 @@ export default function PractitionerProfile() {
           last_message: "Conversation started",
           last_message_date: new Date().toISOString()
         };
-        console.log("Conversation data to create:", conversationData);
         
         const newConvo = await Conversation.create(conversationData);
-        console.log("Created new conversation:", newConvo);
         convoId = newConvo.id;
       }
       
-      console.log("Step 4: Navigating to messages");
       const messagesUrl = createPageUrl(`Messages?conversation_id=${convoId}`);
-      console.log("Navigating to:", messagesUrl);
       navigate(messagesUrl);
-      console.log("Navigation called");
 
     } catch (error) {
       console.error("ERROR in handleSendMessage:", error);
       console.error("Error stack:", error.stack);
       alert(`Error: ${error.message}`);
     } finally {
-      console.log("Cleaning up...");
       setIsSendingMessage(false);
     }
   };
@@ -355,7 +347,11 @@ export default function PractitionerProfile() {
               )}
             </div>
             <div className="flex flex-col gap-2 mt-4 sm:mt-0 w-full sm:w-auto">
-              <Button onClick={handleRequestBooking} className="w-full bg-primary hover:bg-primary/90">
+              <Button onClick={handleRequestConsultation} disabled={requestingConsult} className="w-full bg-primary hover:bg-primary/90">
+                  <MessageSquare className="w-4 h-4 mr-2"/>
+                  {requestingConsult ? "Requesting…" : "Request Consultation"}
+              </Button>
+              <Button onClick={handleRequestBooking} variant="outline" className="w-full">
                   <CalendarIcon className="w-4 h-4 mr-2"/>
                   Request Booking
               </Button>
