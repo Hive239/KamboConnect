@@ -1,98 +1,43 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Heart } from '@/lib/icons';
 import { Button } from "@/components/ui/button";
 import { Favorite } from '@/entities/Favorite';
 import { User } from '@/entities/User';
+import { useCurrentUser, useMyFavorites, useDataInvalidator } from '@/lib/useCurrentUser';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
-export default function FavoriteButton({ 
-  itemId, 
-  itemType, 
+export default function FavoriteButton({
+  itemId,
+  itemType,
   itemTitle,
   metadata = {},
   className = "",
   size = "default"
 }) {
-  const [isFavorited, setIsFavorited] = useState(false);
+  const { data: user } = useCurrentUser();
+  const { data: favorites } = useMyFavorites();
+  const invalidate = useDataInvalidator();
   const [isLoading, setIsLoading] = useState(false);
-  const [user, setUser] = useState(null);
-  const [hasFetched, setHasFetched] = useState(false);
 
-  useEffect(() => {
-    const loadUserAndFavoriteStatus = async () => {
-      if (hasFetched) return; // Prevent multiple fetches
-      
-      try {
-        const currentUser = await User.me();
-        setUser(currentUser);
-        setHasFetched(true);
-        
-        if (currentUser) {
-          await new Promise(resolve => setTimeout(resolve, 150)); // Add delay to prevent rate limiting
-          const existingFavorite = await Favorite.filter({
-            user_id: currentUser.id,
-            item_id: itemId,
-            item_type: itemType
-          });
-          setIsFavorited(existingFavorite.length > 0);
-        }
-      } catch (error) {
-        // User not logged in or other error
-        console.warn("Could not load favorite status:", error.message);
-        setUser(null);
-        setHasFetched(true);
-      }
-    };
-
-    loadUserAndFavoriteStatus();
-  }, [itemId, itemType, hasFetched]);
+  const existing = (favorites || []).find(f => f.item_id === itemId && f.item_type === itemType);
+  const isFavorited = !!existing;
 
   const toggleFavorite = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    
-    if (!user) {
-      // Optionally redirect to login or show message
-      await User.login();
-      return;
-    }
+    if (!user) { await User.login(); return; }
 
     setIsLoading(true);
     try {
-      if (isFavorited) {
-        // Remove favorite - optimistically update UI first
-        setIsFavorited(false);
-        
-        // Add delay before API call to prevent rate limiting
-        await new Promise(resolve => setTimeout(resolve, 100));
-        const existingFavorites = await Favorite.filter({
-          user_id: user.id,
-          item_id: itemId,
-          item_type: itemType
-        });
-        
-        if (existingFavorites.length > 0) {
-          await Favorite.delete(existingFavorites[0].id);
-        }
+      if (existing) {
+        await Favorite.delete(existing.id);
       } else {
-        // Add favorite - optimistically update UI first
-        setIsFavorited(true);
-        
-        // Add delay before API call to prevent rate limiting
-        await new Promise(resolve => setTimeout(resolve, 100));
-        await Favorite.create({
-          user_id: user.id,
-          item_id: itemId,
-          item_type: itemType,
-          item_title: itemTitle,
-          metadata
-        });
+        await Favorite.create({ user_id: user.id, item_id: itemId, item_type: itemType, item_title: itemTitle, metadata });
       }
+      invalidate('favorites');
     } catch (error) {
       console.error('Failed to toggle favorite:', error);
-      // Revert optimistic update on error
-      setIsFavorited(!isFavorited);
     } finally {
       setIsLoading(false);
     }

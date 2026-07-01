@@ -81,7 +81,6 @@ export default function ForumView() {
       setHasFetched(true);
       
       try {
-        await new Promise(resolve => setTimeout(resolve, 300)); // Add delay to prevent rate limiting
         const allPosts = await Post.list("-last_reply_date");
         // Mock data for reply counts for demo
         const postsWithReplies = allPosts.map((p, i) => ({...p, reply_count: i % 5 + (p.is_pinned ? 5 : 0) }));

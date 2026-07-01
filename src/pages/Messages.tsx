@@ -70,14 +70,12 @@ export default function Messages() {
   const loadConversations = useCallback(async (currentUser) => {
     try {
       // Add a small delay to prevent rapid-fire API calls
-      await new Promise(resolve => setTimeout(resolve, 100));
       
       // The `queryData` method is not available. We'll achieve the OR query by doing two separate filters and merging them.
       // Fetch conversations where the current user is participant 1
       const convosAsP1 = await Conversation.filter({ participant_1_id: currentUser.id });
       
       // Add another small delay before the second call
-      await new Promise(resolve => setTimeout(resolve, 100));
       
       // Fetch conversations where the current user is participant 2
       const convosAsP2 = await Conversation.filter({ participant_2_id: currentUser.id });
@@ -103,7 +101,6 @@ export default function Messages() {
     setIsMessagesLoading(true);
     try {
       // Add delay to prevent rate limiting
-      await new Promise(resolve => setTimeout(resolve, 150));
       
       const fetchedMessages = await Message.filter(
         { conversation_id: conversation.id },
@@ -137,13 +134,11 @@ export default function Messages() {
         setUser(currentUser);
         
         // Add delay before next API call
-        await new Promise(resolve => setTimeout(resolve, 200));
         
         // Load conversations
         await loadConversations(currentUser);
         
         // Add delay before final API call
-        await new Promise(resolve => setTimeout(resolve, 200));
         
         // Load practitioners
         const allPractitioners = await Practitioner.list();
@@ -253,7 +248,6 @@ export default function Messages() {
           participant_2_id: practitionerId
       });
       
-      await new Promise(resolve => setTimeout(resolve, 100));
       
       const existingConvo2 = await Conversation.filter({
           participant_1_id: practitionerId,
@@ -344,7 +338,7 @@ export default function Messages() {
                         messages={messages}
                         currentUser={user}
                         onSendMessage={sendMessage}
-                        isLoading={isMessagesLoading}
+                        isSending={isMessagesLoading}
                         onBack={() => setSelectedConversation(null)}
                     />
                 ) : conversations.length > 0 ? (

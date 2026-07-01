@@ -11,7 +11,7 @@ import { getCurrentLocation, sortByDistance } from "../components/utils/location
 
 export default function Events() {
   const [viewMode, setViewMode] = useState("list");
-  const [currentMonth, setCurrentMonth] = useState(new Date('2025-01-15'));
+  const [currentMonth, setCurrentMonth] = useState(new Date());
   const [events, setEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -28,19 +28,25 @@ export default function Events() {
       setHasFetchedEvents(true);
       
       try {
-        await new Promise(resolve => setTimeout(resolve, 250)); // Add delay to prevent rate limiting
         const fetchedEvents = await Event.list("-start_date");
-        
-        // Add mock participant counts and coordinates for demo
+
+        // Respect stored values; only fill missing coordinates for the map demo.
         const eventsWithDetails = fetchedEvents.map(e => ({
           ...e,
-          current_participants: Math.floor(Math.random() * e.max_participants),
-          // Add mock coordinates based on location if not present
-          latitude: e.latitude || (40.7128 + (Math.random() - 0.5) * 2), // NYC area
-          longitude: e.longitude || (-74.0060 + (Math.random() - 0.5) * 2)
+          current_participants: e.current_participants ?? 0,
+          latitude: e.latitude ?? (40.7128 + (Math.random() - 0.5) * 2),
+          longitude: e.longitude ?? (-74.0060 + (Math.random() - 0.5) * 2),
         }));
-        
+
         setEvents(eventsWithDetails);
+
+        // If the current month has no events, jump to the next upcoming event's month.
+        const now = new Date();
+        const upcoming = eventsWithDetails
+          .filter(e => e.start_date && new Date(e.start_date) >= now)
+          .sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+        const inThisMonth = eventsWithDetails.some(e => e.start_date && isSameMonth(new Date(e.start_date), now));
+        if (!inThisMonth && upcoming[0]) setCurrentMonth(new Date(upcoming[0].start_date));
       } catch (error) {
         console.error("Failed to load events:", error);
         setEvents([]);

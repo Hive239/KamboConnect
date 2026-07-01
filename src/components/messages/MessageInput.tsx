@@ -67,6 +67,7 @@ export default function MessageInput({ onSendMessage, isSending }) {
             <Button
                 onClick={handleSend}
                 disabled={isSending || !newMessage.trim()}
+                aria-label="Send message"
                 className="bg-primary hover:bg-primary/90 self-end h-10"
             >
                 {isSending ? (

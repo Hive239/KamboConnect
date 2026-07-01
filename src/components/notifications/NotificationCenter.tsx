@@ -31,7 +31,6 @@ export default function NotificationCenter() {
     setLastFetchTime(now);
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 200)); // Add delay before API call
       const fetchedNotifications = await Notification.filter(
         { user_id: currentUser.id },
         "-created_date",
