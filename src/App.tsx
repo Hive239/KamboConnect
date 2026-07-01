@@ -79,7 +79,7 @@ function App() {
             <AuthenticatedApp />
           </Router>
           <Toaster />
-          <RoleSwitcher />
+          {import.meta.env.DEV && <RoleSwitcher />}
         </QueryClientProvider>
         </CartProvider>
       </AuthProvider>

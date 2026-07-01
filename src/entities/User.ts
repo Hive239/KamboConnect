@@ -29,7 +29,8 @@ export const User = {
   },
 
   async login(): Promise<void> {
-    session.login();
+    // Send users to the real email/password auth screen.
+    if (typeof window !== 'undefined') window.location.assign('/Auth');
   },
 
   async logout(): Promise<void> {

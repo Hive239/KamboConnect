@@ -20,6 +20,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import Matchmaking from './pages/Matchmaking';
 import TrustSafety from './pages/TrustSafety';
 import Billing from './pages/Billing';
+import Auth from './pages/Auth';
 import __Layout from './Layout';
 
 
@@ -46,6 +47,7 @@ export const PAGES = {
     "AdminDashboard": AdminDashboard,
     "TrustSafety": TrustSafety,
     "Billing": Billing,
+    "Auth": Auth,
 }
 
 export const pagesConfig = {
