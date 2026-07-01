@@ -235,7 +235,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           {/* Desktop collapsible icon rail */}
           <motion.aside
             initial={false}
-            animate={{ width: collapsed ? 72 : 248 }}
+            animate={{ width: collapsed ? 72 : 198 }}
             transition={reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 400, damping: 36 }}
             className="sticky top-16 hidden h-[calc(100vh-4rem)] shrink-0 flex-col border-r border-sidebar-border bg-sidebar md:flex"
           >
