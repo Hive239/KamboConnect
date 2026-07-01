@@ -20,6 +20,7 @@ import {
   CalendarDays,
   Star,
   ShieldCheck,
+  Users as UsersIcon,
   LogIn
 } from "@/lib/icons";
 
@@ -27,6 +28,7 @@ import { resolvePractitionerForUser } from "@/lib/practitionerForUser";
 import ProfileManagement from "../components/practitioner/ProfileManagement";
 import ReviewsManagement from "../components/practitioner/ReviewsManagement";
 import CredentialManagement from "../components/practitioner/CredentialManagement";
+import ClientsManagement from "../components/practitioner/ClientsManagement";
 import BookingCalendar from "../components/practitioner/BookingCalendar";
 import MessagingCenter from "../components/practitioner/MessagingCenter";
 import EventManagement from "../components/practitioner/EventManagement";
@@ -172,7 +174,7 @@ export default function PractitionerDashboard() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 sm:grid-cols-8 gap-1 h-auto bg-muted p-1 rounded-xl">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-9 gap-1 h-auto bg-muted p-1 rounded-xl">
             <TabsTrigger value="overview" className="flex flex-col sm:flex-row items-center gap-1 p-2 text-xs sm:text-sm">
               <Home className="w-4 h-4" />
               <span className="hidden sm:inline">Overview</span>
@@ -192,6 +194,10 @@ export default function PractitionerDashboard() {
             <TabsTrigger value="events" className="flex flex-col sm:flex-row items-center gap-1 p-2 text-xs sm:text-sm">
               <CalendarDays className="w-4 h-4" />
               <span className="hidden sm:inline">Events</span>
+            </TabsTrigger>
+            <TabsTrigger value="clients" className="flex flex-col sm:flex-row items-center gap-1 p-2 text-xs sm:text-sm">
+              <UsersIcon className="w-4 h-4" />
+              <span className="hidden sm:inline">Clients</span>
             </TabsTrigger>
             <TabsTrigger value="reviews" className="flex flex-col sm:flex-row items-center gap-1 p-2 text-xs sm:text-sm">
               <Star className="w-4 h-4" />
@@ -302,6 +308,10 @@ export default function PractitionerDashboard() {
               practitioner={practitionerProfile} // Pass renamed prop
               onUpdate={loadDashboardData} // Call loadDashboardData on update
             />
+          </TabsContent>
+
+          <TabsContent value="clients" className="py-6">
+            <ClientsManagement practitioner={practitionerProfile} />
           </TabsContent>
 
           <TabsContent value="reviews" className="py-6">
