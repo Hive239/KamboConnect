@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://kamboguide.com/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://kamboguide.com/Directory</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://kamboguide.com/Events</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://kamboguide.com/Community</loc><changefreq>daily</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kamboguide.com/Map</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kamboguide.com/Education</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kamboguide.com/Guide</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://kamboguide.com/Market</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://kamboguide.com/Privacy</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://kamboguide.com/Terms</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+</urlset>

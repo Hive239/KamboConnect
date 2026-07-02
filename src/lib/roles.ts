@@ -29,12 +29,14 @@ export function roleHome(role: Role): string {
 export const PAGE_ACCESS: Record<string, Role[]> = {
   // Client discovery + commerce — practitioners are the supply, not the buyers.
   Directory: ['client', 'admin'],
-  Map: ['client', 'admin'],
   Matchmaking: ['client', 'admin'],
-  Guide: ['client', 'admin'],
   ForYou: ['client', 'admin'],
-  Market: ['client', 'admin'],
-  Orders: ['client', 'admin'],
+  // Shared discovery tools — practitioners get these too (browse the map, ask the
+  // Guide, shop the market + see their orders alongside clients).
+  Map: ['client', 'practitioner', 'admin'],
+  Guide: ['client', 'practitioner', 'admin'],
+  Market: ['client', 'practitioner', 'admin'],
+  Orders: ['client', 'practitioner', 'admin'],
   Favorites: ['client', 'admin'],
   Bookings: ['client', 'admin'],
   BookingRequest: ['client', 'admin'],

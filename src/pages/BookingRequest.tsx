@@ -4,6 +4,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { User, Practitioner, Booking, Notification } from "@/entities/all";
 import SafetyGate, { type SafetyData } from "@/components/booking/SafetyGate";
 import { fileScreeningAndWaiver } from "@/lib/fileWaiver";
+import { isValidEmail, isValidPhone } from "@/lib/validation";
+import { toast } from "sonner";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -111,6 +113,8 @@ export default function BookingRequestPage() {
   const handleContinue = (e) => {
     e.preventDefault();
     if (!formData.requested_date || !practitioner) return;
+    if (!isValidEmail(formData.client_email)) { toast.error("Please enter a valid email address."); return; }
+    if (formData.client_phone && !isValidPhone(formData.client_phone)) { toast.error("Please enter a valid phone number."); return; }
     if (availableSlots.length > 0 && !selectedTime) return; // must pick a slot when times exist
     setStep("safety");
   };

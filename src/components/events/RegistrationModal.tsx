@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Loader2, CheckCircle } from "@/lib/icons";
 import { createPageUrl } from '@/utils';
 import AddToCalendar from "@/components/AddToCalendar";
+import { isValidEmail, isValidPhone } from "@/lib/validation";
+import { toast } from "sonner";
 
 export default function RegistrationModal({ event, onClose, onSubmitRegistration }) {
   const [user, setUser] = useState(null);
@@ -42,6 +44,8 @@ export default function RegistrationModal({ event, onClose, onSubmitRegistration
 
   const handleRegistrationSubmit = async (e) => {
     e.preventDefault();
+    if (!isValidEmail(formData.participant_email)) { toast.error("Please enter a valid email address."); return; }
+    if (formData.participant_phone && !isValidPhone(formData.participant_phone)) { toast.error("Please enter a valid phone number."); return; }
     setIsSubmitting(true);
     try {
       const registrationData = {

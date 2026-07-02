@@ -42,7 +42,7 @@ const users = [
     id: 'user-maria',
     email: 'maria@demo.test',
     full_name: 'Grandmother Maria Santos',
-    role: 'client',
+    role: 'practitioner',
     profile_image_url: img('1544005313-94ddf0286df2', 200),
     preferences: {},
   },

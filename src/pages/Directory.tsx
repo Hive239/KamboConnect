@@ -329,9 +329,10 @@ export default function Directory() {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-12 pr-14 py-4 h-14 text-base rounded-2xl shadow-sm border-0 bg-card/80 backdrop-blur-sm focus:bg-card transition-all"
             />
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
+              aria-label="Open filters"
               className="absolute right-2 top-1/2 transform -translate-y-1/2 hover:bg-accent rounded-xl w-10 h-10"
               onClick={() => setShowFilterModal(true)}
             >

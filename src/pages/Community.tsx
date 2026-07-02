@@ -1,3 +1,4 @@
+import { useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookText, MessageSquare, Sparkle, UsersThree } from "@/lib/icons";
 import { useSeo } from "@/lib/useSeo";
@@ -11,6 +12,8 @@ const triggerCls = "rounded-lg data-[state=active]:bg-card data-[state=active]:s
 
 export default function Community() {
   useSeo({ title: "Community — KamboGuide", description: "Connect, share, and learn with the Kambo community." });
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tab = searchParams.get("tab") || "feed";
   return (
     <div className="bg-muted min-h-screen">
       <div className="p-4 sm:p-6">
@@ -19,7 +22,7 @@ export default function Community() {
       </div>
 
       <div className="px-4 sm:px-6 pb-8">
-        <Tabs defaultValue="feed" className="w-full">
+        <Tabs value={tab} onValueChange={(v) => setSearchParams({ tab: v }, { replace: true })} className="w-full">
           <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1 h-auto bg-muted p-1 rounded-xl">
             <TabsTrigger value="feed" className={triggerCls}><Sparkle className="w-4 h-4" weight="duotone" />Feed</TabsTrigger>
             <TabsTrigger value="forum" className={triggerCls}><MessageSquare className="w-4 h-4" weight="duotone" />Forum</TabsTrigger>

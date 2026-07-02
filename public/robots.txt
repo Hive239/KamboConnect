@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+
+# Keep private/authenticated surfaces out of the index
+Disallow: /Messages
+Disallow: /MyAccount
+Disallow: /Bookings
+Disallow: /Orders
+Disallow: /AdminDashboard
+Disallow: /TrustSafety
+Disallow: /BookingRequest
+Disallow: /ResetPassword
+
+Sitemap: https://kamboguide.com/sitemap.xml

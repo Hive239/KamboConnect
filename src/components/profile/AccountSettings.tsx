@@ -168,7 +168,7 @@ export default function AccountSettings({ user }) {
           </CardTitle>
         </CardHeader>
         <CardContent className="flex items-center justify-between">
-          <p className="text-red-600 text-sm">Permanently delete your account and all associated data.</p>
+          <p className="text-red-700 text-sm">Permanently delete your account and all associated data.</p>
           <Button variant="destructive">Delete Account</Button>
         </CardContent>
       </Card>

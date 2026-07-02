@@ -252,7 +252,7 @@ export default function AvailabilitySettings({ practitioner, onUpdate }) {
                                 variant="ghost"
                                 size="icon"
                                 onClick={() => removeTimeSlot(availability.findIndex(a => a === slot))}
-                                className="text-red-600 hover:text-red-700"
+                                className="text-red-700 hover:text-red-700"
                                 aria-label="Remove time slot"
                               >
                                 <Trash2 className="w-4 h-4" />

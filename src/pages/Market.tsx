@@ -9,11 +9,14 @@ import { formatCurrency } from "@/lib/format";
 import { useSeo } from "@/lib/useSeo";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { GradientMesh } from "@/components/ui/GradientMesh";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import ProductCard from "@/components/market/ProductCard";
-import { ShoppingCart, Plus, Minus, X, CheckCircle, Package, Loader2, Storefront } from "@/lib/icons";
+import { ShoppingCart, Plus, Minus, X, CheckCircle, Package, Loader2, Storefront, Search } from "@/lib/icons";
 
 const CATEGORIES = ["All", "Rapé", "Tepi", "Tools", "Apparel", "Books", "Digital", "Other"];
 
@@ -23,6 +26,8 @@ export default function Market() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState("All");
+  const [search, setSearch] = useState("");
+  const [sort, setSort] = useState("newest");
   const [cartOpen, setCartOpen] = useState(false);
   const [detail, setDetail] = useState<any>(null);
   const [checkingOut, setCheckingOut] = useState(false);
@@ -30,7 +35,15 @@ export default function Market() {
 
   useEffect(() => { Product.list("-created_date").then((p) => { setProducts(p); setLoading(false); }); }, []);
 
-  const shown = useMemo(() => products.filter((p) => category === "All" || p.category === category), [products, category]);
+  const shown = useMemo(() => {
+    let list = products.filter((p) =>
+      (category === "All" || p.category === category) &&
+      (!search || `${p.title} ${p.description || ""} ${(p.tags || []).join(" ")}`.toLowerCase().includes(search.toLowerCase())),
+    );
+    if (sort === "price_asc") list = [...list].sort((a, b) => a.price - b.price);
+    else if (sort === "price_desc") list = [...list].sort((a, b) => b.price - a.price);
+    return list;
+  }, [products, category, search, sort]);
 
   const checkout = async () => {
     setCheckingOut(true);
@@ -60,26 +73,34 @@ export default function Market() {
   return (
     <div>
       {/* Hero */}
-      <div className="relative flex h-56 items-center justify-center overflow-hidden bg-gradient-to-br from-primary/10 via-background to-clay/10 text-center">
-        <div className="absolute inset-0 bg-cover bg-center opacity-[0.06]" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1524578271613-d550eacf6090?w=1600&q=80')" }} />
+      <div className="grain relative flex h-56 items-center justify-center overflow-hidden bg-background text-center">
+        <GradientMesh intensity="vivid" />
         <div className="relative z-10 px-6">
-          <div className="mx-auto mb-2 flex h-11 w-11 items-center justify-center rounded-full bg-primary/10"><Storefront className="h-6 w-6 text-primary" weight="duotone" /></div>
-          <h1 className="font-display text-3xl font-semibold tracking-tight">The Market</h1>
+          <span className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 shadow-glow"><Storefront className="h-6 w-6 text-primary" weight="duotone" /></span>
+          <h1 className="font-display text-display font-semibold tracking-tight">The Market</h1>
           <p className="mt-1 text-muted-foreground">Ethically sourced tools, medicine, and integration resources.</p>
         </div>
       </div>
 
       <div className="mx-auto max-w-6xl p-4 sm:p-6">
-        {/* Category filter + cart */}
-        <div className="mb-6 flex flex-wrap items-center gap-2">
-          {CATEGORIES.map((c) => (
-            <button key={c} onClick={() => setCategory(c)}
-              className={`rounded-full border px-3 py-1.5 text-sm transition-colors ${category === c ? "border-primary bg-primary/10 text-primary" : "border-border hover:bg-accent"}`}>{c}</button>
-          ))}
-          <Button variant="outline" className="ml-auto gap-2" onClick={() => setCartOpen(true)}>
+        {/* Search + sort + cart */}
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="relative flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search the market…" className="h-10 rounded-full pl-9" />
+          </div>
+          <div className="sm:w-52">
+            <SegmentedControl value={sort} onChange={setSort} options={[{ value: "newest", label: "Newest" }, { value: "price_asc", label: "$ ↑" }, { value: "price_desc", label: "$ ↓" }]} />
+          </div>
+          <Button variant="outline" className="shrink-0 gap-2" onClick={() => setCartOpen(true)}>
             <ShoppingCart className="h-4 w-4" weight="duotone" /> Cart
             {cart.count > 0 && <Badge variant="verified" className="ml-1">{cart.count}</Badge>}
           </Button>
+        </div>
+
+        {/* Categories */}
+        <div className="mb-6">
+          <SegmentedControl value={category} onChange={setCategory} options={CATEGORIES.map((c) => ({ value: c, label: c }))} />
         </div>
 
         {/* Grid */}

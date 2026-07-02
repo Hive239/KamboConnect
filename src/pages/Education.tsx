@@ -1,4 +1,5 @@
 import React from "react";
+import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -171,6 +172,13 @@ export default function Education() {
           </AlertDescription>
         </Alert>
 
+        <div className="mb-8 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+          <strong>Educational & cultural information only.</strong> Kambo is a traditional Amazonian practice — not a medical
+          treatment. Nothing here has been evaluated by the FDA and none of it is intended to diagnose, treat, cure, or prevent
+          any disease. It is not a substitute for professional medical advice. Always consult a qualified healthcare provider
+          before participating. See our <a href={createPageUrl("Disclaimer")} className="underline">full disclaimer</a>.
+        </div>
+
         <div className="grid lg:grid-cols-2 gap-8 mb-12">
           {/* What is Kambo */}
           <Card>
@@ -187,8 +195,9 @@ export default function Education() {
                 centuries for physical and spiritual cleansing.
               </p>
               <p className="text-muted-foreground leading-relaxed">
-                The secretion contains bioactive peptides that can have various effects on the body,
-                including purging, increased heart rate, and potential therapeutic benefits.
+                The secretion contains bioactive peptides. Within the tradition, the experience is commonly
+                associated with a short, intense physical response such as purging and a temporarily increased
+                heart rate. These are traditional and anecdotal descriptions, not medical claims.
               </p>
             </CardContent>
           </Card>
@@ -206,18 +215,21 @@ export default function Education() {
                 Kambo is applied to small burns (gates) created on the skin. The secretion enters
                 the lymphatic system and triggers various physiological responses.
               </p>
+              <p className="text-xs text-muted-foreground italic">
+                The following are traditional descriptions of the experience, not verified medical effects:
+              </p>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-primary" />
-                  <span className="text-sm">Activates the immune system</span>
+                  <span className="text-sm">Traditionally described as an immune "reset"</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-primary" />
-                  <span className="text-sm">Stimulates natural detoxification</span>
+                  <span className="text-sm">Traditionally used for cleansing / purging</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-primary" />
-                  <span className="text-sm">May influence neurotransmitter balance</span>
+                  <span className="text-sm">Often described as mental clarity afterward</span>
                 </div>
               </div>
             </CardContent>
@@ -248,7 +260,7 @@ export default function Education() {
                 <h4 className="text-lg font-bold text-red-700 mb-3 flex items-center gap-2">
                   Absolute Contraindications
                 </h4>
-                <p className="text-sm text-red-600 mb-4 italic">
+                <p className="text-sm text-red-700 mb-4 italic">
                   (Kambo should never be administered under these conditions)
                 </p>
                 <div className="grid md:grid-cols-2 gap-4">

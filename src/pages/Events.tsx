@@ -5,8 +5,11 @@ import { Badge } from "@/components/ui/badge";
 import AddToCalendar from "@/components/AddToCalendar";
 import { toast } from "sonner";
 import { submitRegistration, cancelAndPromote } from "@/lib/eventRegistration";
-import { Calendar, List, ChevronLeft, ChevronRight, Loader2 } from "@/lib/icons";
+import { Calendar, List, ChevronLeft, ChevronRight, Loader2, Search, Crosshair } from "@/lib/icons";
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSameMonth } from "date-fns";
+import { GradientMesh } from "@/components/ui/GradientMesh";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
+import { Input } from "@/components/ui/input";
 
 import EventCard from "../components/events/EventCard";
 import EventModal from "../components/events/EventModal";
@@ -185,11 +188,10 @@ export default function Events() {
 
   return (
     <div className="bg-muted min-h-screen">
-      <div className="relative h-72 sm:h-80 bg-gradient-to-br from-primary/5 via-white to-clay/10 flex flex-col items-center justify-center text-center p-6">
-         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5"></div>
-         <div className="absolute inset-0 bg-cover bg-center opacity-5" style={{backgroundImage: "url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=2070&auto=format&fit=crop')"}}></div>
-        <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-4 z-10">Events & Circles</h1>
-        <p className="text-lg text-muted-foreground z-10">Discover upcoming Kambo ceremonies and workshops</p>
+      <div className="grain relative flex h-64 flex-col items-center justify-center overflow-hidden bg-background p-6 text-center sm:h-72">
+        <GradientMesh intensity="vivid" />
+        <h1 className="relative z-10 font-display text-display font-semibold tracking-tight">Events &amp; Circles</h1>
+        <p className="relative z-10 mt-1 text-lg text-muted-foreground">Discover upcoming Kambo ceremonies and workshops</p>
       </div>
 
       <div className="p-6">
@@ -231,78 +233,30 @@ export default function Events() {
           </div>
         )}
         {/* Search + filters */}
-        <div className="mb-4 flex flex-wrap items-center gap-2">
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search events..."
-            className="h-10 flex-1 min-w-[180px] rounded-lg border border-input bg-card px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-          <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} aria-label="Type" className="h-10 rounded-lg border border-input bg-card px-2 text-sm">
-            <option value="all">All types</option>
-            <option value="circle">Circle</option>
-            <option value="workshop">Workshop</option>
-            <option value="retreat">Retreat</option>
-            <option value="meetup">Meetup</option>
-            <option value="training">Training</option>
-          </select>
-          <select value={modeFilter} onChange={(e) => setModeFilter(e.target.value)} aria-label="Mode" className="h-10 rounded-lg border border-input bg-card px-2 text-sm">
-            <option value="all">Anywhere</option>
-            <option value="online">Online</option>
-            <option value="inperson">In person</option>
-          </select>
-          <select value={priceFilter} onChange={(e) => setPriceFilter(e.target.value)} aria-label="Price" className="h-10 rounded-lg border border-input bg-card px-2 text-sm">
-            <option value="all">Any price</option>
-            <option value="free">Free</option>
-            <option value="paid">Paid</option>
-          </select>
+        <div className="mb-4 space-y-3">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search events…" className="h-10 rounded-full pl-9" />
+          </div>
+          <div className="grid gap-2 lg:grid-cols-3">
+            <SegmentedControl value={typeFilter} onChange={setTypeFilter} scroll options={[
+              { value: "all", label: "All" }, { value: "circle", label: "Circle" }, { value: "workshop", label: "Workshop" },
+              { value: "retreat", label: "Retreat" }, { value: "meetup", label: "Meetup" }, { value: "training", label: "Training" }]} />
+            <SegmentedControl value={modeFilter} onChange={setModeFilter} options={[{ value: "all", label: "Anywhere" }, { value: "online", label: "Online" }, { value: "inperson", label: "In person" }]} />
+            <SegmentedControl value={priceFilter} onChange={setPriceFilter} options={[{ value: "all", label: "Any price" }, { value: "free", label: "Free" }, { value: "paid", label: "Paid" }]} />
+          </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
-          {/* Sort Controls */}
-          <div className="flex flex-wrap gap-3">
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="px-3 py-2 bg-card border border-input rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-            >
-              <option value="date">Sort by Date</option>
-              <option value="distance">Sort by Distance</option>
-              <option value="price">Sort by Price</option>
-            </select>
-            
+        <div className="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+          <div className="flex items-center gap-3">
+            <div className="w-60"><SegmentedControl value={sortBy} onChange={setSortBy} options={[{ value: "date", label: "Date" }, { value: "distance", label: "Distance" }, { value: "price", label: "Price" }]} /></div>
             {sortBy === "distance" && (
-              <div className="text-sm text-muted-foreground flex items-center">
-                {userLocation ? (
-                  <span className="text-primary">✓ Location detected</span>
-                ) : (
-                  <span className="text-orange-600">⚠ Location needed</span>
-                )}
-              </div>
+              <span className={`inline-flex items-center gap-1 text-sm ${userLocation ? "text-success" : "text-warning"}`}>
+                <Crosshair className="h-4 w-4" /> {userLocation ? "Location on" : "Location needed"}
+              </span>
             )}
           </div>
-          
-          {/* View Toggle */}
-          <div className="flex items-center bg-card rounded-2xl p-1 shadow-sm border border-border">
-            <Button 
-              variant={viewMode === 'list' ? 'default' : 'ghost'} 
-              size="sm" 
-              onClick={() => setViewMode('list')}
-              className="rounded-xl"
-            >
-              <List className="w-4 h-4 mr-2" />
-              List
-            </Button>
-            <Button 
-              variant={viewMode === 'calendar' ? 'default' : 'ghost'} 
-              size="sm" 
-              onClick={() => setViewMode('calendar')}
-              className="rounded-xl"
-            >
-              <Calendar className="w-4 h-4 mr-2" />
-              Calendar
-            </Button>
-          </div>
+          <div className="w-52 shrink-0"><SegmentedControl value={viewMode} onChange={setViewMode} options={[{ value: "list", label: "List", icon: List }, { value: "calendar", label: "Calendar", icon: Calendar }]} /></div>
         </div>
 
         {/* Content */}

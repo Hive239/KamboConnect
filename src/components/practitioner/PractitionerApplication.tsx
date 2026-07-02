@@ -33,6 +33,11 @@ export default function PractitionerApplicationForm({ onSuccess }) {
     cpr_certification_url: "",
     cpr_expiration_date: "",
     kambo_certification_url: "",
+    // Vetting standard
+    certified_by: "",
+    ceremonies_count: "",
+    condition_experience: "",
+    client_references: "",
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -174,6 +179,9 @@ export default function PractitionerApplicationForm({ onSuccess }) {
           verification_level: 'pending',
           latitude: location?.lat || null,
           longitude: location?.lng || null,
+          // Coerce screening fields to their column types.
+          ceremonies_count: formData.ceremonies_count ? Number(formData.ceremonies_count) : null,
+          client_references: formData.client_references ? [formData.client_references] : null,
         };
 
         const newPractitioner = await Practitioner.create(applicationData);
@@ -366,7 +374,52 @@ export default function PractitionerApplicationForm({ onSuccess }) {
               />
               {validationErrors.training_background && <p className="text-red-500 text-sm mt-1">{validationErrors.training_background}</p>}
             </div>
-            
+
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="certified_by">Who certified you? (name & contact)</Label>
+                <Input
+                  id="certified_by"
+                  value={formData.certified_by}
+                  onChange={(e) => handleInputChange('certified_by', e.target.value)}
+                  placeholder="Trainer / certifying body + how to reach them"
+                />
+              </div>
+              <div>
+                <Label htmlFor="ceremonies_count">Approx. ceremonies performed</Label>
+                <Input
+                  id="ceremonies_count"
+                  type="number"
+                  min="0"
+                  value={formData.ceremonies_count}
+                  onChange={(e) => handleInputChange('ceremonies_count', e.target.value)}
+                  placeholder="e.g. 250"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="condition_experience">Experience with clients who have medical conditions</Label>
+              <Textarea
+                id="condition_experience"
+                value={formData.condition_experience}
+                onChange={(e) => handleInputChange('condition_experience', e.target.value)}
+                rows={3}
+                placeholder="Briefly describe any experience working with clients who have/had cancer, autoimmune, or other diagnosed conditions."
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="client_references">Client references (at least 2)</Label>
+              <Textarea
+                id="client_references"
+                value={formData.client_references}
+                onChange={(e) => handleInputChange('client_references', e.target.value)}
+                rows={3}
+                placeholder="Name + contact for 2 clients you've worked with (for verification only, kept private)."
+              />
+            </div>
+
             <div>
               <Label htmlFor="why_practitioner">Your "Why" *</Label>
               <Textarea 

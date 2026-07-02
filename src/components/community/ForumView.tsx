@@ -102,6 +102,8 @@ export default function ForumView() {
   // (there is no generic user-profile page).
   const [practitionerIds, setPractitionerIds] = useState(() => new Set());
   const [sortBy, setSortBy] = useState("active"); // active | new | top
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [unansweredOnly, setUnansweredOnly] = useState(false);
   const [reactions, setReactions] = useState({ counts: {}, mine: new Set() });
 
   useEffect(() => {
@@ -135,8 +137,10 @@ export default function ForumView() {
   }, []); // Empty dependency array to run only once
 
   const filteredPosts = posts.filter(post =>
-    post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    post.content.toLowerCase().includes(searchTerm.toLowerCase())
+    (categoryFilter === "all" || post.category === categoryFilter) &&
+    (!unansweredOnly || (post.category === "Q&A" && (post.reply_count || 0) === 0)) &&
+    (post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+     post.content.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const sortPosts = (list) => {
@@ -163,6 +167,18 @@ export default function ForumView() {
           />
         </div>
         <select
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
+          aria-label="Filter by category"
+          className="h-11 rounded-xl border border-input bg-card px-3 text-sm"
+        >
+          <option value="all">All topics</option>
+          <option value="General Discussion">General</option>
+          <option value="Experience Sharing">Experiences</option>
+          <option value="Q&A">Q&amp;A</option>
+          <option value="Integration">Integration</option>
+        </select>
+        <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
           aria-label="Sort discussions"
@@ -172,6 +188,9 @@ export default function ForumView() {
           <option value="new">New</option>
           <option value="top">Top</option>
         </select>
+        <label className="flex items-center gap-1.5 text-sm text-muted-foreground">
+          <input type="checkbox" checked={unansweredOnly} onChange={(e) => setUnansweredOnly(e.target.checked)} /> Unanswered Q&amp;A
+        </label>
         <Link to={createPageUrl("NewPost")}>
           <Button className="w-full sm:w-auto bg-primary hover:bg-primary/90 h-11 rounded-xl">
             <Plus className="w-4 h-4 mr-2" />

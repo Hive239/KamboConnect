@@ -6,6 +6,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
+import { formatDistanceToNow } from "date-fns";
 import { Calendar, MessageSquare, Star, UsersThree, Storefront, ShieldCheck, Users } from "@/lib/icons";
 import { loadReactions } from "@/lib/reactions";
 import ReactionButton from "@/components/social/ReactionButton";
@@ -60,9 +62,12 @@ export default function FeedView() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <div className="mb-4 flex gap-2">
-        <button onClick={() => setOnlyFollowing(false)} className={`rounded-full border px-3 py-1.5 text-sm ${!onlyFollowing ? "border-primary bg-primary/10 text-primary" : "border-border hover:bg-accent"}`}>All activity</button>
-        <button onClick={() => setOnlyFollowing(true)} className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm ${onlyFollowing ? "border-primary bg-primary/10 text-primary" : "border-border hover:bg-accent"}`}><Users className="h-4 w-4" weight="duotone" /> Following</button>
+      <div className="mb-4">
+        <SegmentedControl
+          value={onlyFollowing ? "following" : "all"}
+          onChange={(v) => setOnlyFollowing(v === "following")}
+          options={[{ value: "all", label: "All activity" }, { value: "following", label: "Following", icon: Users }]}
+        />
       </div>
 
       {loading ? (
@@ -94,7 +99,7 @@ export default function FeedView() {
                     {it.summary && <p className="mt-0.5 text-sm text-foreground">{it.summary}</p>}
                     <div className="mt-1 flex items-center gap-2">
                       <Badge variant="tier" className="gap-1"><meta.icon className="h-3 w-3" weight="duotone" /> {it.object_type}</Badge>
-                      <span className="text-xs text-muted-foreground">{new Date(it.created_date).toLocaleDateString()}</span>
+                      <span className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(it.created_date), { addSuffix: true })}</span>
                       <span className="ml-auto" onClick={(e) => e.preventDefault()}>
                         <ReactionButton targetType="feed_item" targetId={it.id} count={reactions.counts[it.id] || 0} liked={reactions.mine.has(it.id)} />
                       </span>
@@ -104,7 +109,9 @@ export default function FeedView() {
                 </CardContent>
               </Card>
             );
-            return it.action_url ? <Link key={it.id} to={it.action_url} className="block">{Body}</Link> : <div key={it.id}>{Body}</div>;
+            // action_url comes from a world-writable table — only follow internal, path-relative targets.
+            const safeUrl = typeof it.action_url === "string" && it.action_url.startsWith("/") && !it.action_url.startsWith("//") ? it.action_url : null;
+            return safeUrl ? <Link key={it.id} to={safeUrl} className="block">{Body}</Link> : <div key={it.id}>{Body}</div>;
           })}
         </div>
       )}

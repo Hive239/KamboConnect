@@ -17,14 +17,18 @@ import { ThemeProvider } from 'next-themes';
 import { CartProvider } from '@/lib/cart';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import CommandPalette from '@/components/CommandPalette';
+import CookieConsent from '@/components/CookieConsent';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
 const MainPage = mainPageKey ? Pages[mainPageKey] : <></>;
 
-const LayoutWrapper = ({ children, currentPageName }) => Layout ?
-  <Layout currentPageName={currentPageName}>{children}</Layout>
-  : <>{children}</>;
+// Page content is wrapped in its own ErrorBoundary, keyed by route, so a single
+// page crash is contained (the nav/sidebar stay usable) and clears on navigation.
+const LayoutWrapper = ({ children, currentPageName }) => {
+  const inner = <ErrorBoundary key={currentPageName}>{children}</ErrorBoundary>;
+  return Layout ? <Layout currentPageName={currentPageName}>{inner}</Layout> : inner;
+};
 
 // Routes that render standalone (no app sidebar): marketing + auth.
 const BARE_ROUTES = new Set(['Auth', 'Landing', 'ResetPassword']);
@@ -144,6 +148,7 @@ function App() {
             </ErrorBoundary>
           </Router>
           <Toaster />
+          <CookieConsent />
           {import.meta.env.DEV && <RoleSwitcher />}
         </QueryClientProvider>
         </CartProvider>

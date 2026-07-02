@@ -16,6 +16,7 @@ import {
 } from "@/lib/icons";
 import { useSeo } from "@/lib/useSeo";
 import { getAcquisition } from "@/lib/acquisition";
+import { isValidEmail, checkPassword } from "@/lib/validation";
 
 export default function Auth() {
   useSeo({ title: "Sign in — KamboGuide" });
@@ -64,6 +65,12 @@ export default function Auth() {
     e.preventDefault();
     setError(""); setNotice("");
     if (!supabase) { setError("Supabase is not configured."); return; }
+    // Client-side pre-validation (server still authoritative).
+    if (!isValidEmail(email)) { setError("Please enter a valid email address."); return; }
+    if (mode === "signup") {
+      const pw = checkPassword(password);
+      if (!pw.ok) { setError(pw.reason!); return; }
+    }
     setBusy(true);
     try {
       if (mode === "signin") {
@@ -71,7 +78,7 @@ export default function Auth() {
         if (error) throw error;
         done();
       } else {
-        if (!agreed) { setError("Please agree to the Terms and Privacy Policy to continue."); setBusy(false); return; }
+        if (!agreed) { setError("Please confirm you're 18+ and agree to the Terms, Privacy Policy, and Disclaimer to continue."); setBusy(false); return; }
         const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { full_name: fullName } } });
         if (error) throw error;
         if (data.session) {
@@ -214,7 +221,14 @@ export default function Auth() {
                   <TabsContent value="signup" className="m-0">
                     <label className="flex items-start gap-2 text-sm text-muted-foreground">
                       <Checkbox checked={agreed} onCheckedChange={(v) => setAgreed(!!v)} className="mt-0.5" />
-                      <span>I agree to the <Link to={createPageUrl("Terms")} target="_blank" className="text-primary hover:underline">Terms</Link> and <Link to={createPageUrl("Privacy")} target="_blank" className="text-primary hover:underline">Privacy Policy</Link>.</span>
+                      <span>
+                        I confirm I am <strong>18 or older</strong>, agree to the{" "}
+                        <Link to={createPageUrl("Terms")} target="_blank" className="text-primary hover:underline">Terms</Link>,{" "}
+                        <Link to={createPageUrl("Privacy")} target="_blank" className="text-primary hover:underline">Privacy Policy</Link>, and{" "}
+                        <Link to={createPageUrl("Disclaimer")} target="_blank" className="text-primary hover:underline">Disclaimer</Link>,
+                        and I understand Kambo is a traditional practice — not medical treatment — and that I am responsible for
+                        compliance with the laws in my location.
+                      </span>
                     </label>
                   </TabsContent>
                   <Button type="submit" size="lg" className="w-full gap-2" disabled={busy}>

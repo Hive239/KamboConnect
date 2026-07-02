@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Practitioner } from '@/entities/all';
+import { Practitioner, Event, Post, Group } from '@/entities/all';
 import {
   CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem,
 } from '@/components/ui/command';
@@ -34,6 +34,10 @@ const DESTINATIONS = [
 export default function CommandPalette() {
   const [open, setOpen] = useState(false);
   const [practitioners, setPractitioners] = useState<any[]>([]);
+  const [events, setEvents] = useState<any[]>([]);
+  const [posts, setPosts] = useState<any[]>([]);
+  const [groups, setGroups] = useState<any[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -43,16 +47,21 @@ export default function CommandPalette() {
         setOpen((o) => !o);
       }
     };
+    const onOpen = () => setOpen(true);
     document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
+    window.addEventListener('open-command-palette', onOpen);
+    return () => { document.removeEventListener('keydown', onKey); window.removeEventListener('open-command-palette', onOpen); };
   }, []);
 
-  // Lazily load practitioners the first time the palette opens.
+  // Lazily load searchable content the first time the palette opens.
   useEffect(() => {
-    if (open && practitioners.length === 0) {
-      Practitioner.list().then((list) => setPractitioners(list || [])).catch(() => {});
-    }
-  }, [open, practitioners.length]);
+    if (!open || loaded) return;
+    setLoaded(true);
+    Practitioner.list().then((l) => setPractitioners(l || [])).catch(() => {});
+    Event.list("-start_date").then((l) => setEvents((l || []).filter((e: any) => e.status !== "draft" && e.status !== "cancelled"))).catch(() => {});
+    Post.list("-last_reply_date").then((l) => setPosts((l || []).filter((p: any) => !p.is_hidden))).catch(() => {});
+    Group.list("-member_count").then((l) => setGroups(l || [])).catch(() => {});
+  }, [open, loaded]);
 
   const go = (url: string) => {
     setOpen(false);
@@ -61,7 +70,7 @@ export default function CommandPalette() {
 
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
-      <CommandInput placeholder="Search pages and practitioners…" />
+      <CommandInput placeholder="Search practitioners, events, discussions, groups…" />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandGroup heading="Go to">
@@ -74,15 +83,38 @@ export default function CommandPalette() {
         </CommandGroup>
         {practitioners.length > 0 && (
           <CommandGroup heading="Practitioners">
-            {practitioners.slice(0, 30).map((p) => (
-              <CommandItem
-                key={p.id}
-                value={`practitioner ${p.full_name} ${p.location || ''}`}
-                onSelect={() => go(`${createPageUrl('PractitionerProfile')}?id=${p.id}`)}
-              >
+            {practitioners.slice(0, 20).map((p) => (
+              <CommandItem key={p.id} value={`practitioner ${p.full_name} ${p.location || ''}`} onSelect={() => go(`${createPageUrl('PractitionerProfile')}?id=${p.id}`)}>
                 <UserIcon className="mr-2 h-4 w-4" weight="duotone" />
                 <span>{p.full_name}</span>
                 {p.location && <span className="ml-2 text-xs text-muted-foreground">{p.location}</span>}
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        )}
+        {events.length > 0 && (
+          <CommandGroup heading="Events">
+            {events.slice(0, 20).map((e) => (
+              <CommandItem key={e.id} value={`event ${e.title} ${e.location || ''}`} onSelect={() => go(`${createPageUrl('EventDetail')}?id=${e.id}`)}>
+                <Calendar className="mr-2 h-4 w-4" weight="duotone" /> <span>{e.title}</span>
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        )}
+        {posts.length > 0 && (
+          <CommandGroup heading="Discussions">
+            {posts.slice(0, 20).map((p) => (
+              <CommandItem key={p.id} value={`post ${p.title}`} onSelect={() => go(`${createPageUrl('Post')}?id=${p.id}`)}>
+                <MessageSquare className="mr-2 h-4 w-4" weight="duotone" /> <span>{p.title}</span>
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        )}
+        {groups.length > 0 && (
+          <CommandGroup heading="Groups">
+            {groups.slice(0, 20).map((g) => (
+              <CommandItem key={g.id} value={`group ${g.name}`} onSelect={() => go(`${createPageUrl('GroupDetail')}?id=${g.id}`)}>
+                <Users className="mr-2 h-4 w-4" weight="duotone" /> <span>{g.name}</span>
               </CommandItem>
             ))}
           </CommandGroup>

@@ -459,7 +459,7 @@ export default function EventManagement({ events, practitioner, onUpdate }) {
                       variant="ghost"
                       size="icon"
                       onClick={() => handleDelete(event.id)}
-                      className="text-red-600 hover:text-red-700"
+                      className="text-red-700 hover:text-red-700"
                       aria-label="Delete event"
                     >
                       <Trash2 className="w-4 h-4" />

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { StatusPill } from "@/components/ui/StatusPill";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Booking, Practitioner, Message, User, Payment, Review, Conversation } from "@/entities/all";
@@ -54,7 +55,7 @@ const StatusInfo = ({ status }) => {
       badge: "bg-primary/10 text-primary border-primary/20",
     },
     declined: {
-      icon: <X className="w-4 h-4 text-red-600" />,
+      icon: <X className="w-4 h-4 text-red-700" />,
       text: "This booking was declined by the practitioner.",
       badge: "bg-red-100 text-red-800 border-red-200",
     },
@@ -79,7 +80,7 @@ const StatusInfo = ({ status }) => {
 
   return (
     <>
-        <Badge className={current.badge}>{status}</Badge>
+        <StatusPill status={status} />
         <div className="flex items-center gap-2 text-sm text-muted-foreground mt-3">
             {current.icon}
             <p>{current.text}</p>

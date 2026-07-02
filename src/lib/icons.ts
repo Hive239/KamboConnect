@@ -1,15 +1,18 @@
 /**
- * Icon shim — maps the icon names the app uses (originally lucide-react) to
- * @phosphor-icons/react equivalents. App/UI code imports from "@/lib/icons", so
- * swapping the underlying icon set is a one-file change.
+ * Icon shim. The app imports every icon from "@/lib/icons".
  *
- * Phosphor supports weight="regular|duotone|fill|bold". Default weight + size
- * are set app-wide via <IconContext> in App.tsx; nav uses duotone/fill for the
- * organic, modern feel.
+ * The bespoke KamboGuide set (src/components/ui/icons/set.tsx) is the primary
+ * source — those names win via `export *`. Any icon not yet hand-drawn falls back
+ * to @phosphor-icons/react below (same weight= API), so the app is never broken
+ * mid-migration; the Phosphor list shrinks to zero as the custom set completes.
  */
-export { IconContext } from '@phosphor-icons/react';
 export type { Icon, IconProps, IconWeight } from '@phosphor-icons/react';
+export { IconContext } from '@phosphor-icons/react';
 
+// ---- Bespoke custom icons (primary) ----
+export * from '@/components/ui/icons/set';
+
+// ---- Phosphor fallback (long-tail, not yet custom-drawn) ----
 export {
   GoogleLogo,
   GithubLogo,
@@ -27,39 +30,22 @@ export {
   Eye,
   EyeSlash as EyeOff,
   Globe,
-  House as Home,
   TrendUp as TrendingUp,
   UploadSimple as Upload,
-  ArrowLeft,
-  ArrowRight,
-  ArrowUpRight,
   Prohibit as Ban,
-  Bell,
   BellRinging as BellPlus,
   Book,
   BookOpen,
   BookOpenText as BookText,
   Briefcase,
-  CalendarBlank as Calendar,
   CalendarCheck,
   CalendarCheck as CalendarCheck2,
   Camera,
-  Check,
-  Checks as CheckCheck,
-  CheckCircle,
-  CaretDown as ChevronDown,
-  CaretLeft as ChevronLeft,
-  CaretRight as ChevronRight,
-  CaretUp as ChevronUp,
-  Circle,
-  Clock,
   CurrencyDollar as DollarSign,
   FileText,
   Flag,
   DotsSixVertical as GripVertical,
-  Heart,
   Hourglass,
-  Info,
   Leaf,
   LinkSimple as Link,
   ClipboardText,
@@ -69,27 +55,17 @@ export {
   SignIn as LogIn,
   SignOut as LogOut,
   Envelope as Mail,
-  MapPin,
   List as Menu,
-  ChatText as MessageSquare,
   ChatDots as MessageSquarePlus,
-  Minus,
-  Moon,
   DotsThree as MoreHorizontal,
   Sidebar as PanelLeft,
   Paperclip,
   Phone,
   PushPin as Pin,
-  Plus,
   PlusCircle,
   ArrowsClockwise as RefreshCw,
   FloppyDisk as Save,
-  MagnifyingGlass as Search,
-  PaperPlaneTilt as Send,
   GearSix as Settings,
-  Shield,
-  ShieldCheck,
-  Sparkle,
   ShoppingCart,
   Lock,
   Tag,
@@ -101,15 +77,8 @@ export {
   Bookmark,
   Warning as WarningIcon,
   SlidersHorizontal,
-  Star,
   Storefront as Store,
   Storefront,
-  Sun,
   Trash as Trash2,
-  User,
-  UserCircle,
-  Users,
   VideoCamera as Video,
-  X,
-  XCircle,
 } from '@phosphor-icons/react';

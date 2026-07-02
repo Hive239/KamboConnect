@@ -30,6 +30,7 @@ export default function GroupDetail() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [draft, setDraft] = useState({ title: "", content: "" });
+  const [postReactions, setPostReactions] = useState<{ counts: Record<string, number>; mine: Set<string> }>({ counts: {}, mine: new Set() });
 
   useSeo(group ? { title: `${group.name} — KamboGuide`, description: group.description } : {});
 
@@ -49,6 +50,7 @@ export default function GroupDetail() {
       if (myReq !== reqRef.current) return;
       setMembers(mem);
       setPosts(ps);
+      try { setPostReactions(await loadReactions("post", me?.id)); } catch { /* non-critical */ }
       if (me) setMembershipId((mem.find((m: any) => m.user_id === me.id) || {}).id || null);
     } catch (e) {
       if (myReq === reqRef.current) console.error("Failed to load group:", e);
@@ -120,6 +122,30 @@ export default function GroupDetail() {
       await GroupMembership.delete(m.id);
       await Group.update(group.id, { member_count: Math.max(0, (group.member_count || 1) - 1) });
       load();
+    } finally { setBusy(false); }
+  };
+  const transferOwnership = async (m: any) => {
+    if (!window.confirm(`Make ${m.user_name || "this member"} the owner? You'll become a regular member.`)) return;
+    setBusy(true);
+    try {
+      await GroupMembership.update(m.id, { role: "owner" });
+      if (myMembership) await GroupMembership.update(myMembership.id, { role: "member" });
+      await Group.update(group.id, { created_by: m.user_id });
+      await Notification.create({ user_id: m.user_id, title: "You're now a group owner", message: `You now own "${group.name}".`, type: "community", related_id: group.id, action_url: createPageUrl(`GroupDetail?id=${group.id}`) }).catch(() => {});
+      toast.success("Ownership transferred");
+      load();
+    } finally { setBusy(false); }
+  };
+  const deleteGroup = async () => {
+    if (!window.confirm(`Delete "${group.name}"? This removes all members and group posts and can't be undone.`)) return;
+    setBusy(true);
+    try {
+      // No FK cascades — clean up children first.
+      try { await Promise.all(members.map((m: any) => GroupMembership.delete(m.id))); } catch { /* best-effort */ }
+      try { await Promise.all(posts.map((p: any) => Post.delete(p.id))); } catch { /* best-effort */ }
+      await Group.delete(group.id);
+      toast.success("Group deleted");
+      navigate(createPageUrl("Community"));
     } finally { setBusy(false); }
   };
 
@@ -224,7 +250,12 @@ export default function GroupDetail() {
 
       {activeMembers.length > 0 && (
         <div className="mb-6">
-          <h2 className="mb-3 font-semibold">Members ({group.member_count || activeMembers.length})</h2>
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="font-semibold">Members ({group.member_count || activeMembers.length})</h2>
+            {myMembership?.role === "owner" && (
+              <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" disabled={busy} onClick={deleteGroup}>Delete group</Button>
+            )}
+          </div>
           <div className="flex flex-wrap gap-2">
             {activeMembers.slice(0, 24).map((m: any) => {
               const inner = (
@@ -232,6 +263,9 @@ export default function GroupDetail() {
                   <Avatar className="h-6 w-6"><AvatarFallback className="text-xs">{(m.user_name || "?")[0]}</AvatarFallback></Avatar>
                   <span className="text-foreground">{m.user_name || "Member"}</span>
                   {m.role && m.role !== "member" && <Badge variant="secondary" className="capitalize text-[10px]">{m.role}</Badge>}
+                  {myMembership?.role === "owner" && m.user_id !== me?.id && m.role !== "owner" && (
+                    <button onClick={(e) => { e.preventDefault(); transferOwnership(m); }} title="Make owner" className="text-muted-foreground hover:text-primary text-[10px] font-medium">★</button>
+                  )}
                   {isManager && m.user_id !== me?.id && m.role !== "owner" && (
                     <button onClick={(e) => { e.preventDefault(); removeMember(m); }} aria-label={`Remove ${m.user_name}`} className="text-muted-foreground hover:text-destructive">✕</button>
                   )}

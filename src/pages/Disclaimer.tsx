@@ -14,23 +14,23 @@ export default function Disclaimer() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
         {/* Main Warning */}
         <Alert className="mb-8 border-red-300 bg-red-50">
-          <AlertTriangle className="h-5 w-5 text-red-600" />
+          <AlertTriangle className="h-5 w-5 text-red-700" />
           <AlertDescription className="text-red-800">
             <strong>Important:</strong> Please read this disclaimer carefully before using this platform. 
-            By using the Kambo App, you acknowledge that you have read, understood, and agree to these terms.
+            By using the KamboGuide, you acknowledge that you have read, understood, and agree to these terms.
           </AlertDescription>
         </Alert>
 
         <Card className="bg-card shadow-lg border-border">
           <CardHeader>
             <CardTitle className="text-2xl flex items-center gap-3">
-              <Shield className="w-7 h-7 text-red-600" />
+              <Shield className="w-7 h-7 text-red-700" />
               DISCLAIMER & LIMITATION OF LIABILITY
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6 text-foreground leading-relaxed">
             <p>
-              The information and services presented on the Kambo App are intended solely for educational, cultural, and informational purposes. This platform facilitates connection between independent Kambo practitioners and clients but does not employ, endorse, supervise, or assume responsibility for any practitioner, their conduct, or the outcome of any session.
+              The information and services presented on the KamboGuide are intended solely for educational, cultural, and informational purposes. This platform facilitates connection between independent Kambo practitioners and clients but does not employ, endorse, supervise, or assume responsibility for any practitioner, their conduct, or the outcome of any session.
             </p>
 
             <p>
@@ -38,11 +38,11 @@ export default function Disclaimer() {
             </p>
 
             <p>
-              The Kambo App does not provide medical or psychological advice, nor does it act as a healthcare provider or practitioner. No content or connection made through this platform shall be construed as medical, therapeutic, or clinical guidance. Users are strongly advised to consult a licensed physician or mental health professional regarding any health-related conditions or concerns prior to engaging in any practices discussed or facilitated through this platform.
+              The KamboGuide does not provide medical or psychological advice, nor does it act as a healthcare provider or practitioner. No content or connection made through this platform shall be construed as medical, therapeutic, or clinical guidance. Users are strongly advised to consult a licensed physician or mental health professional regarding any health-related conditions or concerns prior to engaging in any practices discussed or facilitated through this platform.
             </p>
 
             <p>
-              All practitioners listed on the app are independent entities, and any agreements or interactions with them are entered into at the user's own discretion and risk. Users are solely responsible for conducting their own due diligence. The Kambo App makes no warranties, representations, or guarantees regarding practitioner competence, training, safety practices, or legal compliance.
+              All practitioners listed on the app are independent entities, and any agreements or interactions with them are entered into at the user's own discretion and risk. Users are solely responsible for conducting their own due diligence. The KamboGuide makes no warranties, representations, or guarantees regarding practitioner competence, training, safety practices, or legal compliance.
             </p>
 
             <div className="bg-red-50 border-l-4 border-red-400 p-4 my-6">
@@ -50,12 +50,12 @@ export default function Disclaimer() {
                 USE OF THIS APP IS AT YOUR OWN RISK.
               </p>
               <p className="text-red-700 mt-2">
-                In no event shall the Kambo App, its creators, affiliates, licensors, or administrators be liable for any direct, indirect, incidental, consequential, or punitive damages arising out of or relating to your use of this platform or engagement with any practitioner listed herein.
+                In no event shall the KamboGuide, its creators, affiliates, licensors, or administrators be liable for any direct, indirect, incidental, consequential, or punitive damages arising out of or relating to your use of this platform or engagement with any practitioner listed herein.
               </p>
             </div>
 
             <p>
-              By accessing and using this app, you acknowledge and agree to assume full responsibility for any personal decisions, risks, or outcomes arising from your participation in any ceremonies or interactions related to Kambo. You further agree to indemnify and hold harmless the Kambo App and its affiliates from any claims, damages, or liabilities, including legal fees, arising from your use of the platform.
+              By accessing and using this app, you acknowledge and agree to assume full responsibility for any personal decisions, risks, or outcomes arising from your participation in any ceremonies or interactions related to Kambo. You further agree to indemnify and hold harmless the KamboGuide and its affiliates from any claims, damages, or liabilities, including legal fees, arising from your use of the platform.
             </p>
 
             <p>

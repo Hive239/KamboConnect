@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { computePlatformAnalytics, TIER_PRICES, type PlatformAnalytics as PA } from "@/lib/analytics";
 import { formatCurrency } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatCard } from "@/components/ui/StatCard";
+import { AreaChartGlow } from "@/components/ui/charts";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import GeoMap from "./GeoMap";
@@ -14,21 +16,13 @@ import {
 
 const PIE = ["hsl(var(--primary))", "hsl(var(--clay))", "hsl(var(--info))", "hsl(var(--warning))"];
 
-function Kpi({ icon: Icon, label, value, sub, accent }: any) {
-  return (
-    <Card>
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="text-sm text-muted-foreground">{label}</p>
-            <p className="mt-1 text-2xl font-bold">{value}</p>
-            {sub && <p className="mt-0.5 text-xs text-muted-foreground">{sub}</p>}
-          </div>
-          <Icon className={`h-7 w-7 ${accent || "text-primary"}`} weight="duotone" />
-        </div>
-      </CardContent>
-    </Card>
-  );
+function Kpi({ icon, label, value, sub, accent }: any) {
+  const color = /warning|amber|orange|yellow/.test(accent || "") ? "warning"
+    : /info|blue/.test(accent || "") ? "info"
+    : /success|green|emerald/.test(accent || "") ? "success"
+    : /clay|red|rose|purple/.test(accent || "") ? "clay"
+    : "primary";
+  return <StatCard icon={icon} label={label} value={value} sub={sub} color={color} />;
 }
 
 export default function PlatformAnalytics() {
@@ -218,14 +212,8 @@ export default function PlatformAnalytics() {
           <Card className="lg:col-span-2">
             <CardHeader><CardTitle className="text-base">Active users (14 days)</CardTitle></CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={200}>
-                <LineChart data={a.engagement.trend}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                  <XAxis dataKey="day" tick={{ fontSize: 11 }} /><YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
-                  <RTooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }} />
-                  <Line type="monotone" dataKey="users" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
-                </LineChart>
-              </ResponsiveContainer>
+              <AreaChartGlow data={a.engagement.trend} xKey="day" height={200}
+                series={[{ key: "users", color: "hsl(var(--primary))", label: "Active users" }]} />
             </CardContent>
           </Card>
           <Card>

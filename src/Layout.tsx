@@ -4,6 +4,9 @@ import { useTranslation } from "react-i18next";
 import { motion, useReducedMotion } from "framer-motion";
 import { createPageUrl } from "@/utils";
 import { User } from "@/entities/User";
+import { Message } from "@/entities/all";
+import { subscribe } from "@/data/store";
+import { useCart } from "@/lib/cart";
 import { getRole } from "@/lib/roles";
 import {
   Search, Users, Calendar, Store, BookOpen, Menu, Heart, User as UserIcon,
@@ -31,9 +34,9 @@ const mainNavItems = [
   { title: "Dashboard", tKey: "nav.practitionerDashboard", url: createPageUrl("PractitionerDashboard"), icon: Briefcase, isPublic: false, roles: ["practitioner"] },
   // Client discovery + commerce.
   { title: "For You", tKey: "nav.forYou", url: createPageUrl("ForYou"), icon: Home, isPublic: false, roles: ["client"] },
-  { title: "Ask the Guide", tKey: "nav.guide", url: createPageUrl("Guide"), icon: Sparkle, isPublic: true, roles: ["client"] },
+  { title: "Ask the Guide", tKey: "nav.guide", url: createPageUrl("Guide"), icon: Sparkle, isPublic: true, roles: ["client", "practitioner"] },
   { title: "Directory", tKey: "nav.directory", url: createPageUrl("Directory"), icon: Search, isPublic: true, roles: ["client"] },
-  { title: "Map", tKey: "nav.map", url: createPageUrl("Map"), icon: MapPin, isPublic: true, roles: ["client"] },
+  { title: "Map", tKey: "nav.map", url: createPageUrl("Map"), icon: MapPin, isPublic: true, roles: ["client", "practitioner"] },
   { title: "Find Your Match", tKey: "nav.matchmaking", url: createPageUrl("Matchmaking"), icon: Crosshair, isPublic: true, roles: ["client"] },
   // Shared community (all roles).
   { title: "Community", tKey: "nav.community", url: createPageUrl("Community"), icon: Users, isPublic: true },
@@ -43,7 +46,7 @@ const mainNavItems = [
   { title: "Journal", tKey: "nav.journal", url: createPageUrl("Journal"), icon: Book, isPublic: false, roles: ["client"] },
   { title: "Messages", tKey: "nav.messages", url: createPageUrl("Messages"), icon: MessageSquare, isPublic: false },
   { title: "My Favorites", tKey: "nav.favorites", url: createPageUrl("Favorites"), icon: Heart, isPublic: false, roles: ["client"] },
-  { title: "Market", tKey: "nav.market", url: createPageUrl("Market"), icon: Store, isPublic: true, roles: ["client"] },
+  { title: "Market", tKey: "nav.market", url: createPageUrl("Market"), icon: Store, isPublic: true, roles: ["client", "practitioner"] },
   { title: "Learn", tKey: "nav.learn", url: createPageUrl("Education"), icon: BookOpen, isPublic: true },
 ];
 
@@ -51,7 +54,7 @@ const mainNavItems = [
 const userDrawerItems = [
   { title: "Profile", tKey: "nav.profile", url: createPageUrl("Profile"), icon: UserIcon },
   { title: "My Account", tKey: "nav.account", url: createPageUrl("MyAccount"), icon: Settings },
-  { title: "My Orders", tKey: "nav.orders", url: createPageUrl("Orders"), icon: Package, roles: ["client"] },
+  { title: "My Orders", tKey: "nav.orders", url: createPageUrl("Orders"), icon: Package, roles: ["client", "practitioner"] },
   { title: "Billing & Growth", tKey: "nav.billing", url: createPageUrl("Billing"), icon: Trophy, roles: ["practitioner"] },
   { title: "Admin Dashboard", tKey: "nav.adminDashboard", url: createPageUrl("AdminDashboard"), icon: ShieldCheck, adminOnly: true },
   { title: "Trust & Safety", tKey: "nav.trustSafety", url: createPageUrl("TrustSafety"), icon: Shield, adminOnly: true },
@@ -72,10 +75,29 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     () => typeof localStorage !== "undefined" && localStorage.getItem(RAIL_KEY) === "1",
   );
   const [search, setSearch] = useState("");
+  const [unreadMessages, setUnreadMessages] = useState(0);
+  const cart = useCart();
 
   useEffect(() => {
     User.me().then(setUser).catch(() => setUser(null));
   }, [location.pathname]);
+
+  // Unread-messages badge — refresh on mount, route change, and live message events.
+  useEffect(() => {
+    let active = true;
+    const refresh = async () => {
+      const me = await User.me().catch(() => null);
+      if (!me) { if (active) setUnreadMessages(0); return; }
+      const unread = await Message.filter({ receiver_id: me.id, is_read: false }).catch(() => []);
+      if (active) setUnreadMessages(unread.length);
+    };
+    refresh();
+    const unsub = subscribe((c: any) => { if (c.entity === "Message") refresh(); });
+    return () => { active = false; unsub(); };
+  }, [location.pathname]);
+
+  const navBadge = (title: string) =>
+    title === "Messages" ? unreadMessages : title === "Market" ? cart.count : 0;
 
   const toggleRail = () => {
     setCollapsed((c) => {
@@ -144,6 +166,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         )}
         <Icon weight={active ? "fill" : "duotone"} className="relative z-10 h-5 w-5 shrink-0" />
         <span className={`relative z-10 ${collapsed ? "md:hidden" : ""}`}>{item.tKey ? t(item.tKey) : item.title}</span>
+        {navBadge(item.title) > 0 && (
+          <span className={`relative z-10 ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-xs font-semibold text-primary-foreground ${collapsed ? "md:absolute md:right-1 md:top-1 md:ml-0" : ""}`}>
+            {navBadge(item.title) > 9 ? "9+" : navBadge(item.title)}
+          </span>
+        )}
       </Link>
     );
     if (collapsed) {
@@ -241,9 +268,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
+                onFocus={(e) => { e.target.blur(); window.dispatchEvent(new Event("open-command-palette")); }}
                 placeholder={t("common.search")}
                 aria-label={t("common.search")}
-                className="h-10 rounded-full border-border bg-muted/60 pl-9 pr-14 focus-visible:bg-background"
+                className="h-10 cursor-pointer rounded-full border-border bg-muted/60 pl-9 pr-14 focus-visible:bg-background"
+                readOnly
               />
               <kbd className="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 items-center gap-0.5 rounded border border-border bg-background px-1.5 font-mono text-[10px] font-medium text-muted-foreground lg:flex">
                 ⌘K

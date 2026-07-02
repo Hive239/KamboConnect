@@ -231,7 +231,7 @@ export default function BlockedDatesManager({ practitioner, onUpdate }) {
                 variant="ghost" 
                 size="sm" 
                 onClick={() => handleDeleteBlock(block.id)}
-                className="text-red-600 hover:text-red-700"
+                className="text-red-700 hover:text-red-700"
               >
                 <Trash2 className="w-4 h-4" />
               </Button>

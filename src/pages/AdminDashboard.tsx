@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { User, Report, Practitioner } from "@/entities/all";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
+import { StatCard } from "@/components/ui/StatCard";
 import { 
   Shield, 
   Users, 
@@ -98,54 +99,11 @@ export default function AdminDashboard() {
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Users</p>
-                  <p className="text-2xl font-bold">{stats.totalUsers}</p>
-                </div>
-                <Users className="w-8 h-8 text-blue-600" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className={stats.pendingReports > 0 ? "border-orange-200 bg-orange-50" : ""}>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Pending Reports</p>
-                  <p className="text-2xl font-bold text-orange-600">{stats.pendingReports}</p>
-                </div>
-                <AlertTriangle className="w-8 h-8 text-orange-600" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className={stats.pendingVerifications > 0 ? "border-purple-200 bg-purple-50" : ""}>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Pending Verifications</p>
-                  <p className="text-2xl font-bold text-purple-600">{stats.pendingVerifications}</p>
-                </div>
-                <ShieldCheck className="w-8 h-8 text-purple-600" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className={stats.activeDisputes > 0 ? "border-red-200 bg-red-50" : ""}>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Active Disputes</p>
-                  <p className="text-2xl font-bold text-red-600">{stats.activeDisputes}</p>
-                </div>
-                <MessageSquare className="w-8 h-8 text-red-600" />
-              </div>
-            </CardContent>
-          </Card>
+        <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+          <StatCard icon={Users} label="Total Users" value={stats.totalUsers} color="primary" />
+          <StatCard icon={AlertTriangle} label="Pending Reports" value={stats.pendingReports} color="warning" />
+          <StatCard icon={ShieldCheck} label="Pending Verifications" value={stats.pendingVerifications} color="info" />
+          <StatCard icon={MessageSquare} label="Active Disputes" value={stats.activeDisputes} color="clay" />
         </div>
 
         {/* Admin Tools */}

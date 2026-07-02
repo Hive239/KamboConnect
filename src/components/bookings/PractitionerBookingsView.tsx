@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { StatusPill } from "@/components/ui/StatusPill";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -124,17 +125,7 @@ const IntakeDialog = ({ booking, onClose }) => {
   );
 };
 
-const StatusBadge = ({ status }) => {
-    const statusStyles = {
-      pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
-      confirmed: "bg-primary/10 text-primary border-primary/20",
-      declined: "bg-red-100 text-red-800 border-red-200",
-      completed: "bg-blue-100 text-blue-800 border-blue-200",
-      cancelled: "bg-muted text-foreground border-border",
-      no_show: "bg-orange-100 text-orange-800 border-orange-200",
-    };
-    return <Badge className={statusStyles[status] || statusStyles.pending}>{status === 'no_show' ? 'no show' : status}</Badge>;
-};
+const StatusBadge = ({ status }) => <StatusPill status={status} />;
 
 const PractitionerBookingsView = ({ bookings, onUpdate }) => {
   const [intakeBooking, setIntakeBooking] = useState(null);

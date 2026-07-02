@@ -66,6 +66,8 @@ export default function Messages() {
   const [isSending, setIsSending] = useState(false);
   const [isNewConvoModalOpen, setIsNewConvoModalOpen] = useState(false);
   const [practitioners, setPractitioners] = useState([]);
+  const [unreadCounts, setUnreadCounts] = useState({});
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches);
   const [searchTerm, setSearchTerm] = useState('');
   const [dataLoadAttempted, setDataLoadAttempted] = useState(false); // Prevent multiple load attempts
 
@@ -90,11 +92,26 @@ export default function Messages() {
       uniqueConversations.sort((a, b) => new Date(b.last_message_date) - new Date(a.last_message_date));
       
       setConversations(uniqueConversations);
+      try {
+        const unread = await Message.filter({ receiver_id: currentUser.id, is_read: false });
+        const counts = {};
+        for (const m of unread) counts[m.conversation_id] = (counts[m.conversation_id] || 0) + 1;
+        setUnreadCounts(counts);
+      } catch { /* non-fatal */ }
       return uniqueConversations;
     } catch (error) {
       console.error("Failed to load conversations:", error);
       return [];
     }
+  }, []);
+
+  // Responsive pane switching (updates on resize — not a one-shot read).
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const mq = window.matchMedia('(max-width: 767px)');
+    const on = () => setIsMobile(mq.matches);
+    mq.addEventListener('change', on);
+    return () => mq.removeEventListener('change', on);
   }, []);
   
   const loadMessages = useCallback(async (conversation) => {
@@ -109,6 +126,9 @@ export default function Messages() {
         "created_date" // oldest first
       );
       setMessages(fetchedMessages);
+      // Mark messages addressed to me in this thread as read (clears the nav badge).
+      const unread = fetchedMessages.filter((m) => m.receiver_id === user.id && !m.is_read);
+      if (unread.length) Promise.all(unread.map((m) => Message.update(m.id, { is_read: true }).catch(() => {})));
     } catch (error) {
       console.error("Failed to load messages:", error);
       setMessages([]);
@@ -316,7 +336,6 @@ export default function Messages() {
     );
   }
   
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   const showConversationList = isMobile ? !selectedConversation : true;
   const showMessageThread = isMobile ? !!selectedConversation : true;
 
@@ -328,10 +347,11 @@ export default function Messages() {
         practitioners={practitioners}
         onSelect={startNewConversation}
       />
-      <div className="h-screen flex bg-card">
+      <div className="flex h-[calc(100vh-4rem)] bg-muted/30">
+        <h1 className="sr-only">Messages</h1>
         {/* Sidebar */}
         {showConversationList && (
-            <aside className="w-full md:w-80 lg:w-96 flex-col border-r border-border h-full flex">
+            <aside aria-label="Conversations" className="w-full md:w-80 lg:w-96 flex-col border-r border-border h-full flex">
               <ConversationList
                 conversations={conversations}
                 selectedConversation={selectedConversation}
@@ -340,13 +360,14 @@ export default function Messages() {
                 onNewConversation={() => setIsNewConvoModalOpen(true)}
                 searchTerm={searchTerm}
                 setSearchTerm={setSearchTerm}
+                unreadCounts={unreadCounts}
               />
             </aside>
         )}
         
         {/* Main Content */}
         {showMessageThread && (
-            <main className="flex-1 flex flex-col h-full">
+            <section aria-label="Conversation" className="flex-1 flex flex-col h-full">
                 {selectedConversation ? (
                     <MessageThread 
                         conversation={selectedConversation}
@@ -372,7 +393,7 @@ export default function Messages() {
                         </Button>
                     </div>
                 )}
-            </main>
+            </section>
         )}
       </div>
     </>

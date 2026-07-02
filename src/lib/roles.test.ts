@@ -23,9 +23,15 @@ describe('roleHome', () => {
 });
 
 describe('canAccess', () => {
-  it('keeps practitioners out of client commerce', () => {
-    expect(canAccess('Market', 'practitioner')).toBe(false);
+  it('keeps practitioners out of client-only commerce (bookings/directory), but shares Market/Map/Guide', () => {
+    // Practitioners are buyers too — Market, Map, Guide and Orders are shared.
+    expect(canAccess('Market', 'practitioner')).toBe(true);
+    expect(canAccess('Map', 'practitioner')).toBe(true);
+    expect(canAccess('Guide', 'practitioner')).toBe(true);
+    expect(canAccess('Orders', 'practitioner')).toBe(true);
+    // But client-only surfaces stay closed to practitioners.
     expect(canAccess('Bookings', 'practitioner')).toBe(false);
+    expect(canAccess('Directory', 'practitioner')).toBe(false);
     expect(canAccess('Market', 'client')).toBe(true);
   });
   it('keeps clients out of practitioner/admin tools', () => {

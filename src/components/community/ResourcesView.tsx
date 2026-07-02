@@ -100,7 +100,7 @@ const CategoryHeader = ({ category, count }) => {
 
   const categoryColors = {
     "Community Guidelines": "text-blue-600 bg-blue-50 border-blue-200",
-    "Safety Protocols": "text-red-600 bg-red-50 border-red-200",
+    "Safety Protocols": "text-red-700 bg-red-50 border-red-200",
     "Integration Practices": "text-primary bg-primary/5 border-primary/20", 
     "Further Reading": "text-purple-600 bg-purple-50 border-purple-200"
   };

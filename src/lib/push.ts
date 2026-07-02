@@ -8,7 +8,12 @@ import { PushSubscription as PushSub, User } from '@/entities/all';
 const VAPID_PUBLIC = import.meta.env.VITE_VAPID_PUBLIC_KEY as string | undefined;
 
 export function pushSupported(): boolean {
-  return typeof window !== 'undefined' && 'serviceWorker' in navigator && 'PushManager' in window;
+  // `Notification` must be checked too — some contexts (headless/embedded webviews,
+  // insecure origins, older iOS Safari) expose service workers but not the
+  // Notification API, and calling Notification.requestPermission there throws.
+  return typeof window !== 'undefined' && 'serviceWorker' in navigator
+    && 'PushManager' in window && 'Notification' in window
+    && typeof Notification.requestPermission === 'function';
 }
 
 function urlBase64ToUint8Array(base64: string): Uint8Array {
