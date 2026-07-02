@@ -57,21 +57,23 @@ export default function Education() {
         />
         <InfoSection 
           id="benefits-section"
-          title="Potential Health Benefits"
+          title="Traditionally Reported Experiences"
           icon={Heart}
           imageUrl="https://images.unsplash.com/photo-1477346611705-65d1883cee1e?q=80&w=2070&auto=format&fit=crop"
           content={() => (
             <>
-              <p>Participants in Kambo ceremonies often report a wide range of benefits, both immediate and long-term. The secretion contains a complex cocktail of bioactive peptides that have potent effects on the human body.</p>
-              <p className="font-semibold text-foreground">Commonly reported benefits include:</p>
+              <p>Within the tradition, people describe a range of experiences with Kambo. The following are <strong>traditional and anecdotal accounts only</strong> — they are not medical claims, not verified health outcomes, and not a promise of any result.</p>
+              <p className="font-semibold text-foreground">Experiences people traditionally describe include:</p>
               <ul className="list-disc list-inside space-y-1">
-                <li>Deep physical and energetic cleansing.</li>
-                <li>Strengthened immune system.</li>
-                <li>Increased energy, stamina, and mental clarity.</li>
-                <li>Reduced inflammation and pain.</li>
-                <li>Relief from depression, anxiety, and PTSD.</li>
+                <li>A sense of physical and energetic "cleansing".</li>
+                <li>Feeling grounded, clear, or "reset" afterward.</li>
+                <li>A short-lived boost in energy or focus in the following days.</li>
               </ul>
-              <p className="text-sm text-muted-foreground mt-4 italic">Disclaimer: These statements have not been evaluated by the FDA. Kambo is not intended to diagnose, treat, cure, or prevent any disease.</p>
+              <p className="text-sm text-muted-foreground mt-4 italic">
+                These statements have not been evaluated by the FDA. Kambo is a traditional practice — not a medical
+                treatment — and is not intended to diagnose, treat, cure, or prevent any disease or condition. Always
+                consult a qualified healthcare provider.
+              </p>
             </>
           )}
         />
