@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Favorite } from '@/entities/Favorite';
 import { User } from '@/entities/User';
 import { Card, CardContent } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -247,13 +248,7 @@ export default function Favorites() {
     <div className="bg-muted min-h-screen">
       <div className="p-4 sm:p-6">
         <div className="max-w-4xl mx-auto">
-          <div className="flex items-center gap-3 mb-6">
-            <Heart className="w-8 h-8 text-red-500 fill-red-500" />
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">My Favorites</h1>
-              <p className="text-muted-foreground">Your saved practitioners, events, and posts</p>
-            </div>
-          </div>
+          <PageHeader icon={Heart} kicker="Saved" title="My Favorites" subtitle="Your saved practitioners, events, and posts" className="-mx-4 -mt-4 mb-6 sm:-mx-6 sm:-mt-6" />
 
           {/* Search */}
           <div className="relative mb-6">

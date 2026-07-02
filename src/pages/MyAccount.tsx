@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { User } from '@/entities/User';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Settings } from "@/lib/icons";
 import { Loader2 } from '@/lib/icons';
 import ProfilePictureUpload from '../components/profile/ProfilePictureUpload';
 import AccountSettings from '../components/profile/AccountSettings';
@@ -40,11 +42,8 @@ export default function MyAccount() {
 
   return (
     <div className="bg-muted min-h-screen">
-        <div className="p-4 sm:p-6">
-            <h1 className="text-3xl font-bold text-foreground mb-2">My Account</h1>
-            <p className="text-muted-foreground">Manage your profile, settings, and notifications.</p>
-        </div>
-        
+        <PageHeader icon={Settings} kicker="Account" title="My Account" subtitle="Manage your profile, settings, and notifications." />
+
         <div className="p-4 sm:p-6 space-y-6">
             <Card>
                 <CardHeader>

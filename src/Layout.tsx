@@ -48,6 +48,7 @@ const mainNavItems = [
   { title: "My Favorites", tKey: "nav.favorites", url: createPageUrl("Favorites"), icon: Heart, isPublic: false, roles: ["client"] },
   { title: "Market", tKey: "nav.market", url: createPageUrl("Market"), icon: Store, isPublic: true, roles: ["client", "practitioner"] },
   { title: "Learn", tKey: "nav.learn", url: createPageUrl("Education"), icon: BookOpen, isPublic: true },
+  { title: "Courses", tKey: "nav.courses", url: createPageUrl("Courses"), icon: Book, isPublic: false },
 ];
 
 // User/account items — surfaced in the top-right ProfileMenu (and mobile sheet)

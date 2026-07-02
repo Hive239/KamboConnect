@@ -4,6 +4,7 @@ import { User } from "@/entities/User";
 import { Booking } from "@/entities/Booking";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Briefcase, CalendarCheck, User as UserIcon, LogIn } from "@/lib/icons";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/button";
 import ClientBookingsView from "../components/bookings/ClientBookingsView";
 import PractitionerBookingsView from "../components/bookings/PractitionerBookingsView";
@@ -111,8 +112,7 @@ export default function BookingsPage() {
 
   return (
     <div className="p-4 sm:p-6">
-      <h1 className="text-3xl font-bold text-foreground mb-2">My Bookings</h1>
-      <p className="text-muted-foreground mb-6">Track your sessions and manage booking requests.</p>
+      <PageHeader icon={Briefcase} kicker="Sessions" title="My Bookings" subtitle="Track your sessions and manage booking requests." className="-mx-4 -mt-4 mb-6 sm:-mx-6 sm:-mt-6" />
       
       <Tabs defaultValue="my-sessions" className="w-full">
         <TabsList className="grid w-full grid-cols-2 bg-muted">

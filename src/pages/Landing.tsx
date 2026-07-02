@@ -23,6 +23,7 @@ import {
 
 // Lazy so leaflet stays out of the eagerly-imported Landing bundle.
 const HeroMap = lazy(() => import("@/components/landing/HeroMap"));
+import FeaturedPractitioner from "@/components/landing/FeaturedPractitioner";
 
 const MODALITIES = [
   "Kambo ceremonies", "Rapé & Hapé", "Sananga", "Integration support",
@@ -335,6 +336,51 @@ export default function Landing() {
             ))}
           </Reveal>
         </section>
+
+        {/* ---------- Our roots: the Matsés & the frog ---------- */}
+        <section className="border-y border-border bg-[#0b3a2a] py-20 text-white">
+          <div className="mx-auto grid max-w-6xl items-center gap-10 px-5 lg:grid-cols-2">
+            <Reveal>
+              <div className="overflow-hidden rounded-3xl shadow-2xl ring-1 ring-white/10">
+                <img
+                  src="/images/frog-bicolor-1.jpg"
+                  alt="Phyllomedusa bicolor, the giant monkey tree frog, source of Kambo"
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+            </Reveal>
+            <Reveal className="space-y-5">
+              <span className="text-sm font-semibold uppercase tracking-widest text-white/70">Our roots</span>
+              <h2 className="font-display text-display font-semibold text-balance">Honoring tradition. Serving Kambo safely.</h2>
+              <p className="text-lg text-white/80 text-pretty">
+                Kambo comes from the secretion of the giant monkey tree frog, <em>Phyllomedusa bicolor</em>, native to the
+                upper Amazon. For generations the <strong>Matsés</strong> and neighboring peoples have kept this tradition —
+                ethically gathering the secretion without harming the frog, which is returned safely to the forest.
+              </p>
+              <ul className="space-y-3">
+                {[
+                  { t: "Direct connection to the Matsés", b: "We honor the lineage and the people who carry it." },
+                  { t: "Giving back to the tribe", b: "A share of proceeds is dedicated to the Matsés community." },
+                  { t: "Protecting the frog & its forest", b: "Supporting Phyllomedusa bicolor habitat conservation." },
+                ].map((r) => (
+                  <li key={r.t} className="flex items-start gap-3">
+                    <CheckCircle className="mt-0.5 h-5 w-5 shrink-0 text-white" weight="duotone" />
+                    <span><strong>{r.t}.</strong> <span className="text-white/75">{r.b}</span></span>
+                  </li>
+                ))}
+              </ul>
+              <div className="flex items-center gap-4 pt-2">
+                <img src="/images/frog-bicolor-2.jpg" alt="Giant monkey frogs in the Amazon" className="h-20 w-28 rounded-xl object-cover ring-1 ring-white/15" loading="lazy" />
+                <img src="/images/frog-bicolor-3.png" alt="Phyllomedusa bicolor on a branch" className="h-20 w-28 rounded-xl object-cover ring-1 ring-white/15" loading="lazy" />
+                <p className="text-xs text-white/60">Educational & cultural information only — not medical advice.</p>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* ---------- Practitioner of the Month ---------- */}
+        <FeaturedPractitioner />
 
         {/* ---------- Featured practitioners ---------- */}
         {featured.length > 0 && (

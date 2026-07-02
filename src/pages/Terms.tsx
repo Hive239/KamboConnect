@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { useSeo } from "@/lib/useSeo";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { FileText } from "@/lib/icons";
 
 const UPDATED = "July 2026";
 
@@ -8,8 +10,7 @@ export default function Terms() {
   useSeo({ title: "Terms of Service — KamboGuide", description: "The terms governing use of the KamboGuide marketplace." });
   return (
     <div className="mx-auto max-w-3xl p-6 sm:p-10">
-      <h1 className="font-display text-3xl font-semibold">Terms of Service</h1>
-      <p className="mt-1 text-sm text-muted-foreground">Last updated: {UPDATED}</p>
+      <PageHeader icon={FileText} kicker="Legal" title="Terms of Service" subtitle={`Last updated: ${UPDATED}`} className="-mx-6 -mt-6 mb-8 sm:-mx-10 sm:-mt-10" />
 
       <div className="prose prose-sm mt-8 max-w-none space-y-6 text-foreground">
         <section>

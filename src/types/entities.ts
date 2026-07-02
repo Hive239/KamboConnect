@@ -591,6 +591,24 @@ export interface EntityTypeMap {
   Reaction: Reaction;
   JournalEntry: JournalEntry;
   PushSubscription: PushSubscription;
+  Course: Course;
+}
+
+/** A practitioner training program listed in the course directory. */
+export interface Course extends BaseRecord {
+  title: string;
+  provider?: string;
+  description?: string;
+  url?: string;
+  location?: string;
+  format?: 'online' | 'in_person' | 'hybrid';
+  duration?: string;
+  price?: number;
+  currency?: string;
+  image_url?: string;
+  lineage?: string;
+  is_featured?: boolean;
+  status?: 'published' | 'draft';
 }
 
 export type EntityName = keyof EntityTypeMap;

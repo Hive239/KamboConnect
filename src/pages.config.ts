@@ -11,6 +11,7 @@ export const PAGES = {
     "Directory": lazy(() => import('./pages/Directory')),
     "Matchmaking": lazy(() => import('./pages/Matchmaking')),
     "Education": lazy(() => import('./pages/Education')),
+    "Courses": lazy(() => import('./pages/Courses')),
     "Verification": lazy(() => import('./pages/Verification')),
     "Community": lazy(() => import('./pages/Community')),
     "Events": lazy(() => import('./pages/Events')),

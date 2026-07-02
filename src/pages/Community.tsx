@@ -1,6 +1,7 @@
 import { useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookText, MessageSquare, Sparkle, UsersThree } from "@/lib/icons";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { useSeo } from "@/lib/useSeo";
 
 import FeedView from "../components/community/FeedView";
@@ -16,10 +17,7 @@ export default function Community() {
   const tab = searchParams.get("tab") || "feed";
   return (
     <div className="bg-muted min-h-screen">
-      <div className="p-4 sm:p-6">
-        <h1 className="font-display text-3xl font-semibold text-foreground">Community Hub</h1>
-        <p className="text-muted-foreground">Connect, share, and learn with others</p>
-      </div>
+      <PageHeader icon={UsersThree} kicker="Community" title="Community Hub" subtitle="Connect, share, and learn with others." />
 
       <div className="px-4 sm:px-6 pb-8">
         <Tabs value={tab} onValueChange={(v) => setSearchParams({ tab: v }, { replace: true })} className="w-full">

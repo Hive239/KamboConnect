@@ -3,7 +3,8 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Practitioner, Review } from "@/entities/all";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, SlidersHorizontal, UserCircle, MapPin, RefreshCw, Loader2 } from "@/lib/icons";
+import { Search, SlidersHorizontal, UserCircle, MapPin, RefreshCw, Loader2, Sparkle, CheckCircle, Crosshair } from "@/lib/icons";
+import { GradientMesh } from "@/components/ui/GradientMesh";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -274,77 +275,72 @@ export default function Directory() {
     .filter(p => !p.is_verified)
     .sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
 
+  const verifiedCount = practitioners.filter((p) => p.is_verified).length;
+  const cityCount = new Set(practitioners.map((p) => p.address?.city).filter(Boolean)).size;
+
   return (
     <div className="bg-muted min-h-screen">
       {/* Hero Section */}
-      <div className="relative h-96 bg-gradient-to-br from-primary/10 via-background to-clay/10 flex flex-col items-center justify-center text-center p-6 overflow-hidden">
-         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent z-[1]"></div>
-         <div className="absolute inset-0 bg-cover bg-center opacity-[0.07]" style={{backgroundImage: "url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=2071&auto=format&fit=crop')"}}></div>
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-          className="font-display text-4xl sm:text-5xl font-semibold text-foreground mb-4 z-10 max-w-2xl tracking-tight"
-        >
-          Connect with Trusted Practitioners
-        </motion.h1>
-        <motion.p 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.2 }}
-          className="text-lg text-muted-foreground mb-4 max-w-lg z-10"
-        >
-          Find verified Kambo practitioners in your area
-        </motion.p>
-        
-        {/* Location Status */}
-        {filters.sortBy === "nearest" && (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.3 }}
-            className="mb-4 z-10"
+      <div className="grain relative overflow-hidden border-b border-border bg-background">
+        <GradientMesh intensity="vivid" />
+        <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center px-5 py-16 text-center sm:py-20">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
+            className="mb-5 inline-flex items-center gap-2 rounded-full border border-border bg-card/70 px-4 py-1.5 text-sm text-muted-foreground shadow-sm backdrop-blur"
           >
-            {isGettingLocation ? (
-              <p className="text-sm text-muted-foreground flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Getting your location...</p>
-            ) : userLocation ? (
-              <p className="text-sm text-primary">✓ Location detected - showing nearest practitioners</p>
-            ) : locationError ? (
-              <p className="text-sm text-warning">⚠ Location unavailable - showing all practitioners</p>
-            ) : null}
+            <Sparkle className="h-4 w-4 text-primary" weight="fill" /> Verified · Safe · Local
           </motion.div>
-        )}
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}
+            className="text-balance font-display text-display-lg font-semibold tracking-tight"
+          >
+            Connect with <span className="text-gradient-brand">trusted</span> practitioners
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.15 }}
+            className="mt-4 max-w-lg text-pretty text-lg text-muted-foreground"
+          >
+            Find verified Kambo practitioners near you.
+          </motion.p>
 
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.4 }}
-          className="w-full max-w-lg z-10"
-        >
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
-            <Input
-              placeholder="Search by name, location, or specialty..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-12 pr-14 py-4 h-14 text-base rounded-2xl shadow-sm border-0 bg-card/80 backdrop-blur-sm focus:bg-card transition-all"
+          {/* Live stat chips */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.25 }}
+            className="mt-5 flex flex-wrap items-center justify-center gap-2 text-sm"
+          >
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card/70 px-3 py-1 backdrop-blur"><CheckCircle className="h-4 w-4 text-success" weight="fill" /> {verifiedCount} verified</span>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card/70 px-3 py-1 backdrop-blur"><MapPin className="h-4 w-4 text-info" /> {cityCount} cities</span>
+            {filters.sortBy === "nearest" && (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card/70 px-3 py-1 backdrop-blur">
+                {isGettingLocation ? <><Loader2 className="h-4 w-4 animate-spin" /> Locating…</> : userLocation ? <><Crosshair className="h-4 w-4 text-success" /> Near you</> : <><Crosshair className="h-4 w-4 text-warning" /> Location off</>}
+              </span>
+            )}
+          </motion.div>
+
+          {/* Search */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.35 }}
+            className="mt-7 w-full max-w-lg"
+          >
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Search by name, location, or specialty…"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="h-14 rounded-2xl border-border bg-card/80 pl-12 pr-14 text-base shadow-lg backdrop-blur transition-all focus:bg-card focus-visible:shadow-glow"
+              />
+              <Button variant="ghost" size="icon" aria-label="Open filters" className="absolute right-2 top-1/2 h-10 w-10 -translate-y-1/2 rounded-xl" onClick={() => setShowFilterModal(true)}>
+                <SlidersHorizontal className="h-5 w-5 text-muted-foreground" />
+              </Button>
+            </div>
+            <SavedSearches
+              searchTerm={searchTerm}
+              filters={filters}
+              onApply={(s) => { setSearchTerm(s.search_term || ""); if (s.filters) setFilters((prev) => ({ ...prev, ...s.filters })); }}
             />
-            <Button
-              variant="ghost"
-              size="sm"
-              aria-label="Open filters"
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 hover:bg-accent rounded-xl w-10 h-10"
-              onClick={() => setShowFilterModal(true)}
-            >
-              <SlidersHorizontal className="w-5 h-5 text-muted-foreground" />
-            </Button>
-          </div>
-          <SavedSearches
-            searchTerm={searchTerm}
-            filters={filters}
-            onApply={(s) => { setSearchTerm(s.search_term || ""); if (s.filters) setFilters((prev) => ({ ...prev, ...s.filters })); }}
-          />
-        </motion.div>
+          </motion.div>
+        </div>
       </div>
       
       {/* Daily Quote Section */}

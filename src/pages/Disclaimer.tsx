@@ -2,14 +2,12 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle, Shield, FileText } from "@/lib/icons";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 export default function Disclaimer() {
   return (
     <div className="bg-card min-h-screen">
-      <div className="p-4 sm:p-6">
-        <h1 className="text-3xl font-bold text-foreground mb-2">Legal Disclaimer</h1>
-        <p className="text-muted-foreground">Important legal information and limitations of liability</p>
-      </div>
+      <PageHeader icon={Shield} kicker="Legal" title="Legal Disclaimer" subtitle="Important legal information and limitations of liability." />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
         {/* Main Warning */}

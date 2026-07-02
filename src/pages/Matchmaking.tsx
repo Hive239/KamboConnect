@@ -12,6 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import PractitionerCard from "@/components/directory/PractitionerCard";
 import PractitionerModal from "@/components/directory/PractitionerModal";
 import { Sparkle, CheckCircle, Crosshair, ArrowRight, ArrowLeft, MapPin } from "@/lib/icons";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { useSeo } from "@/lib/useSeo";
 
 const MODALITIES = ["Traditional Kambo", "Sananga", "Hapé / Rapé", "Integration Coaching", "Group Circles", "Women’s Circles", "Trauma-Informed", "Microdosing Guidance"];
@@ -65,13 +66,7 @@ export default function Matchmaking() {
 
   return (
     <div className="mx-auto max-w-5xl p-4 sm:p-8">
-      <div className="mb-8 text-center">
-        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-          <Sparkle className="h-6 w-6 text-primary" weight="duotone" />
-        </div>
-        <h1 className="font-display text-3xl font-semibold tracking-tight">Find your match</h1>
-        <p className="mt-1 text-muted-foreground">A few questions to connect you with the right practitioner.</p>
-      </div>
+      <PageHeader icon={Sparkle} kicker="Matchmaking" title="Find your match" subtitle="A few questions to connect you with the right practitioner." className="-mx-4 -mt-4 mb-8 sm:-mx-8 sm:-mt-8" />
 
       {!results && (
         <Card className="mx-auto max-w-2xl">

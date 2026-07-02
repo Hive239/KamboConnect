@@ -4,6 +4,7 @@ import { createPageUrl } from "@/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MapPin, Briefcase, Users, ArrowRight, Leaf } from "@/lib/icons";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { useSeo } from "@/lib/useSeo";
 
 /** Post-signup onboarding: route the new member by intent. */
@@ -15,11 +16,7 @@ export default function Welcome() {
 
   return (
     <div className="mx-auto max-w-3xl p-6 sm:p-10">
-      <div className="mb-8 text-center">
-        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10"><Leaf className="h-6 w-6 text-primary" weight="duotone" /></div>
-        <h1 className="font-display text-3xl font-semibold">Welcome{name ? `, ${name}` : ""}!</h1>
-        <p className="mt-1 text-muted-foreground">What brings you to KamboGuide?</p>
-      </div>
+      <PageHeader icon={Leaf} kicker="Welcome" title={`Welcome${name ? `, ${name}` : ""}!`} subtitle="What brings you to KamboGuide?" className="-mx-6 -mt-6 mb-8 sm:-mx-10 sm:-mt-10" />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Card className="cursor-pointer transition-shadow hover:shadow-md" onClick={() => navigate(createPageUrl("Directory"))}>
