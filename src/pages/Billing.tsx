@@ -8,6 +8,7 @@ import { formatCurrency } from "@/lib/format";
 import { useSeo } from "@/lib/useSeo";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatCard } from "@/components/ui/StatCard";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Trophy, Star, Briefcase, DollarSign, Loader2 } from "@/lib/icons";
@@ -87,10 +88,7 @@ export default function Billing() {
 
   return (
     <div className="mx-auto max-w-5xl p-4 sm:p-8">
-      <div className="mb-6 flex items-center gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10"><Trophy className="h-6 w-6 text-primary" weight="duotone" /></div>
-        <div><h1 className="font-display text-2xl font-semibold">Billing & Growth</h1><p className="text-sm text-muted-foreground">Your plan, performance, and growth tools.</p></div>
-      </div>
+      <PageHeader icon={Trophy} kicker="Growth" title="Billing & Growth" subtitle="Your plan, performance, and growth tools." className="-mx-4 -mt-4 mb-6 sm:-mx-8 sm:-mt-8" />
 
       {/* Analytics */}
       <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">

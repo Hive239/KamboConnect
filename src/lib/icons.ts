@@ -28,6 +28,7 @@ export {
   PencilSimple as Edit,
   ArrowSquareOut as ExternalLink,
   Eye,
+  EyeSlash,
   EyeSlash as EyeOff,
   Globe,
   TrendUp as TrendingUp,

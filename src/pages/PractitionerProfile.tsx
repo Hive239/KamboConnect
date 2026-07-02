@@ -18,6 +18,7 @@ import {
   Star, MapPin, CheckCircle, Mail, Globe, Phone, MessageSquare, ArrowLeft,
   Users, Loader2, Calendar as CalendarIcon, ShareIcon, ShieldCheck
 } from "@/lib/icons";
+import { GradientMesh } from "@/components/ui/GradientMesh";
 import { createPageUrl } from "@/utils";
 import { format } from 'date-fns';
 import { toast } from "sonner";
@@ -349,7 +350,8 @@ export default function PractitionerProfile() {
 
   return (
     <div className="bg-muted min-h-screen">
-      <div className="w-full h-48 md:h-72 bg-gradient-to-br from-primary/10 via-background to-clay/20 relative overflow-hidden grain">
+      <div className="w-full h-48 md:h-72 bg-background relative overflow-hidden grain">
+        <GradientMesh intensity="vivid" />
         <img loading="lazy"
           src={practitioner.image_urls?.[0] || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=2070&auto=format&fit=crop'}
           alt="Cover"

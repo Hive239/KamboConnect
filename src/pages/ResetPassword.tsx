@@ -43,8 +43,9 @@ export default function ResetPassword() {
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center p-6">
       <div className="mb-6 text-center">
-        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10"><Leaf className="h-6 w-6 text-primary" weight="duotone" /></div>
-        <h1 className="font-display text-2xl font-semibold">Set a new password</h1>
+        <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 shadow-glow"><Leaf className="h-7 w-7 text-primary" weight="duotone" /></div>
+        <h1 className="font-display text-3xl font-semibold tracking-tight">Set a new password</h1>
+        <p className="mt-1 text-muted-foreground">Choose a strong password for your account.</p>
       </div>
       <Card>
         <CardContent className="p-6">

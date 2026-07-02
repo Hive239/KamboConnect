@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   User as UserIcon, Settings, Briefcase, Star, CalendarCheck, Edit, Loader2, LogIn, Calendar, Heart
 } from "@/lib/icons";
+import { GradientMesh } from "@/components/ui/GradientMesh";
 
 import AccountSettings from "../components/profile/AccountSettings";
 import BookingHistory from "../components/profile/BookingHistory";
@@ -116,6 +117,7 @@ export default function Profile() {
         
         {/* Profile Header */}
         <Card className="mb-6 overflow-hidden">
+          <div className="relative h-24 bg-background grain"><GradientMesh intensity="vivid" /></div>
           <CardContent className="p-6 flex flex-col sm:flex-row items-center gap-6">
             <ProfilePictureUpload user={user} onUpdate={handleUserUpdate} />
             <div className="flex-1 text-center sm:text-left">

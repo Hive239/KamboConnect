@@ -9,6 +9,7 @@ import {
   ShieldCheck, AlertCircle, Loader2, User as UserIcon, Check, X, ExternalLink, ArrowLeft
 } from "@/lib/icons";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -237,14 +238,8 @@ export default function VerificationPage() {
 
   return (
     <div className="p-4 sm:p-6">
+      <PageHeader icon={ShieldCheck} kicker="Admin" title="Practitioner Verification" subtitle="Review and approve pending practitioner applications." className="-mx-4 -mt-4 mb-6 sm:-mx-6 sm:-mt-6" />
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-2xl">
-            <ShieldCheck className="w-7 h-7 text-primary" />
-            Practitioner Verification
-          </CardTitle>
-          <CardDescription>Review and approve pending practitioner applications.</CardDescription>
-        </CardHeader>
         <CardContent>
           {pending.length > 0 ? (
             <div className="space-y-4">

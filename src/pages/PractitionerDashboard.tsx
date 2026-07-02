@@ -7,6 +7,7 @@ import { User, Practitioner, Booking, Event, Message } from "@/entities/all";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatCard } from "@/components/ui/StatCard";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -172,10 +173,7 @@ export default function PractitionerDashboard() {
   return (
     <div className="p-4 sm:p-6">
       <div className="max-w-6xl mx-auto">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-foreground">Practitioner Dashboard</h1>
-          <p className="text-muted-foreground">Manage your practice and connect with clients</p>
-        </div>
+        <PageHeader icon={Storefront} kicker="Your practice" title="Practitioner Dashboard" subtitle="Manage your practice and connect with clients." className="-mx-4 -mt-4 mb-6 sm:-mx-6 sm:-mt-6" />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3 sm:grid-cols-10 gap-1 h-auto bg-muted p-1 rounded-xl">

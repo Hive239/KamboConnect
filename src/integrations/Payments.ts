@@ -1,7 +1,14 @@
 /**
- * Mock payment gateway. Formalizes the inline "MOCK PAYMENT GATEWAY" seam in
- * DirectBookingModal. Same shape a Stripe call would have — on migration this
- * becomes a real Checkout/PaymentIntent behind the identical signature.
+ * Payment gateway seam. Two paths behind one API:
+ *
+ *  • REAL Stripe — when the deploy has STRIPE_SECRET_KEY (server) the
+ *    /api/stripe-checkout function returns a hosted Checkout Session URL and we
+ *    redirect the browser to it. The /api/stripe-webhook function then flips the
+ *    pending record to paid. Nothing here needs to change when keys are added.
+ *
+ *  • MOCK — with no keys the endpoint replies { configured:false } and we return a
+ *    synthetic "completed" charge so the whole app (bookings, market, billing)
+ *    works end-to-end for demos and local dev.
  */
 export interface CheckoutInput {
   amount: number;
@@ -19,11 +26,13 @@ export interface CheckoutResult {
   created_at: string;
 }
 
+/** True once a Stripe publishable key is present (client-side signal that payments are live). */
+export function isPaymentsConfigured(): boolean {
+  return Boolean(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+}
+
 export async function createCheckout(input: CheckoutInput): Promise<CheckoutResult> {
-  // Simulate gateway latency.
-  await new Promise((r) => setTimeout(r, 600));
-  // eslint-disable-next-line no-console
-  console.info('[mock Payments.createCheckout]', input);
+  await new Promise((r) => setTimeout(r, 400));
   return {
     id: 'ch_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
     status: 'completed',
@@ -34,4 +43,41 @@ export async function createCheckout(input: CheckoutInput): Promise<CheckoutResu
   };
 }
 
-export default { createCheckout };
+export interface StartCheckoutInput extends CheckoutInput {
+  successPath?: string; // where Stripe returns on success (e.g. "/Orders?paid=1")
+  cancelPath?: string;
+}
+export type StartCheckoutResult =
+  | { mode: 'redirect'; url: string }        // real Stripe — caller should navigate here
+  | { mode: 'mock'; charge: CheckoutResult }; // no keys — caller marks the record paid now
+
+/**
+ * Begin a checkout. Asks the server to create a real Stripe Checkout Session; if
+ * Stripe isn't configured, falls back to a mock charge. The caller should create
+ * its record as `pending` (passing its id in metadata) BEFORE calling this so the
+ * webhook can reconcile it after a real payment.
+ */
+export async function startCheckout(input: StartCheckoutInput): Promise<StartCheckoutResult> {
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  try {
+    const res = await fetch('/api/stripe-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        amount: input.amount,
+        currency: (input.currency || 'usd').toLowerCase(),
+        description: input.description,
+        metadata: input.metadata || {},
+        successUrl: input.successPath ? origin + input.successPath : undefined,
+        cancelUrl: input.cancelPath ? origin + input.cancelPath : undefined,
+      }),
+    });
+    const json = await res.json().catch(() => ({}));
+    if (json?.configured && json?.url) return { mode: 'redirect', url: json.url };
+  } catch {
+    /* endpoint unreachable (pure local dev) — fall through to mock */
+  }
+  return { mode: 'mock', charge: await createCheckout(input) };
+}
+
+export default { createCheckout, startCheckout, isPaymentsConfigured };

@@ -12,6 +12,7 @@ import { format } from "date-fns";
 import FollowButton from "@/components/social/FollowButton";
 import ReportButton from "@/components/profile/ReportButton";
 import PageBreadcrumbs from "@/components/PageBreadcrumbs";
+import { GradientMesh } from "@/components/ui/GradientMesh";
 import ShareButton from "@/components/ShareButton";
 
 /**
@@ -81,6 +82,7 @@ export default function UserProfile() {
       />
 
       <Card className="mb-6 overflow-hidden">
+        <div className="relative h-24 bg-background grain"><GradientMesh intensity="vivid" /></div>
         <CardContent className="flex flex-col items-center gap-4 p-6 sm:flex-row sm:items-start">
           <Avatar className="h-20 w-20">
             <AvatarImage src={user.profile_image_url} />

@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { MessageSquare } from "@/lib/icons";
 import { ArrowLeft, Send } from "@/lib/icons";
 import { emitFeed } from "@/lib/feed";
 
@@ -86,6 +88,7 @@ export default function NewPost() {
             Back to Community
           </Link>
         </div>
+        <PageHeader icon={MessageSquare} kicker="Community" title="Start a discussion" subtitle="Share an experience, ask a question, or start a conversation." className="-mx-4 -mt-2 mb-6 sm:-mx-6" />
 
         <Card>
           <CardHeader>

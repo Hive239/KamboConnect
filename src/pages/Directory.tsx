@@ -18,6 +18,7 @@ import FilterModal from "../components/directory/FilterModal";
 import SavedSearches from "../components/directory/SavedSearches";
 import MapView from "../components/directory/MapView";
 import DailyQuote from "../components/directory/DailyQuote";
+import FeaturedPractitioner from "@/components/landing/FeaturedPractitioner";
 
 const formatAddress = (address) => {
     if (!address) return "Location not specified";
@@ -345,6 +346,11 @@ export default function Directory() {
       
       {/* Daily Quote Section */}
       <DailyQuote />
+
+      {/* Practitioner of the Month spotlight */}
+      <div className="mx-auto max-w-6xl">
+        <FeaturedPractitioner />
+      </div>
 
       {/* Main Content Area */}
       <div className="p-4 sm:p-6">

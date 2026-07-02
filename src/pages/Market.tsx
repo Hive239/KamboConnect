@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Product, Order, Payment, User, Notification } from "@/entities/all";
-import { createCheckout } from "@/integrations/Payments";
+import { startCheckout } from "@/integrations/Payments";
 import { useCart } from "@/lib/cart";
 import { toast } from "sonner";
 import { formatCurrency } from "@/lib/format";
@@ -56,16 +56,27 @@ export default function Market() {
         await User.login();
         return;
       }
-      const charge = await createCheckout({ amount: cart.total, currency: "USD", description: `${cart.count} item(s)`, metadata: { user_id: me.id } });
+      // Create the order up front (pending until payment confirms) so a real
+      // Stripe redirect + webhook can reconcile it by id.
+      const orderId = "ord_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
       const order = await Order.create({
+        id: orderId,
         user_id: me.id,
         items: cart.items.map((i) => ({ product_id: i.product_id, title: i.title, quantity: i.quantity, price: i.price })),
-        total: cart.total, currency: "USD", status: "paid", payment_id: charge.id,
+        total: cart.total, currency: "USD", status: "pending",
       });
-      await Payment.create({ user_id: me.id, amount: cart.total, currency: "USD", payment_type: "product", payment_status: "completed", stripe_payment_id: charge.id, payment_date: new Date().toISOString() });
+      const result = await startCheckout({
+        amount: cart.total, currency: "USD", description: `${cart.count} item(s)`,
+        metadata: { kind: "order", order_id: orderId, user_id: me.id },
+        successPath: "/Orders?paid=1", cancelPath: "/Market?canceled=1",
+      });
+      if (result.mode === "redirect") { window.location.href = result.url; return; } // webhook finalizes
+      // Mock path — no Stripe keys: finalize immediately.
+      await Order.update(orderId, { status: "paid", payment_id: result.charge.id });
+      await Payment.create({ user_id: me.id, amount: cart.total, currency: "USD", payment_type: "product", payment_status: "completed", stripe_payment_id: result.charge.id, payment_date: new Date().toISOString() });
       await Notification.create({ user_id: me.id, title: "Order confirmed", message: `Your order of ${cart.count} item(s) is confirmed.`, type: "system", priority: "normal", related_id: order.id, action_url: "/Orders" });
       cart.clear();
-      setPlaced(order);
+      setPlaced({ ...order, status: "paid" });
       setCartOpen(false);
     } finally { setCheckingOut(false); }
   };
