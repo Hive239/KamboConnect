@@ -16,10 +16,10 @@ import FavoriteButton from "../favorites/FavoriteButton";
 
 const PostListItem = ({ post, practitionerIds, reactionCount, reactionLiked }) => {
   const categoryColors = {
-    "General Discussion": "bg-blue-100 text-blue-800 border-blue-200",
+    "General Discussion": "bg-info/10 text-info border-info/20",
     "Experience Sharing": "bg-primary/10 text-primary border-primary/20",
-    "Q&A": "bg-amber-100 text-amber-800 border-amber-200",
-    "Integration": "bg-purple-100 text-purple-800 border-purple-200",
+    "Q&A": "bg-warning/10 text-warning border-amber-200",
+    "Integration": "bg-clay/10 text-clay border-clay/20",
   };
 
   return (

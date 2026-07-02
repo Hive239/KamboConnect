@@ -21,17 +21,17 @@ const DisputeCard = ({ report, onUpdate }) => {
 
   const getPriorityColor = (priority) => {
     switch (priority) {
-      case 'urgent': return 'bg-red-100 text-red-800 border-red-200';
-      case 'high': return 'bg-orange-100 text-orange-800 border-orange-200';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      default: return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'urgent': return 'bg-destructive/10 text-destructive border-destructive/20';
+      case 'high': return 'bg-warning/10 text-warning border-warning/20';
+      case 'medium': return 'bg-warning/10 text-warning border-warning/20';
+      default: return 'bg-info/10 text-info border-info/20';
     }
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'investigating': return 'bg-blue-100 text-blue-800';
+      case 'pending': return 'bg-warning/10 text-warning';
+      case 'investigating': return 'bg-info/10 text-info';
       case 'resolved': return 'bg-primary/10 text-primary';
       default: return 'bg-muted text-foreground';
     }

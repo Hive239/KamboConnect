@@ -18,10 +18,10 @@ export default function EventCard({ event, practitioner, onViewDetails, onRegist
   const getEventTypeBadge = (type) => {
     const badges = {
       circle: { color: "bg-primary/10 text-primary", text: "Kambo Circle" },
-      workshop: { color: "bg-blue-100 text-blue-800", text: "Workshop" },
-      retreat: { color: "bg-purple-100 text-purple-800", text: "Retreat" },
-      meetup: { color: "bg-orange-100 text-orange-800", text: "Meetup" },
-      training: { color: "bg-red-100 text-red-800", text: "Training" }
+      workshop: { color: "bg-info/10 text-info", text: "Workshop" },
+      retreat: { color: "bg-clay/10 text-clay", text: "Retreat" },
+      meetup: { color: "bg-warning/10 text-warning", text: "Meetup" },
+      training: { color: "bg-destructive/10 text-destructive", text: "Training" }
     };
     return badges[type] || badges.circle;
   };
@@ -62,7 +62,7 @@ export default function EventCard({ event, practitioner, onViewDetails, onRegist
           </div>
           {event.is_online && (
             <div className="absolute top-3 right-3">
-              <Badge className="bg-blue-100 text-blue-800 border-blue-200 flex items-center gap-1">
+              <Badge className="bg-info/10 text-info border-info/20 flex items-center gap-1">
                 <Video className="w-3 h-3" />
                 Online
               </Badge>
@@ -164,11 +164,11 @@ export default function EventCard({ event, practitioner, onViewDetails, onRegist
 
           {/* Availability Status */}
           {isFull ? (
-            <Badge className="bg-red-100 text-red-800 border-red-200 w-full justify-center mb-3">
+            <Badge className="bg-destructive/10 text-destructive border-destructive/20 w-full justify-center mb-3">
               Event Full
             </Badge>
           ) : isAlmostFull ? (
-            <Badge className="bg-orange-100 text-orange-800 border-orange-200 w-full justify-center mb-3">
+            <Badge className="bg-warning/10 text-warning border-warning/20 w-full justify-center mb-3">
               Only {spotsLeft} spots left!
             </Badge>
           ) : null}
@@ -189,7 +189,7 @@ export default function EventCard({ event, practitioner, onViewDetails, onRegist
               disabled={isFull}
               className={`flex-1 ${
                 isFull 
-                  ? "bg-gray-400 cursor-not-allowed" 
+                  ? "bg-muted cursor-not-allowed" 
                   : "bg-primary hover:bg-primary/90"
               }`}
             >

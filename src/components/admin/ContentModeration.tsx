@@ -249,7 +249,7 @@ export default function ContentModeration() {
         <TabsContent value="flagged" className="space-y-4">
           {flaggedContent.length > 0 ? (
             flaggedContent.map(report => (
-              <Card key={report.id} className="border-orange-200">
+              <Card key={report.id} className="border-warning/20">
                 <CardContent className="p-4">
                   <div className="flex justify-between items-start">
                     <div>

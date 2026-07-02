@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { Info as Cookie } from "@/lib/icons";
@@ -23,7 +22,7 @@ export default function CookieConsent() {
         <Cookie className="hidden h-6 w-6 shrink-0 text-primary sm:block" weight="duotone" />
         <p className="flex-1 text-sm text-muted-foreground">
           We use cookies to keep you signed in, remember preferences, and understand usage. See our{" "}
-          <Link to={createPageUrl("Privacy")} className="text-primary hover:underline">Privacy Policy</Link>.
+          <a href={createPageUrl("Privacy")} className="text-primary hover:underline">Privacy Policy</a>.
         </p>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={() => decide("essential")}>Essential only</Button>

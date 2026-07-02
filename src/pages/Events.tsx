@@ -340,9 +340,9 @@ export default function Events() {
                           key={event.id}
                           className={`text-xs p-1 rounded text-white text-center cursor-pointer truncate ${
                             event.event_type === 'circle' ? 'bg-primary hover:bg-primary/90' :
-                            event.event_type === 'workshop' ? 'bg-blue-500 hover:bg-blue-600' : 
-                            event.event_type === 'meetup' ? 'bg-yellow-500 hover:bg-yellow-600' :
-                            'bg-purple-500 hover:bg-purple-600'
+                            event.event_type === 'workshop' ? 'bg-info hover:bg-info/90' : 
+                            event.event_type === 'meetup' ? 'bg-warning hover:bg-warning/90' :
+                            'bg-clay hover:bg-clay/90'
                           }`}
                           title={`${event.title} - ${format(new Date(event.start_date), 'p')} in ${event.location}`}
                           onClick={() => setSelectedEvent(event)}
@@ -363,15 +363,15 @@ export default function Events() {
                 <span className="text-muted-foreground">Circles</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-blue-500 rounded"></div>
+                <div className="w-3 h-3 bg-info rounded"></div>
                 <span className="text-muted-foreground">Workshops</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-purple-500 rounded"></div>
+                <div className="w-3 h-3 bg-clay rounded"></div>
                 <span className="text-muted-foreground">Retreats</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-yellow-500 rounded"></div>
+                <div className="w-3 h-3 bg-warning rounded"></div>
                 <span className="text-muted-foreground">Meetups</span>
               </div>
             </div>

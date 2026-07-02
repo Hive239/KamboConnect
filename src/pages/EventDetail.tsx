@@ -65,6 +65,27 @@ export default function EventDetail() {
     description: (event.description || `Join ${event.title}.`).slice(0, 155),
     image: event.image_url,
     type: "event",
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "Event",
+      name: event.title,
+      description: event.description,
+      startDate: event.start_date,
+      endDate: event.end_date,
+      image: event.image_url ? [event.image_url] : undefined,
+      eventAttendanceMode: event.is_online ? "https://schema.org/OnlineEventAttendanceMode" : "https://schema.org/OfflineEventAttendanceMode",
+      eventStatus: event.status === "cancelled" ? "https://schema.org/EventCancelled" : "https://schema.org/EventScheduled",
+      location: event.is_online
+        ? { "@type": "VirtualLocation", url: typeof window !== "undefined" ? window.location.href : undefined }
+        : event.location ? { "@type": "Place", name: event.location, address: event.location } : undefined,
+      offers: (event.price || event.price === 0) ? {
+        "@type": "Offer",
+        price: event.price || 0,
+        priceCurrency: "USD",
+        availability: (event.max_participants && (event.current_participants || 0) >= event.max_participants)
+          ? "https://schema.org/SoldOut" : "https://schema.org/InStock",
+      } : undefined,
+    },
   } : {});
 
   const handleRegistrationSubmit = async (registrationData: any) => {

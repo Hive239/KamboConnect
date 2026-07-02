@@ -141,8 +141,8 @@ export default function UserManagement() {
 
   const getRoleColor = (role) => {
     switch (role) {
-      case 'admin': return 'bg-red-100 text-red-800';
-      case 'moderator': return 'bg-blue-100 text-blue-800';
+      case 'admin': return 'bg-destructive/10 text-destructive';
+      case 'moderator': return 'bg-info/10 text-info';
       default: return 'bg-muted text-foreground';
     }
   };
