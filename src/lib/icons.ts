@@ -16,6 +16,7 @@ export * from '@/components/ui/icons/set';
 export {
   GoogleLogo,
   GithubLogo,
+  GraduationCap,
   Copy,
   DownloadSimple as Download,
   Warning as AlertTriangle,

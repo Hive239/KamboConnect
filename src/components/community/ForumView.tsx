@@ -6,6 +6,7 @@ import { loadReactions } from "@/lib/reactions";
 import ReactionButton from "@/components/social/ReactionButton";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -166,28 +167,13 @@ export default function ForumView() {
             className="pl-11 h-11 rounded-xl bg-card border-input"
           />
         </div>
-        <select
-          value={categoryFilter}
-          onChange={(e) => setCategoryFilter(e.target.value)}
-          aria-label="Filter by category"
-          className="h-11 rounded-xl border border-input bg-card px-3 text-sm"
-        >
-          <option value="all">All topics</option>
-          <option value="General Discussion">General</option>
-          <option value="Experience Sharing">Experiences</option>
-          <option value="Q&A">Q&amp;A</option>
-          <option value="Integration">Integration</option>
-        </select>
-        <select
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-          aria-label="Sort discussions"
-          className="h-11 rounded-xl border border-input bg-card px-3 text-sm"
-        >
-          <option value="active">Active</option>
-          <option value="new">New</option>
-          <option value="top">Top</option>
-        </select>
+        <div className="sm:min-w-[19rem]">
+          <SegmentedControl scroll value={categoryFilter} onChange={setCategoryFilter} options={[
+            { value: "all", label: "All" }, { value: "General Discussion", label: "General" }, { value: "Experience Sharing", label: "Experiences" }, { value: "Q&A", label: "Q&A" }, { value: "Integration", label: "Integration" }]} />
+        </div>
+        <div className="sm:w-48">
+          <SegmentedControl value={sortBy} onChange={setSortBy} options={[{ value: "active", label: "Active" }, { value: "new", label: "New" }, { value: "top", label: "Top" }]} />
+        </div>
         <label className="flex items-center gap-1.5 text-sm text-muted-foreground">
           <input type="checkbox" checked={unansweredOnly} onChange={(e) => setUnansweredOnly(e.target.checked)} /> Unanswered Q&amp;A
         </label>

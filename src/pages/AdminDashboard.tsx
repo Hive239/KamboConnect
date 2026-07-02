@@ -5,6 +5,7 @@ import { User, Report, Practitioner } from "@/entities/all";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { StatCard } from "@/components/ui/StatCard";
+import { GradientMesh } from "@/components/ui/GradientMesh";
 import { 
   Shield, 
   Users, 
@@ -90,20 +91,31 @@ export default function AdminDashboard() {
   return (
     <div className="p-4 sm:p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
-            <Shield className="w-8 h-8 text-primary" />
-            Admin Dashboard
-          </h1>
-          <p className="text-muted-foreground">Platform management and oversight tools</p>
+        {/* Command-center header */}
+        <div className="grain relative mb-6 overflow-hidden rounded-3xl border border-border bg-card">
+          <GradientMesh intensity="vivid" />
+          <div className="relative z-10 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3">
+              <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 shadow-glow"><Shield className="h-7 w-7 text-primary" weight="duotone" /></span>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-widest text-primary">Command Center</p>
+                <h1 className="font-display text-hero font-semibold tracking-tight">Admin Dashboard</h1>
+                <p className="text-muted-foreground">Platform management &amp; oversight</p>
+              </div>
+            </div>
+            <span className="inline-flex items-center gap-2 self-start rounded-full border border-success/30 bg-success/10 px-3 py-1.5 text-sm font-medium text-success sm:self-auto">
+              <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" /><span className="relative inline-flex h-2 w-2 rounded-full bg-success" /></span>
+              All systems operational
+            </span>
+          </div>
         </div>
 
         {/* Quick Stats */}
         <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
-          <StatCard icon={Users} label="Total Users" value={stats.totalUsers} color="primary" />
-          <StatCard icon={AlertTriangle} label="Pending Reports" value={stats.pendingReports} color="warning" />
-          <StatCard icon={ShieldCheck} label="Pending Verifications" value={stats.pendingVerifications} color="info" />
-          <StatCard icon={MessageSquare} label="Active Disputes" value={stats.activeDisputes} color="clay" />
+          <StatCard icon={Users} label="Total Users" value={stats.totalUsers} color="primary" sub="Registered accounts" />
+          <StatCard icon={AlertTriangle} label="Pending Reports" value={stats.pendingReports} color="warning" sub={stats.pendingReports > 0 ? "Needs review" : "All clear"} />
+          <StatCard icon={ShieldCheck} label="Pending Verifications" value={stats.pendingVerifications} color="info" sub={stats.pendingVerifications > 0 ? "Awaiting review" : "None pending"} />
+          <StatCard icon={MessageSquare} label="Active Disputes" value={stats.activeDisputes} color="clay" sub={stats.activeDisputes > 0 ? "In progress" : "None active"} />
         </div>
 
         {/* Admin Tools */}

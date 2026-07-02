@@ -106,156 +106,104 @@ export default function MessagingCenter({ messages, practitioner, bookings, onUp
   };
 
   return (
-    <div className="grid lg:grid-cols-3 gap-6 h-[600px]">
-      {/* Conversation List */}
+    <div className="grid h-[640px] gap-4 lg:grid-cols-3">
+      {/* Conversation list */}
       <div className="lg:col-span-1">
-        <Card className="h-full">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MessageSquare className="w-5 h-5" />
-              Conversations ({bookings.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="space-y-1 max-h-[500px] overflow-y-auto">
-              {bookings.map(booking => {
-                const unreadCount = getUnreadCount(booking.id);
-                const lastMessage = getBookingMessages(booking.id)
-                  .sort((a, b) => new Date(b.created_date) - new Date(a.created_date))[0];
-                
-                return (
-                  <div
-                    key={booking.id}
-                    className={`p-4 border-b cursor-pointer hover:bg-accent transition-colors ${
-                      selectedBooking?.id === booking.id ? 'bg-primary/5 border-primary/20' : ''
-                    }`}
-                    onClick={() => setSelectedBooking(booking)}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <UserIcon className="w-4 h-4 text-muted-foreground" />
-                          <span className="font-medium text-sm">{booking.client_name}</span>
-                          {unreadCount > 0 && (
-                            <Badge className="bg-destructive text-white text-xs">{unreadCount}</Badge>
-                          )}
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {booking.service_type} - {new Date(booking.requested_date).toLocaleDateString()}
-                        </p>
-                        {lastMessage && (
-                          <p className="text-xs text-muted-foreground mt-1 truncate">
-                            {lastMessage.content.substring(0, 50)}...
-                          </p>
-                        )}
-                      </div>
-                      {lastMessage && (
-                        <span className="text-xs text-muted-foreground">
-                          {formatDistanceToNow(new Date(lastMessage.created_date), { addSuffix: true })}
-                        </span>
-                      )}
+        <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card/60 backdrop-blur">
+          <div className="border-b border-border p-4">
+            <h3 className="flex items-center gap-2 font-display text-lg font-semibold">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10"><MessageSquare className="h-4 w-4 text-primary" weight="duotone" /></span>
+              Conversations
+              <span className="ml-auto rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">{bookings.length}</span>
+            </h3>
+          </div>
+          <div className="flex-1 space-y-1 overflow-y-auto p-2">
+            {bookings.length === 0 ? (
+              <div className="p-6 text-center text-sm text-muted-foreground">No client bookings yet.</div>
+            ) : bookings.map((booking) => {
+              const unreadCount = getUnreadCount(booking.id);
+              const lastMessage = getBookingMessages(booking.id).sort((a, b) => new Date(b.created_date) - new Date(a.created_date))[0];
+              const active = selectedBooking?.id === booking.id;
+              const initial = (booking.client_name || "?").charAt(0).toUpperCase();
+              return (
+                <button
+                  key={booking.id}
+                  onClick={() => setSelectedBooking(booking)}
+                  className={`flex w-full items-start gap-3 rounded-xl p-3 text-left transition-colors ${active ? "bg-primary/10 ring-1 ring-primary/20" : "hover:bg-accent"}`}
+                >
+                  <span className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-clay text-sm font-semibold text-primary-foreground">
+                    {initial}
+                    {unreadCount > 0 && <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-white">{unreadCount}</span>}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className={`truncate text-sm text-foreground ${unreadCount > 0 ? "font-semibold" : "font-medium"}`}>{booking.client_name}</span>
+                      {lastMessage && <span className="shrink-0 text-[11px] text-muted-foreground">{formatDistanceToNow(new Date(lastMessage.created_date), { addSuffix: true })}</span>}
                     </div>
+                    <p className="mt-0.5 truncate text-xs text-muted-foreground">{lastMessage ? lastMessage.content : `${booking.service_type} · ${new Date(booking.requested_date).toLocaleDateString()}`}</p>
                   </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
-      {/* Message Thread */}
+      {/* Thread */}
       <div className="lg:col-span-2">
-        <Card className="h-full flex flex-col">
+        <div className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card/60 backdrop-blur">
           {selectedBooking ? (
             <>
-              <CardHeader>
-                <CardTitle className="text-lg">
-                  Chat with {selectedBooking.client_name}
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  {selectedBooking.service_type} - {new Date(selectedBooking.requested_date).toLocaleDateString()}
-                </p>
-              </CardHeader>
-              
-              {/* Messages */}
-              <CardContent className="flex-1 flex flex-col">
-                <div className="flex-1 space-y-4 max-h-[350px] overflow-y-auto mb-4">
-                  {getBookingMessages(selectedBooking.id)
-                    .sort((a, b) => new Date(a.created_date) - new Date(b.created_date))
-                    .map(message => (
-                    <div 
-                      key={message.id}
-                      className={`flex ${
-                        message.sender_id === practitioner.id ? 'justify-end' : 'justify-start'
-                      }`}
-                    >
-                      <div 
-                        className={`max-w-[70%] rounded-lg p-3 ${
-                          message.sender_id === practitioner.id
-                            ? 'bg-primary text-white'
-                            : message.message_type === 'automated'
-                            ? 'bg-muted text-muted-foreground border-l-4 border-blue-400'
-                            : 'bg-muted text-foreground'
-                        }`}
-                        // Mark as read only if the message is from the other party and is unread
-                        onClick={() => !message.is_read && message.sender_id !== practitioner.id && markAsRead(message.id)}
-                      >
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs font-medium">
-                            {message.sender_name}
-                          </span>
-                          <span className={`text-xs ${
-                            message.sender_id === practitioner.id ? 'text-primary/80' : 'text-muted-foreground'
-                          }`}>
-                            {formatDistanceToNow(new Date(message.created_date), { addSuffix: true })}
-                          </span>
-                        </div>
-                        <p className="text-sm">{message.content}</p>
-                        {/* Only show unread indicator for messages sent by others to the practitioner */}
-                        {!message.is_read && message.sender_id !== practitioner.id && (
-                          <div className="w-2 h-2 bg-info rounded-full mt-2 ml-auto"></div>
-                        )}
+              <div className="flex items-center gap-3 border-b border-border bg-card/80 p-4 backdrop-blur">
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary to-clay text-sm font-semibold text-primary-foreground">{(selectedBooking.client_name || "?").charAt(0).toUpperCase()}</span>
+                <div>
+                  <p className="font-semibold leading-tight">{selectedBooking.client_name}</p>
+                  <p className="text-xs text-muted-foreground">{selectedBooking.service_type} · {new Date(selectedBooking.requested_date).toLocaleDateString()}</p>
+                </div>
+              </div>
+
+              <div className="flex-1 space-y-2 overflow-y-auto bg-muted/30 p-4">
+                {getBookingMessages(selectedBooking.id).sort((a, b) => new Date(a.created_date) - new Date(b.created_date)).map((message) => {
+                  const own = message.sender_id === practitioner.id;
+                  const system = message.message_type === "automated" || message.message_type === "system";
+                  if (system) {
+                    return <div key={message.id} className="mx-auto max-w-[80%] rounded-full bg-muted px-3 py-1 text-center text-xs text-muted-foreground">{message.content}</div>;
+                  }
+                  return (
+                    <div key={message.id} className={`flex ${own ? "justify-end" : "justify-start"}`} onClick={() => !message.is_read && !own && markAsRead(message.id)}>
+                      <div className={`max-w-[75%] rounded-2xl px-4 py-2 text-sm shadow-sm ${own ? "rounded-br-md bg-gradient-to-br from-primary to-[hsl(var(--primary)/0.82)] text-primary-foreground" : "rounded-bl-md border border-border bg-card text-foreground"}`}>
+                        <p className="whitespace-pre-wrap break-words">{message.content}</p>
+                        <p className={`mt-1 text-[10px] ${own ? "text-primary-foreground/70" : "text-muted-foreground"}`}>{formatDistanceToNow(new Date(message.created_date), { addSuffix: true })}</p>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  );
+                })}
+              </div>
 
-                <Separator className="my-4" />
-
-                {/* Message Input */}
-                <div className="flex gap-2">
+              <div className="border-t border-border bg-card/80 p-3 backdrop-blur">
+                <div className="flex items-end gap-2 rounded-2xl border border-border bg-background p-2 focus-within:ring-2 focus-within:ring-primary/40">
                   <Textarea
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Type your message..."
-                    rows={2}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        sendMessage();
-                      }
-                    }}
+                    placeholder="Type a message…"
+                    rows={1}
+                    onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
+                    className="max-h-32 min-h-[40px] flex-1 resize-none border-0 bg-transparent p-2 focus-visible:ring-0"
                   />
-                  <Button 
-                    onClick={sendMessage} 
-                    disabled={isSending || !newMessage.trim()}
-                    className="bg-primary hover:bg-primary/90"
-                  >
-                    <Send className="w-4 h-4" />
+                  <Button onClick={sendMessage} disabled={isSending || !newMessage.trim()} size="icon" className="h-10 w-10 shrink-0 rounded-xl">
+                    <Send className="h-4 w-4" weight="fill" />
                   </Button>
                 </div>
-              </CardContent>
+              </div>
             </>
           ) : (
-            <CardContent className="flex-1 flex items-center justify-center">
-              <div className="text-center">
-                <MessageSquare className="w-12 h-12 text-muted-foreground/40 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-foreground mb-2">Select a Conversation</h3>
-                <p className="text-muted-foreground">Choose a booking to start messaging with your client</p>
-              </div>
-            </CardContent>
+            <div className="flex flex-1 flex-col items-center justify-center p-6 text-center">
+              <span className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10"><MessageSquare className="h-8 w-8 text-primary" weight="duotone" /></span>
+              <h3 className="mb-1 font-display text-lg font-semibold">Select a conversation</h3>
+              <p className="text-sm text-muted-foreground">Choose a client booking to start messaging.</p>
+            </div>
           )}
-        </Card>
+        </div>
       </div>
     </div>
   );

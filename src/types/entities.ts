@@ -592,6 +592,18 @@ export interface EntityTypeMap {
   JournalEntry: JournalEntry;
   PushSubscription: PushSubscription;
   Course: Course;
+  CourseworkEnrollment: CourseworkEnrollment;
+}
+
+/** A user's paid enrollment + progress in a built-in coursework track. */
+export interface CourseworkEnrollment extends BaseRecord {
+  user_id: string;
+  track: 'practitioner' | 'client';
+  status?: 'active';
+  price?: number;
+  paid_at?: string;
+  progress?: Record<string, { completed?: boolean; score?: number }>;
+  completed_at?: string;
 }
 
 /** A practitioner training program listed in the course directory. */

@@ -34,3 +34,6 @@ dist-ssr
 !.env.example
 supabase/.env
 .vercel
+
+# CI workflow — push requires a token with workflow scope; manage on GitHub directly
+.github/workflows/

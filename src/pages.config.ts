@@ -12,6 +12,7 @@ export const PAGES = {
     "Matchmaking": lazy(() => import('./pages/Matchmaking')),
     "Education": lazy(() => import('./pages/Education')),
     "Courses": lazy(() => import('./pages/Courses')),
+    "Coursework": lazy(() => import('./pages/Coursework')),
     "Verification": lazy(() => import('./pages/Verification')),
     "Community": lazy(() => import('./pages/Community')),
     "Events": lazy(() => import('./pages/Events')),

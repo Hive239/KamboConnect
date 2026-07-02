@@ -11,7 +11,7 @@ import { getRole } from "@/lib/roles";
 import {
   Search, Users, Calendar, Store, BookOpen, Menu, Heart, User as UserIcon,
   LogOut, Shield, Briefcase, Settings, LogIn, MessageSquare, ShieldCheck,
-  PanelLeft, Sparkle, Trophy, MapPin, Package, Home, Crosshair, Book,
+  PanelLeft, Sparkle, Trophy, MapPin, Package, Home, Crosshair, Book, GraduationCap,
 } from "@/lib/icons";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -49,6 +49,7 @@ const mainNavItems = [
   { title: "Market", tKey: "nav.market", url: createPageUrl("Market"), icon: Store, isPublic: true, roles: ["client", "practitioner"] },
   { title: "Learn", tKey: "nav.learn", url: createPageUrl("Education"), icon: BookOpen, isPublic: true },
   { title: "Courses", tKey: "nav.courses", url: createPageUrl("Courses"), icon: Book, isPublic: false },
+  { title: "Coursework", tKey: "nav.coursework", url: createPageUrl("Coursework"), icon: GraduationCap, isPublic: false },
 ];
 
 // User/account items — surfaced in the top-right ProfileMenu (and mobile sheet)

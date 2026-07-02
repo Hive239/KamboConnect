@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { User, Practitioner, Booking, Payment, Review, Subscription, Notification } from "@/entities/all";
 import { resolvePractitionerForUser } from "@/lib/practitionerForUser";
-import { createCheckout } from "@/integrations/Payments";
+import { startCheckout } from "@/integrations/Payments";
 import { computeReputation } from "@/lib/reputation";
 import { formatCurrency } from "@/lib/format";
 import { useSeo } from "@/lib/useSeo";
@@ -54,10 +54,19 @@ export default function Billing() {
     if (!prac) return;
     setUpgrading(tier.id);
     try {
-      if (tier.price > 0) await createCheckout({ amount: tier.price, currency: "USD", description: `${tier.name} subscription`, metadata: { practitioner_id: prac.id } });
+      // Paid tiers go through checkout; a real Stripe session redirects (webhook
+      // then activates the subscription). Free tier applies immediately.
+      if (tier.price > 0) {
+        const result = await startCheckout({
+          amount: tier.price, currency: "USD", description: `${tier.name} subscription`,
+          metadata: { kind: "subscription", practitioner_id: prac.id, tier: tier.id },
+          successPath: "/Billing?paid=1", cancelPath: "/Billing?canceled=1",
+        });
+        if (result.mode === "redirect") { window.location.href = result.url; return; }
+        await Payment.create({ user_id: prac.id, practitioner_id: prac.id, amount: tier.price, currency: "USD", payment_type: "subscription", payment_status: "completed", stripe_payment_id: result.charge.id, payment_date: new Date().toISOString() });
+      }
       await Practitioner.update(prac.id, { listing_tier: tier.id });
       await Subscription.create({ practitioner_id: prac.id, tier: tier.id, status: "active", price: tier.price, currency: "USD", period: "monthly", current_period_end: new Date(Date.now() + 30 * 86400000).toISOString() });
-      if (tier.price > 0) await Payment.create({ user_id: prac.id, practitioner_id: prac.id, amount: tier.price, currency: "USD", payment_type: "subscription", payment_status: "completed", payment_date: new Date().toISOString() });
       await Notification.create({ user_id: prac.id, title: `Upgraded to ${tier.name}`, message: `Your listing is now ${tier.name}.`, type: "system", priority: "normal" });
       setPrac({ ...prac, listing_tier: tier.id });
     } finally { setUpgrading(null); }

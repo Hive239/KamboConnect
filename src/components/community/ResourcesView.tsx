@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ArrowUpRight, Book, Video, Link as LinkIcon, FileText, Shield, Users, Heart, BookOpen, Search, Plus } from "@/lib/icons";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { toast } from "sonner";
 // Small local groupBy (replaces the lodash dependency)
 function groupBy<T>(items: T[], key: keyof T | string): Record<string, T[]> {
@@ -169,9 +170,9 @@ export default function ResourcesView() {
           <Search className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
           <Input placeholder="Search resources..." value={search} onChange={(e) => setSearch(e.target.value)} className="h-11 rounded-xl bg-card pl-11" />
         </div>
-        <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} aria-label="Filter by type" className="h-11 rounded-xl border border-input bg-card px-3 text-sm">
-          {["All", "Article", "Video", "Book", "Website"].map((t) => <option key={t} value={t}>{t}</option>)}
-        </select>
+        <div className="sm:min-w-[22rem]">
+          <SegmentedControl value={typeFilter} onChange={setTypeFilter} options={["All", "Article", "Video", "Book", "Website"].map((t) => ({ value: t, label: t }))} />
+        </div>
         {me && (
           <Button className="h-11 gap-1.5 rounded-xl" onClick={() => setShowSubmit(true)}><Plus className="h-4 w-4" weight="bold" /> Submit</Button>
         )}

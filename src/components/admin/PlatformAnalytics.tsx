@@ -3,7 +3,7 @@ import { computePlatformAnalytics, TIER_PRICES, type PlatformAnalytics as PA } f
 import { formatCurrency } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatCard } from "@/components/ui/StatCard";
-import { AreaChartGlow, GLASS_TOOLTIP } from "@/components/ui/charts";
+import { AreaChartGlow, GLASS_TOOLTIP, GradientBar } from "@/components/ui/charts";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import GeoMap from "./GeoMap";
@@ -147,15 +147,15 @@ export default function PlatformAnalytics() {
           <CardHeader><CardTitle className="flex items-center gap-2 text-base"><ShieldCheck className="h-5 w-5 text-primary" weight="duotone" /> Onboarding & verification</CardTitle></CardHeader>
           <CardContent className="space-y-2">
             {[
-              { label: "Verified", value: a.practitioners.verified, cls: "bg-success" },
-              { label: "Pending review", value: a.practitioners.pending, cls: "bg-warning" },
-              { label: "Rejected", value: a.practitioners.rejected, cls: "bg-destructive" },
+              { label: "Verified", value: a.practitioners.verified, from: "hsl(var(--success))", to: "hsl(var(--success) / 0.55)" },
+              { label: "Pending review", value: a.practitioners.pending, from: "hsl(var(--warning))", to: "hsl(var(--warning) / 0.55)" },
+              { label: "Rejected", value: a.practitioners.rejected, from: "hsl(var(--destructive))", to: "hsl(var(--destructive) / 0.55)" },
             ].map((r) => {
               const max = Math.max(1, a.practitioners.total);
               return (
                 <div key={r.label}>
                   <div className="mb-1 flex justify-between text-sm"><span>{r.label}</span><span className="text-muted-foreground">{r.value}</span></div>
-                  <div className="h-2 w-full overflow-hidden rounded-full bg-muted"><div className={`h-full ${r.cls}`} style={{ width: `${(r.value / max) * 100}%` }} /></div>
+                  <GradientBar value={r.value} max={max} from={r.from} to={r.to} />
                 </div>
               );
             })}
@@ -175,7 +175,7 @@ export default function PlatformAnalytics() {
               return (
                 <div key={r.label}>
                   <div className="mb-1 flex justify-between text-sm"><span>{r.label}</span><span className="text-muted-foreground">{r.value}</span></div>
-                  <div className="h-2 w-full overflow-hidden rounded-full bg-muted"><div className="h-full bg-primary" style={{ width: `${(r.value / max) * 100}%` }} /></div>
+                  <GradientBar value={r.value} max={max} from="hsl(var(--primary))" to="hsl(var(--clay))" />
                 </div>
               );
             })}
@@ -270,7 +270,7 @@ export default function PlatformAnalytics() {
             {a.funnelRates.map((r) => (
               <div key={r.to}>
                 <div className="mb-1 flex justify-between text-sm"><span>{r.from} → {r.to}</span><span className="text-muted-foreground">{r.rate}%</span></div>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-muted"><div className="h-full bg-primary" style={{ width: `${Math.min(100, r.rate)}%` }} /></div>
+                <GradientBar value={Math.min(100, r.rate)} max={100} from="hsl(var(--primary))" to="hsl(var(--clay))" />
               </div>
             ))}
           </CardContent>
