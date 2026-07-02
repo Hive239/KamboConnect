@@ -23,6 +23,19 @@ export interface Address {
   country?: string;
 }
 
+export interface EmergencyContact {
+  name?: string;
+  phone?: string;
+  relationship?: string;
+}
+
+/** Result of checking a client's medications against Kambo interaction rules. */
+export interface InteractionFlag {
+  medication: string;      // medication category key/label the client selected
+  severity: 'absolute' | 'caution';
+  note: string;
+}
+
 export type VerificationLevel = 'pending' | 'basic' | 'advanced' | 'master' | 'rejected';
 export type ListingTier = 'basic' | 'preferred' | 'featured';
 export type PricingRange = '$' | '$$' | '$$$' | '$$$$';
@@ -77,6 +90,10 @@ export interface Practitioner extends BaseRecord {
   is_online?: boolean;          // offers remote/online consultations
   modalities?: string[];        // offered practices (Kambo, Sananga, Hapé, …)
   reputation_score?: number;    // cached weighted score (see src/lib/reputation.ts)
+  // Trust & lineage (feature #4)
+  lineage?: string;             // narrative of who they trained under / their line
+  tradition?: string[];         // traditions/lineages they practice within
+  disclosed_teachers?: string;  // named teachers/mentors for transparency
 }
 
 export interface Review extends BaseRecord {
@@ -90,6 +107,9 @@ export interface Review extends BaseRecord {
   communication_rating?: number;
   environment_rating?: number;
   professionalism_rating?: number;
+  // Outcome tracking (feature #7) — self-reported well-being 1–10 before/after
+  wellbeing_before?: number;
+  wellbeing_after?: number;
   review_text: string;
   would_recommend: boolean;
   verified_client?: boolean;
@@ -174,10 +194,16 @@ export interface Booking extends BaseRecord {
   client_phone?: string;
   service_type?: 'Private Session' | 'Group Circle' | 'Consultation';
   requested_date: string;
+  slot_start?: string;          // ISO of the chosen availability slot (feature #1)
+  duration_minutes?: number;    // session length used to compute conflicts/slots
   message?: string;
   status?: 'pending' | 'confirmed' | 'declined' | 'completed' | 'cancelled' | 'no_show';
   price?: number;
   payment_status?: 'paid' | 'unpaid' | 'refunded' | 'partially_refunded';
+  // Deposits (feature #2 — Stripe-ready, mock until key)
+  deposit_amount?: number;
+  deposit_status?: 'none' | 'pending' | 'paid' | 'refunded';
+  emergency_contact?: EmergencyContact; // captured at booking (feature #9)
   consultation_id?: string;
   waiver_signed?: boolean;
 }
@@ -419,6 +445,10 @@ export interface ScreeningResponse extends BaseRecord {
   answers: ScreeningAnswer[];
   flagged?: boolean;
   notes?: string;
+  // Safety/compliance engine (feature #9)
+  medications?: string[];
+  interaction_flags?: InteractionFlag[];
+  emergency_contact?: EmergencyContact;
 }
 
 export interface ConsentRecord extends BaseRecord {
@@ -502,6 +532,26 @@ export interface Reaction extends BaseRecord {
   type?: string;
 }
 
+/** Integration & aftercare journaling (feature #6). */
+export interface JournalEntry extends BaseRecord {
+  user_id: string;
+  booking_id?: string;
+  practitioner_id?: string;
+  kind: 'intention' | 'reflection' | 'checkin';
+  mood?: string;
+  wellbeing_rating?: number; // 1–10 self-report, powers the trend chart
+  prompt?: string;           // the guided prompt this entry answers
+  body: string;
+}
+
+/** Web-push subscription (feature #5). */
+export interface PushSubscription extends BaseRecord {
+  user_id: string;
+  endpoint: string;
+  keys?: { p256dh?: string; auth?: string };
+  user_agent?: string;
+}
+
 export interface EntityTypeMap {
   User: User;
   Practitioner: Practitioner;
@@ -539,6 +589,8 @@ export interface EntityTypeMap {
   ClientDocument: ClientDocument;
   ActivityEvent: ActivityEvent;
   Reaction: Reaction;
+  JournalEntry: JournalEntry;
+  PushSubscription: PushSubscription;
 }
 
 export type EntityName = keyof EntityTypeMap;

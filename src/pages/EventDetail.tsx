@@ -11,6 +11,7 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 import AddToCalendar from "@/components/AddToCalendar";
 import RegistrationModal from "@/components/events/RegistrationModal";
+import { submitRegistration } from "@/lib/eventRegistration";
 import PageBreadcrumbs from "@/components/PageBreadcrumbs";
 import { EventRegistration, Notification, User } from "@/entities/all";
 
@@ -171,8 +172,8 @@ export default function EventDetail() {
         <div className="flex items-center gap-1.5 text-2xl font-bold text-primary"><DollarSign className="h-5 w-5" />{event.price || 0}</div>
         <div className="flex items-center gap-2">
           <AddToCalendar event={{ title: event.title, details: event.description, location: event.is_online ? (event.meeting_link || "Online") : event.location, start: event.start_date, end: event.end_date }} />
-          <Button disabled={!!isFull || event.status === "cancelled"} onClick={() => setRegistering(true)} className="px-8">
-            {event.status === "cancelled" ? "Cancelled" : isFull ? "Full" : "Register"}
+          <Button disabled={event.status === "cancelled" || isRegistered} onClick={() => setRegistering(true)} className="px-8">
+            {event.status === "cancelled" ? "Cancelled" : isRegistered ? "Registered ✓" : isFull ? "Join waitlist" : "Register"}
           </Button>
         </div>
       </div>

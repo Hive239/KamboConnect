@@ -50,11 +50,10 @@ export const PAGE_ACCESS: Record<string, Role[]> = {
   //  Post, GroupDetail, legal pages → unlisted = all authenticated roles.)
 };
 
-/** Pages an anonymous (logged-out) visitor may browse. */
+/** Pages an anonymous (logged-out) visitor may reach. Everything else requires
+ *  sign-in — logged-out users are redirected to /Auth, never left inside the app. */
 export const PUBLIC_PAGES = new Set<string>([
-  'Directory', 'Map', 'Matchmaking', 'Guide', 'Community', 'Events', 'Market',
-  'Education', 'PractitionerProfile', 'Post', 'GroupDetail', 'UserProfile', 'EventDetail',
-  'Disclaimer', 'Privacy', 'Terms', 'Auth', 'Landing', 'ResetPassword',
+  'Auth', 'Landing', 'ResetPassword', 'Disclaimer', 'Privacy', 'Terms',
 ]);
 
 /** True if `role` may view `page` (authenticated-user check). */

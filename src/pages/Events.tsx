@@ -22,6 +22,10 @@ export default function Events() {
   const [registeringEvent, setRegisteringEvent] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
   const [sortBy, setSortBy] = useState("date");
+  const [query, setQuery] = useState("");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [modeFilter, setModeFilter] = useState("all"); // all | online | inperson
+  const [priceFilter, setPriceFilter] = useState("all"); // all | free | paid
   const [hasFetchedEvents, setHasFetchedEvents] = useState(false);
   const [myRegistrations, setMyRegistrations] = useState([]);
 
@@ -136,8 +140,17 @@ export default function Events() {
 
   // Sort events based on selected criteria
   const sortedEvents = React.useMemo(() => {
-    let sorted = [...events];
-    
+    const filtered = events.filter((e) => {
+      if (query && !`${e.title} ${e.description || ""} ${e.location || ""}`.toLowerCase().includes(query.toLowerCase())) return false;
+      if (typeFilter !== "all" && e.event_type !== typeFilter) return false;
+      if (modeFilter === "online" && !e.is_online) return false;
+      if (modeFilter === "inperson" && e.is_online) return false;
+      if (priceFilter === "free" && (e.price || 0) > 0) return false;
+      if (priceFilter === "paid" && !(e.price > 0)) return false;
+      return true;
+    });
+    let sorted = [...filtered];
+
     switch (sortBy) {
       case "date":
         sorted.sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
@@ -167,7 +180,7 @@ export default function Events() {
     }
     
     return sorted;
-  }, [events, sortBy, userLocation]);
+  }, [events, sortBy, userLocation, query, typeFilter, modeFilter, priceFilter]);
 
   return (
     <div className="bg-muted min-h-screen">
@@ -211,11 +224,39 @@ export default function Events() {
             </div>
           </div>
         )}
+        {/* Search + filters */}
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search events..."
+            className="h-10 flex-1 min-w-[180px] rounded-lg border border-input bg-card px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+          <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} aria-label="Type" className="h-10 rounded-lg border border-input bg-card px-2 text-sm">
+            <option value="all">All types</option>
+            <option value="circle">Circle</option>
+            <option value="workshop">Workshop</option>
+            <option value="retreat">Retreat</option>
+            <option value="meetup">Meetup</option>
+            <option value="training">Training</option>
+          </select>
+          <select value={modeFilter} onChange={(e) => setModeFilter(e.target.value)} aria-label="Mode" className="h-10 rounded-lg border border-input bg-card px-2 text-sm">
+            <option value="all">Anywhere</option>
+            <option value="online">Online</option>
+            <option value="inperson">In person</option>
+          </select>
+          <select value={priceFilter} onChange={(e) => setPriceFilter(e.target.value)} aria-label="Price" className="h-10 rounded-lg border border-input bg-card px-2 text-sm">
+            <option value="all">Any price</option>
+            <option value="free">Free</option>
+            <option value="paid">Paid</option>
+          </select>
+        </div>
+
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
           {/* Sort Controls */}
           <div className="flex flex-wrap gap-3">
-            <select 
-              value={sortBy} 
+            <select
+              value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
               className="px-3 py-2 bg-card border border-input rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             >

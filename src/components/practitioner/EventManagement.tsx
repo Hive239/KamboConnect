@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Event, Favorite, Notification, EventRegistration } from "@/entities/all";
+import { Event, Favorite, Notification, EventRegistration, User } from "@/entities/all";
 import { emitFeed } from "@/lib/feed";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import {
   Plus, Calendar, MapPin, Users, DollarSign, Edit, Trash2,
-  Clock, Globe, Video, Copy
+  Clock, Globe, Video, Copy, Bell
 } from "@/lib/icons";
 import { format } from "date-fns";
 import { createPageUrl } from '@/utils';
@@ -23,6 +23,20 @@ export default function EventManagement({ events, practitioner, onUpdate }) {
   const [rosterEvent, setRosterEvent] = useState(null);
   const [roster, setRoster] = useState([]);
   const [rosterLoading, setRosterLoading] = useState(false);
+
+  const messageAllAttendees = async (event) => {
+    const msg = window.prompt(`Message to all ${roster.length} attendees of "${event.title}":`);
+    if (!msg || !msg.trim()) return;
+    let sent = 0;
+    for (const r of roster) {
+      if (!r.participant_email) continue;
+      try {
+        const [u] = await User.filter({ email: r.participant_email });
+        if (u) { await Notification.create({ user_id: u.id, title: `Update: ${event.title}`, message: msg.trim(), type: "event", related_id: event.id, action_url: createPageUrl(`EventDetail?id=${event.id}`) }); sent++; }
+      } catch { /* skip */ }
+    }
+    alert(sent > 0 ? `Sent to ${sent} attendee${sent > 1 ? "s" : ""}.` : "No registered members could be notified.");
+  };
 
   const openRoster = async (event) => {
     setRosterEvent(event);
@@ -520,6 +534,10 @@ export default function EventManagement({ events, practitioner, onUpdate }) {
           ) : roster.length === 0 ? (
             <div className="py-8 text-center text-muted-foreground">No registrations yet.</div>
           ) : (
+            <>
+            <Button variant="outline" size="sm" className="mb-3 w-full gap-1.5" onClick={() => messageAllAttendees(rosterEvent)}>
+              <Bell className="w-4 h-4" /> Message all attendees
+            </Button>
             <div className="max-h-[60vh] space-y-2 overflow-y-auto">
               {roster.map((r) => (
                 <div key={r.id} className="flex items-start justify-between gap-3 rounded-lg border border-border p-3">
@@ -535,6 +553,7 @@ export default function EventManagement({ events, practitioner, onUpdate }) {
                 </div>
               ))}
             </div>
+            </>
           )}
         </DialogContent>
       </Dialog>

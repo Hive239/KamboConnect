@@ -88,7 +88,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     await User.logout();
     setUser(null);
     setIsSheetOpen(false);
-    navigate(createPageUrl("Directory"));
+    navigate(createPageUrl("Auth")); // eject to the login page, not back into the app
   };
   const handleLogin = async () => { await User.login(); };
 
