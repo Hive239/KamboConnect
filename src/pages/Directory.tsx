@@ -216,15 +216,11 @@ export default function Directory() {
   };
 
   const handleSubmitReview = async (reviewData) => {
-    // For mock data, we might just append it or reload the mock reviews
-    // In a real app, this would hit the backend and then reload reviews from backend
-    await Review.create(reviewData); // Still call the API if it exists, but then reload mock for consistent state
-    const newReview = { 
-        ...reviewData, 
-        id: `mock_rev_${Date.now()}`, // Generate a unique ID for mock review
-        created_date: new Date().toISOString()
-    };
-    setReviews(prevReviews => [...prevReviews, newReview]);
+    // Use the PERSISTED record (real id) so a later edit/delete/reply keyed on it
+    // works — previously this appended a fabricated `mock_rev_${Date.now()}` id.
+    const created = await Review.create(reviewData);
+    const newReview = { ...reviewData, ...created, rating: created.overall_rating ?? created.rating ?? reviewData.rating };
+    setReviews((prev) => [...prev, newReview]);
   };
   
   const handleRequestBooking = (practitioner) => {

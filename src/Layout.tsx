@@ -284,6 +284,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
           {/* Right cluster */}
           <div className="ml-auto flex items-center gap-1 sm:gap-2">
+            {/* Mobile search — desktop uses the top-bar input; mobile opens the palette directly. */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden"
+              aria-label="Search"
+              onClick={() => window.dispatchEvent(new Event("open-command-palette"))}
+            >
+              <Search className="h-5 w-5" />
+            </Button>
             <LanguageSwitcher />
             <ThemeToggle />
             {user && <NotificationCenter />}

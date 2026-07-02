@@ -239,7 +239,7 @@ function CoursePlayer({ track, enrollment, onBack }: { track: Track; enrollment:
                           const isWrong = checked && selected && oi !== q.answer;
                           const isRight = checked && oi === q.answer;
                           return (
-                            <label key={oi} className={`flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm ${isRight ? "border-emerald-400 bg-emerald-50" : isWrong ? "border-red-400 bg-red-50" : selected ? "border-primary" : "border-border"}`}>
+                            <label key={oi} className={`flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm ${isRight ? "border-emerald-400 bg-emerald-50" : isWrong ? "border-red-400 bg-destructive/10" : selected ? "border-primary" : "border-border"}`}>
                               <input type="radio" name={`q-${active.id}-${qi}`} checked={selected} onChange={() => setAnswers((a) => ({ ...a, [qi]: oi }))} />
                               {opt}
                             </label>

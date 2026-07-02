@@ -1,7 +1,9 @@
 import React, { useRef, useEffect } from 'react';
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, ChevronLeft } from "@/lib/icons";
+import { MessageSquare, ChevronLeft, Calendar } from "@/lib/icons";
 import { format, isToday, isYesterday, isSameDay } from 'date-fns';
 import MessageBubble from './MessageBubble';
 import MessageInput from './MessageInput';
@@ -46,6 +48,11 @@ export default function MessageThread({ conversation, messages, currentUser, onS
           <p className="truncate font-semibold">{other.name}</p>
           <p className="text-xs text-success">Active recently</p>
         </div>
+        {conversation.related_booking_id && (
+          <Button asChild variant="outline" size="sm" className="ml-auto gap-1.5">
+            <Link to={createPageUrl("Bookings")}><Calendar className="h-4 w-4" /> View booking</Link>
+          </Button>
+        )}
       </div>
 
       {/* Messages */}

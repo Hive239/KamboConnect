@@ -54,7 +54,7 @@ const FavoritePractitionerCard = ({ favorite, onRemove }) => {
                 size="sm" 
                 variant="ghost" 
                 onClick={() => onRemove(favorite.id)}
-                className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                className="text-red-500 hover:text-destructive hover:bg-destructive/10"
               >
                 <Trash2 className="w-4 h-4" />
               </Button>
@@ -102,7 +102,7 @@ const FavoriteEventCard = ({ favorite, onRemove }) => {
                 size="sm" 
                 variant="ghost" 
                 onClick={() => onRemove(favorite.id)}
-                className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                className="text-red-500 hover:text-destructive hover:bg-destructive/10"
               >
                 <Trash2 className="w-4 h-4" />
               </Button>
@@ -124,7 +124,7 @@ const FavoritePostCard = ({ favorite, onRemove }) => {
       <Card className="hover:shadow-md transition-all duration-200">
         <CardContent className="p-4">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-info/10 rounded-lg flex items-center justify-center">
               <MessageSquare className="w-6 h-6 text-info" />
             </div>
             <div className="flex-1">
@@ -147,7 +147,7 @@ const FavoritePostCard = ({ favorite, onRemove }) => {
                 size="sm" 
                 variant="ghost" 
                 onClick={() => onRemove(favorite.id)}
-                className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                className="text-red-500 hover:text-destructive hover:bg-destructive/10"
               >
                 <Trash2 className="w-4 h-4" />
               </Button>

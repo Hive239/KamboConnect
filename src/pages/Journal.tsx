@@ -11,7 +11,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Sparkle, BookOpen, Heart, Loader2, CheckCircle } from "@/lib/icons";
+import { Sparkle, BookOpen, Heart, Loader2, CheckCircle, Trash2 } from "@/lib/icons";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
@@ -56,6 +56,12 @@ export default function Journal() {
   const [body, setBody] = useState("");
   const [wellbeing, setWellbeing] = useState(0);
   const [saving, setSaving] = useState(false);
+
+  const deleteEntry = async (e: any) => {
+    if (!window.confirm("Delete this journal entry? This can't be undone.")) return;
+    setEntries((prev) => prev.filter((x) => x.id !== e.id)); // optimistic
+    try { await JournalEntry.delete(e.id); } catch { if (user) load(user.id); }
+  };
 
   const load = async (uid: string) => {
     const list = await JournalEntry.filter({ user_id: uid }, "-created_date").catch(() => []);
@@ -235,7 +241,12 @@ export default function Journal() {
                           <meta.icon className="h-4 w-4" weight="duotone" /> {meta.label}
                           {e.wellbeing_rating ? <span className="ml-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs">{e.wellbeing_rating}/10</span> : null}
                         </span>
-                        <span className="text-xs text-muted-foreground">{format(new Date(e.created_date), "MMM d, yyyy")}</span>
+                        <span className="flex items-center gap-2 text-xs text-muted-foreground">
+                          {format(new Date(e.created_date), "MMM d, yyyy")}
+                          <button onClick={() => deleteEntry(e)} aria-label="Delete entry" className="text-muted-foreground/60 hover:text-destructive">
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </span>
                       </div>
                       {e.prompt && <p className="text-xs italic text-muted-foreground">{e.prompt}</p>}
                       <p className="mt-1.5 whitespace-pre-wrap text-sm text-foreground">{e.body}</p>

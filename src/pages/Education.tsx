@@ -120,6 +120,15 @@ export default function Education() {
                   <li><strong>Integration Support:</strong> Education on how to help clients integrate their experience physically and emotionally.</li>
                   <li><strong>Ethical Conduct:</strong> Strong focus on practitioner ethics, scope of practice, and creating a safe ceremonial space.</li>
                 </ul>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <a href={createPageUrl("Coursework")} className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
+                    Take our Safety Foundations course
+                  </a>
+                  <a href={createPageUrl("Courses")} className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium hover:bg-accent">
+                    Browse external training programs
+                  </a>
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">Our coursework is educational only — not a certification or license to practice.</p>
               </>
             )}
         />
@@ -246,25 +255,25 @@ export default function Education() {
           </CardHeader>
           <CardContent>
             {/* Contraindications Warning */}
-            <div className="mb-8 p-6 bg-red-50 border border-destructive/20 rounded-lg">
-              <h3 className="text-xl font-bold text-red-700 mb-4 flex items-center gap-2">
+            <div className="mb-8 p-6 bg-destructive/10 border border-destructive/20 rounded-lg">
+              <h3 className="text-xl font-bold text-destructive mb-4 flex items-center gap-2">
                 Kambo Contraindications
               </h3>
-              <p className="text-red-700 mb-6 leading-relaxed">
+              <p className="text-destructive mb-6 leading-relaxed">
                 These conditions, if present, indicate that Kambo should not be administered. 
                 Administration under any of these circumstances may pose serious risk to health and safety.
               </p>
 
               {/* Absolute Contraindications */}
               <div className="mb-6">
-                <h4 className="text-lg font-bold text-red-700 mb-3 flex items-center gap-2">
+                <h4 className="text-lg font-bold text-destructive mb-3 flex items-center gap-2">
                   Absolute Contraindications
                 </h4>
-                <p className="text-sm text-red-700 mb-4 italic">
+                <p className="text-sm text-destructive mb-4 italic">
                   (Kambo should never be administered under these conditions)
                 </p>
                 <div className="grid md:grid-cols-2 gap-4">
-                  <ul className="space-y-2 text-sm text-red-700">
+                  <ul className="space-y-2 text-sm text-destructive">
                     <li className="flex items-start gap-2">
                       <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
                       <span>Pregnancy (at any stage)</span>
@@ -319,7 +328,7 @@ export default function Education() {
                       <span>Addison's Disease</span>
                     </li>
                   </ul>
-                  <ul className="space-y-2 text-sm text-red-700">
+                  <ul className="space-y-2 text-sm text-destructive">
                     <li className="flex items-start gap-2">
                       <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
                       <span>Recent surgery (within 6–8 weeks)</span>
@@ -391,35 +400,35 @@ export default function Education() {
                 </p>
                 <ul className="space-y-2 text-sm text-orange-700 grid md:grid-cols-2 gap-4">
                   <li className="flex items-start gap-2">
-                    <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <div className="w-2 h-2 bg-warning/100 rounded-full mt-2 flex-shrink-0"></div>
                     <span>Diabetes (Type I or II) – monitor blood sugar levels, avoid during fasting or dehydration</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <div className="w-2 h-2 bg-warning/100 rounded-full mt-2 flex-shrink-0"></div>
                     <span>Asthma – must have inhaler on site and be under control</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <div className="w-2 h-2 bg-warning/100 rounded-full mt-2 flex-shrink-0"></div>
                     <span>Migraines – if active, postpone session</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <div className="w-2 h-2 bg-warning/100 rounded-full mt-2 flex-shrink-0"></div>
                     <span>Thyroid disorders – especially if taking medications</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <div className="w-2 h-2 bg-warning/100 rounded-full mt-2 flex-shrink-0"></div>
                     <span>Severe anemia</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <div className="w-2 h-2 bg-warning/100 rounded-full mt-2 flex-shrink-0"></div>
                     <span>Elderly (70+) – only with full medical clearance</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <div className="w-2 h-2 bg-warning/100 rounded-full mt-2 flex-shrink-0"></div>
                     <span>Minors (under 18) – generally contraindicated except in specific cultural/traditional contexts</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <div className="w-2 h-2 bg-warning/100 rounded-full mt-2 flex-shrink-0"></div>
                     <span>Immunocompromised individuals</span>
                   </li>
                 </ul>
@@ -538,7 +547,7 @@ export default function Education() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-3 text-xl">
-                <Users className="w-6 h-6 text-indigo-500" />
+                <Users className="w-6 h-6 text-primary" />
                 Choosing a Practitioner
               </CardTitle>
             </CardHeader>
@@ -578,7 +587,7 @@ export default function Education() {
         </div>
 
         {/* Final Notice */}
-        <Alert className="mt-8 border-blue-300 bg-blue-50 text-blue-800">
+        <Alert className="mt-8 border-blue-300 bg-info/10 text-info">
           <Heart className="h-5 w-5 text-blue-500" />
           <AlertDescription>
             Remember: Your safety and well-being are paramount. Take time to research, ask questions,

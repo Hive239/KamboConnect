@@ -36,7 +36,7 @@ export default function ApplicationSuccess({ practitioner }) {
           
           <div className="space-y-4">
             <div className="flex gap-4">
-              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="w-8 h-8 bg-info/10 rounded-full flex items-center justify-center flex-shrink-0">
                 <span className="text-sm font-semibold text-info">1</span>
               </div>
               <div>
@@ -46,7 +46,7 @@ export default function ApplicationSuccess({ practitioner }) {
             </div>
 
             <div className="flex gap-4">
-              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="w-8 h-8 bg-info/10 rounded-full flex items-center justify-center flex-shrink-0">
                 <span className="text-sm font-semibold text-info">2</span>
               </div>
               <div>
@@ -56,7 +56,7 @@ export default function ApplicationSuccess({ practitioner }) {
             </div>
 
             <div className="flex gap-4">
-              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="w-8 h-8 bg-info/10 rounded-full flex items-center justify-center flex-shrink-0">
                 <span className="text-sm font-semibold text-info">3</span>
               </div>
               <div>

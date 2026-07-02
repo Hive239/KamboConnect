@@ -11,9 +11,9 @@ export default function Disclaimer() {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
         {/* Main Warning */}
-        <Alert className="mb-8 border-red-300 bg-red-50">
-          <AlertTriangle className="h-5 w-5 text-red-700" />
-          <AlertDescription className="text-red-800">
+        <Alert className="mb-8 border-red-300 bg-destructive/10">
+          <AlertTriangle className="h-5 w-5 text-destructive" />
+          <AlertDescription className="text-destructive">
             <strong>Important:</strong> Please read this disclaimer carefully before using this platform. 
             By using the KamboGuide, you acknowledge that you have read, understood, and agree to these terms.
           </AlertDescription>
@@ -22,7 +22,7 @@ export default function Disclaimer() {
         <Card className="bg-card shadow-lg border-border">
           <CardHeader>
             <CardTitle className="text-2xl flex items-center gap-3">
-              <Shield className="w-7 h-7 text-red-700" />
+              <Shield className="w-7 h-7 text-destructive" />
               DISCLAIMER & LIMITATION OF LIABILITY
             </CardTitle>
           </CardHeader>
@@ -43,11 +43,11 @@ export default function Disclaimer() {
               All practitioners listed on the app are independent entities, and any agreements or interactions with them are entered into at the user's own discretion and risk. Users are solely responsible for conducting their own due diligence. The KamboGuide makes no warranties, representations, or guarantees regarding practitioner competence, training, safety practices, or legal compliance.
             </p>
 
-            <div className="bg-red-50 border-l-4 border-red-400 p-4 my-6">
-              <p className="font-semibold text-red-800">
+            <div className="bg-destructive/10 border-l-4 border-red-400 p-4 my-6">
+              <p className="font-semibold text-destructive">
                 USE OF THIS APP IS AT YOUR OWN RISK.
               </p>
-              <p className="text-red-700 mt-2">
+              <p className="text-destructive mt-2">
                 In no event shall the KamboGuide, its creators, affiliates, licensors, or administrators be liable for any direct, indirect, incidental, consequential, or punitive damages arising out of or relating to your use of this platform or engagement with any practitioner listed herein.
               </p>
             </div>
@@ -60,12 +60,12 @@ export default function Disclaimer() {
               Testimonials and user experiences shared on the app are individual and anecdotal in nature and should not be interpreted as typical, scientific, or universally applicable. No results are guaranteed or implied.
             </p>
 
-            <div className="bg-blue-50 border-l-4 border-blue-400 p-4 my-6">
-              <p className="font-semibold text-blue-800 flex items-center gap-2">
+            <div className="bg-info/10 border-l-4 border-blue-400 p-4 my-6">
+              <p className="font-semibold text-info flex items-center gap-2">
                 <FileText className="w-5 h-5" />
                 Medical Advice Disclaimer
               </p>
-              <p className="text-blue-700 mt-2">
+              <p className="text-info mt-2">
                 <strong>ALWAYS SEEK THE ADVICE OF A QUALIFIED PHYSICIAN OR HEALTHCARE PROVIDER</strong> with any questions you may have regarding a medical or psychological condition. Never disregard medical advice or delay seeking it because of information accessed through this app.
               </p>
             </div>

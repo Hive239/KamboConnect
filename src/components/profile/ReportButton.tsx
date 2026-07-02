@@ -70,7 +70,7 @@ export default function ReportButton({
         variant={variant}
         size={size}
         onClick={() => setIsOpen(true)}
-        className="text-red-700 hover:text-red-700 hover:bg-red-50"
+        className="text-destructive hover:text-destructive hover:bg-destructive/10"
       >
         <Flag className="w-3 h-3 mr-1" />
         Report

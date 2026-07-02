@@ -31,6 +31,7 @@ export const PAGE_ACCESS: Record<string, Role[]> = {
   Directory: ['client', 'admin'],
   Matchmaking: ['client', 'admin'],
   ForYou: ['client', 'admin'],
+  Journal: ['client', 'admin'], // client integration journal (matches nav gating)
   // Shared discovery tools — practitioners get these too (browse the map, ask the
   // Guide, shop the market + see their orders alongside clients).
   Map: ['client', 'practitioner', 'admin'],

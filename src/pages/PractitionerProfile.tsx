@@ -16,7 +16,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
   Star, MapPin, CheckCircle, Mail, Globe, Phone, MessageSquare, ArrowLeft,
-  Users, Loader2, Calendar as CalendarIcon, ShareIcon, ShieldCheck
+  Users, Loader2, Calendar as CalendarIcon, ShareIcon, ShieldCheck, Trash2
 } from "@/lib/icons";
 import { GradientMesh } from "@/components/ui/GradientMesh";
 import { createPageUrl } from "@/utils";
@@ -235,6 +235,12 @@ export default function PractitionerProfile() {
     navigate(createPageUrl(`BookingRequest?practitionerId=${practitioner.id}`));
   };
 
+  const deleteReview = async (review) => {
+    if (!window.confirm("Delete this review? This can't be undone.")) return;
+    setReviews((prev) => prev.filter((r) => r.id !== review.id)); // optimistic
+    try { await Review.delete(review.id); } catch (e) { console.error("Failed to delete review:", e); }
+  };
+
   const [requestingConsult, setRequestingConsult] = useState(false);
   const handleRequestConsultation = async () => {
     if (!currentUser) { await User.login(); return; }
@@ -352,11 +358,9 @@ export default function PractitionerProfile() {
     <div className="bg-muted min-h-screen">
       <div className="w-full h-48 md:h-72 bg-background relative overflow-hidden grain">
         <GradientMesh intensity="vivid" />
-        <img loading="lazy"
-          src={practitioner.image_urls?.[0] || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=2070&auto=format&fit=crop'}
-          alt="Cover"
-          className="w-full h-full object-cover opacity-25"
-        />
+        {practitioner.image_urls?.[0] && (
+          <img loading="lazy" src={practitioner.image_urls[0]} alt="Cover" className="h-full w-full object-cover opacity-25" />
+        )}
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-muted via-muted/20 to-transparent" />
          <div className="absolute top-4 left-4 z-10">
             <Button variant="secondary" onClick={() => navigate(createPageUrl('Directory'))} className="rounded-full">
@@ -690,7 +694,12 @@ export default function PractitionerProfile() {
                               <Badge variant="tier" className="gap-1 rounded-full text-[10px]"><CheckCircle className="h-2.5 w-2.5" weight="fill" /> Verified booking</Badge>
                             )}
                           </div>
-                          <p className="shrink-0 text-xs text-muted-foreground">{format(new Date(review.created_date), "MMM d, yyyy")}</p>
+                          <div className="flex shrink-0 items-center gap-2">
+                            <p className="text-xs text-muted-foreground">{format(new Date(review.created_date), "MMM d, yyyy")}</p>
+                            {currentUser && (review.reviewer_id === currentUser.id || review.created_by === currentUser.id || currentUser.role === "admin") && (
+                              <button onClick={() => deleteReview(review)} aria-label="Delete review" className="text-muted-foreground/60 hover:text-destructive"><Trash2 className="h-3.5 w-3.5" /></button>
+                            )}
+                          </div>
                         </div>
                         <div className="flex items-center gap-1 my-1">
                           {[...Array(5)].map((_, i) => (

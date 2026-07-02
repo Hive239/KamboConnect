@@ -27,7 +27,7 @@ export interface PlatformAnalytics {
   practitioners: { total: number; verified: number; pending: number; rejected: number; tiers: Record<string, number>; tierRevenue: Record<string, number> };
   clients: { total: number; active: number; repeat: number; newThisMonth: number };
   bookings: { total: number; paid: number; completed: number; pending: number; cancelled: number; gmv: number; avgValue: number };
-  revenue: { sessionFees: number; practitionerPayouts: number; subscriptionMRR: number; total: number; annualRunRate: number; byMonth: { month: string; sessions: number; subscriptions: number; total: number }[]; bySource: { name: string; value: number }[] };
+  revenue: { sessionFees: number; practitionerPayouts: number; subscriptionMRR: number; courseRevenue: number; total: number; annualRunRate: number; byMonth: { month: string; sessions: number; subscriptions: number; total: number }[]; bySource: { name: string; value: number }[] };
   funnel: { signups: number; consultations: number; bookings: number; completed: number; reviews: number };
   quality: { avgRating: number; reviews: number; ratingDist: { rating: string; count: number }[] };
   marketplace: { orders: number; gmv: number };
@@ -108,7 +108,11 @@ export async function computePlatformAnalytics(): Promise<PlatformAnalytics> {
   const activeSubs = subs.filter((s: any) => s.status === "active");
   const subscriptionMRR = activeSubs.reduce((s: number, x: any) => s + (x.price || TIER_PRICES[x.tier] || 0), 0)
     || (tierRevenue.preferred + tierRevenue.featured); // fallback from tier counts
-  const totalRev = sessionFees + subscriptionMRR;
+  // Coursework revenue — 100% platform revenue (KamboGuide's own courses).
+  const courseRevenue = Math.round(payments
+    .filter((p: any) => p.payment_type === "course" && p.payment_status !== "refunded" && p.payment_status !== "failed")
+    .reduce((s: number, p: any) => s + (p.amount || 0), 0));
+  const totalRev = sessionFees + subscriptionMRR + courseRevenue;
 
   // Revenue by month (last 6)
   const months = lastNMonths(6);
@@ -247,7 +251,7 @@ export async function computePlatformAnalytics(): Promise<PlatformAnalytics> {
     practitioners: { total: pracs.length, verified, pending, rejected, tiers, tierRevenue },
     clients: clientStats,
     bookings: bk,
-    revenue: { sessionFees, practitionerPayouts, subscriptionMRR, total: totalRev, annualRunRate: totalRev * 12, byMonth, bySource: [{ name: "Session fees (5%)", value: sessionFees }, { name: "Subscriptions", value: subscriptionMRR }] },
+    revenue: { sessionFees, practitionerPayouts, subscriptionMRR, courseRevenue, total: totalRev, annualRunRate: totalRev * 12, byMonth, bySource: [{ name: "Session fees (5%)", value: sessionFees }, { name: "Subscriptions", value: subscriptionMRR }, { name: "Coursework", value: courseRevenue }] },
     funnel: { signups: profiles.length, consultations: consults.length, bookings: bookings.length, completed: bk.completed, reviews: reviews.length },
     quality: { avgRating, reviews: reviews.length, ratingDist },
     marketplace: { orders: orders.length, gmv: orders.reduce((s: number, o: any) => s + (o.total || 0), 0) },

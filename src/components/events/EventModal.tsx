@@ -245,8 +245,8 @@ export default function EventModal({ event, practitioner, onClose, onRegister })
           )}
 
           {isFull && (
-            <div className="bg-red-50 border border-destructive/20 rounded-lg p-4">
-              <p className="text-red-800 font-medium">
+            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
+              <p className="text-destructive font-medium">
                 This event is currently full. You can still register to join the waitlist.
               </p>
             </div>

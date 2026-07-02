@@ -132,11 +132,18 @@ export default function Profile() {
                   <Edit className="w-3 h-3 mr-2" />
                   Edit Profile
                 </Button>
-              {practitionerInfo && (
+              {practitionerInfo ? (
                 <Button asChild size="sm" className="bg-primary hover:bg-primary/90">
                   <Link to={createPageUrl("PractitionerDashboard")}>
                     <Briefcase className="w-3 h-3 mr-2" />
                     Practitioner Dashboard
+                  </Link>
+                </Button>
+              ) : (
+                <Button asChild variant="outline" size="sm">
+                  <Link to={createPageUrl("PractitionerApplication")}>
+                    <Briefcase className="w-3 h-3 mr-2" />
+                    Become a practitioner
                   </Link>
                 </Button>
               )}

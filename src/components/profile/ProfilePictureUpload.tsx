@@ -135,9 +135,9 @@ export default function ProfilePictureUpload({ user, onUpdate }) {
 
       {/* Error display */}
       {error && (
-        <Alert className="mt-4 border-destructive/20 bg-red-50">
-          <X className="h-4 w-4 text-red-700" />
-          <AlertDescription className="text-red-800">
+        <Alert className="mt-4 border-destructive/20 bg-destructive/10">
+          <X className="h-4 w-4 text-destructive" />
+          <AlertDescription className="text-destructive">
             {error}
           </AlertDescription>
         </Alert>
@@ -164,9 +164,9 @@ export default function ProfilePictureUpload({ user, onUpdate }) {
             </p>
 
             {error && (
-              <Alert className="border-destructive/20 bg-red-50">
-                <X className="h-4 w-4 text-red-700" />
-                <AlertDescription className="text-red-800">
+              <Alert className="border-destructive/20 bg-destructive/10">
+                <X className="h-4 w-4 text-destructive" />
+                <AlertDescription className="text-destructive">
                   {error}
                 </AlertDescription>
               </Alert>
@@ -215,7 +215,7 @@ export default function ProfilePictureUpload({ user, onUpdate }) {
                 <Button
                   variant="ghost"
                   onClick={handleRemovePhoto}
-                  className="w-full text-red-700 hover:text-red-700 hover:bg-red-50"
+                  className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
                 >
                   Remove Current Photo
                 </Button>

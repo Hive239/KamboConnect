@@ -39,7 +39,7 @@ export default function PlatformAnalytics() {
   const exportCsv = () => {
     const rows: [string, string | number][] = [
       ["Platform revenue / mo", a.revenue.total], ["Session fees (5%)", a.revenue.sessionFees],
-      ["Subscription MRR", a.revenue.subscriptionMRR], ["Practitioner payouts", a.revenue.practitionerPayouts],
+      ["Subscription MRR", a.revenue.subscriptionMRR], ["Coursework revenue", a.revenue.courseRevenue], ["Practitioner payouts", a.revenue.practitionerPayouts],
       ["Annual run-rate", a.revenue.annualRunRate], ["GMV (booked)", a.bookings.gmv],
       ["Total users", a.users.total], ["Clients", a.clients.total], ["Practitioners", a.practitioners.total],
       ["Verified", a.practitioners.verified], ["Pending", a.practitioners.pending],
@@ -73,6 +73,7 @@ export default function PlatformAnalytics() {
           <Kpi icon={TrendingUp} label="Platform revenue / mo" value={formatCurrency(a.revenue.total)} sub={`${formatCurrency(a.revenue.annualRunRate)} annual run-rate`} />
           <Kpi icon={DollarSign} label="Session fees (5%)" value={formatCurrency(a.revenue.sessionFees)} sub={`from ${formatCurrency(a.bookings.gmv)} booked`} accent="text-clay" />
           <Kpi icon={Briefcase} label="Subscription MRR" value={formatCurrency(a.revenue.subscriptionMRR)} sub="practitioner tiers" accent="text-info" />
+          <Kpi icon={DollarSign} label="Coursework revenue" value={formatCurrency(a.revenue.courseRevenue)} sub="platform courses" accent="text-primary" />
           <Kpi icon={DollarSign} label="Practitioner payouts" value={formatCurrency(a.revenue.practitionerPayouts)} sub="95% of sessions" accent="text-success" />
         </div>
         <div className="mt-4 grid gap-4 lg:grid-cols-3">

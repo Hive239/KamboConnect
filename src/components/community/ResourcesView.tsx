@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ArrowUpRight, Book, Video, Link as LinkIcon, FileText, Shield, Users, Heart, BookOpen, Search, Plus } from "@/lib/icons";
+import { ArrowUpRight, Book, Video, Link as LinkIcon, FileText, Shield, Users, Heart, BookOpen, Search, Plus, Trash2 } from "@/lib/icons";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { toast } from "sonner";
 // Small local groupBy (replaces the lodash dependency)
@@ -20,7 +20,8 @@ function groupBy<T>(items: T[], key: keyof T | string): Record<string, T[]> {
   }, {});
 }
 
-const ResourceCard = ({ resource }) => {
+const ResourceCard = ({ resource, me, onDelete }) => {
+  const canDelete = me && (resource.created_by === me.id || me.role === "admin");
   const typeIcons = {
     Article: <FileText className="w-4 h-4" />,
     Video: <Video className="w-4 h-4" />,
@@ -29,18 +30,14 @@ const ResourceCard = ({ resource }) => {
   };
 
   const categoryColors = {
-    "Community Guidelines": "from-blue-500 to-indigo-600",
-    "Safety Protocols": "from-red-500 to-pink-600", 
-    "Integration Practices": "from-primary/50 to-clay",
-    "Further Reading": "from-purple-500 to-violet-600"
+    "Community Guidelines": "from-info to-info/50",
+    "Safety Protocols": "from-destructive to-destructive/60",
+    "Integration Practices": "from-primary to-clay",
+    "Further Reading": "from-clay to-clay/50"
   };
 
-  const categoryImages = {
-    "Community Guidelines": "https://images.unsplash.com/photo-1529070538774-1843cb3265df?q=80&w=800",
-    "Safety Protocols": "https://images.unsplash.com/photo-1628102490229-93051a85d342?q=80&w=800",
-    "Integration Practices": "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=800",
-    "Further Reading": "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=800"
-  };
+  // Gradient headers only — no stock photography (cleaner, on-brand, faster).
+  const categoryImages = {};
 
   // Internal app routes ("/Education") navigate in-app; real external links open a new tab.
   const isInternal = resource.url?.startsWith("/");
@@ -66,7 +63,16 @@ const ResourceCard = ({ resource }) => {
             />
           )}
           <div className="absolute inset-0 bg-black/20"></div>
-          <div className="absolute top-3 right-3">
+          <div className="absolute top-3 right-3 flex items-center gap-2">
+            {canDelete && (
+              <button
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete(resource); }}
+                aria-label="Delete resource"
+                className="rounded-full bg-black/30 p-1 text-white/80 hover:bg-destructive hover:text-white"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            )}
             <ArrowUpRight className="w-5 h-5 text-white opacity-70 group-hover:opacity-100 transition-opacity" />
           </div>
           <div className="absolute bottom-3 left-3">
@@ -100,10 +106,10 @@ const CategoryHeader = ({ category, count }) => {
   };
 
   const categoryColors = {
-    "Community Guidelines": "text-info bg-blue-50 border-info/20",
-    "Safety Protocols": "text-red-700 bg-red-50 border-destructive/20",
-    "Integration Practices": "text-primary bg-primary/5 border-primary/20", 
-    "Further Reading": "text-clay bg-purple-50 border-clay/20"
+    "Community Guidelines": "text-info bg-info/10 border-info/20",
+    "Safety Protocols": "text-destructive bg-destructive/10 border-destructive/20",
+    "Integration Practices": "text-primary bg-primary/10 border-primary/20",
+    "Further Reading": "text-clay bg-clay/10 border-clay/20"
   };
 
   return (
@@ -128,6 +134,12 @@ export default function ResourcesView() {
   const [showSubmit, setShowSubmit] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({ title: "", url: "", category: "Further Reading", resource_type: "Article", description: "" });
+
+  const deleteResource = async (r: any) => {
+    if (!window.confirm(`Remove "${r.title}" from resources?`)) return;
+    setResources((prev: any[]) => prev.filter((x) => x.id !== r.id)); // optimistic
+    try { await CommunityResource.delete(r.id); } catch { fetchResources(); }
+  };
 
   const fetchResources = async () => {
     setIsLoading(true);
@@ -236,7 +248,7 @@ export default function ResourcesView() {
                 />
                 <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
                   {groupedResources[category].map(resource => (
-                    <ResourceCard key={resource.id} resource={resource} />
+                    <ResourceCard key={resource.id} resource={resource} me={me} onDelete={deleteResource} />
                   ))}
                 </div>
               </div>

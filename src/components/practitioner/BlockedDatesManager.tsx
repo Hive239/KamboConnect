@@ -205,7 +205,7 @@ export default function BlockedDatesManager({ practitioner, onUpdate }) {
                    block.block_type === 'partial_day' ? 'Partial Day' : 'Exception'}
                 </Badge>
                 {block.recurring && (
-                  <Badge variant="outline" className="bg-purple-50 text-purple-700 border-clay/20">
+                  <Badge variant="outline" className="bg-clay/10 text-clay border-clay/20">
                     Recurring
                   </Badge>
                 )}
@@ -231,7 +231,7 @@ export default function BlockedDatesManager({ practitioner, onUpdate }) {
                 variant="ghost" 
                 size="sm" 
                 onClick={() => handleDeleteBlock(block.id)}
-                className="text-red-700 hover:text-red-700"
+                className="text-destructive hover:text-destructive"
               >
                 <Trash2 className="w-4 h-4" />
               </Button>
@@ -379,9 +379,9 @@ export default function BlockedDatesManager({ practitioner, onUpdate }) {
       </Card>
 
       {/* Future: External Calendar Integration */}
-      <Alert className="border-info/20 bg-blue-50">
+      <Alert className="border-info/20 bg-info/10">
         <AlertCircle className="h-4 w-4 text-info" />
-        <AlertDescription className="text-blue-800">
+        <AlertDescription className="text-info">
           <strong>Coming Soon:</strong> Google Calendar integration to automatically sync your external calendar 
           and prevent double-bookings. This will import your existing events as blocked time slots.
         </AlertDescription>

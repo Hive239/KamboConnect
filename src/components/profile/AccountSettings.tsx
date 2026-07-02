@@ -159,19 +159,6 @@ export default function AccountSettings({ user }) {
             <Button variant="outline">Change Password</Button>
         </CardContent>
       </Card>
-
-      <Card className="border-red-300 bg-red-50">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-red-700">
-            <Trash2 className="w-5 h-5" />
-            Danger Zone
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="flex items-center justify-between">
-          <p className="text-red-700 text-sm">Permanently delete your account and all associated data.</p>
-          <Button variant="destructive">Delete Account</Button>
-        </CardContent>
-      </Card>
     </div>
   );
 }

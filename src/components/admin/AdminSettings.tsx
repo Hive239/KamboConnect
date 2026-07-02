@@ -31,6 +31,7 @@ export default function AdminSettings() {
           message: announcement.message,
           type: "community",
           priority: "normal",
+          action_url: "/Community",
         }).catch(() => null),
       ));
       setAnnouncement({ title: "", message: "" });

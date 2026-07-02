@@ -158,10 +158,10 @@ export default function NotificationCenter() {
       if (isRead) return 'bg-card hover:bg-accent';
       const backgrounds = {
           booking: 'bg-primary/5 hover:bg-primary/10',
-          message: 'bg-blue-50 hover:bg-blue-100',
-          event: 'bg-purple-50 hover:bg-purple-100',
-          review: 'bg-yellow-50 hover:bg-yellow-100',
-          community: 'bg-orange-50 hover:bg-orange-100',
+          message: 'bg-info/10 hover:bg-info/10',
+          event: 'bg-clay/10 hover:bg-clay/10',
+          review: 'bg-warning/10 hover:bg-warning/10',
+          community: 'bg-warning/10 hover:bg-warning/10',
           system: 'bg-muted hover:bg-accent',
       };
       return backgrounds[type] || 'bg-muted hover:bg-accent';

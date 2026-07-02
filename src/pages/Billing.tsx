@@ -67,7 +67,7 @@ export default function Billing() {
       }
       await Practitioner.update(prac.id, { listing_tier: tier.id });
       await Subscription.create({ practitioner_id: prac.id, tier: tier.id, status: "active", price: tier.price, currency: "USD", period: "monthly", current_period_end: new Date(Date.now() + 30 * 86400000).toISOString() });
-      await Notification.create({ user_id: prac.id, title: `Upgraded to ${tier.name}`, message: `Your listing is now ${tier.name}.`, type: "system", priority: "normal" });
+      await Notification.create({ user_id: prac.id, title: `Upgraded to ${tier.name}`, message: `Your listing is now ${tier.name}.`, type: "system", priority: "normal", action_url: "/Billing" });
       setPrac({ ...prac, listing_tier: tier.id });
     } finally { setUpgrading(null); }
   };
@@ -79,7 +79,7 @@ export default function Billing() {
     try {
       await Subscription.update(sub.id, { status: "cancelled", canceled_at: new Date().toISOString() });
       await Practitioner.update(prac.id, { listing_tier: "basic" });
-      await Notification.create({ user_id: prac.id, title: "Subscription cancelled", message: "Your listing has reverted to Basic.", type: "system", priority: "normal" });
+      await Notification.create({ user_id: prac.id, title: "Subscription cancelled", message: "Your listing has reverted to Basic.", type: "system", priority: "normal", action_url: "/Billing" });
       setSub({ ...sub, status: "cancelled" });
       setPrac({ ...prac, listing_tier: "basic" });
     } finally { setUpgrading(null); }

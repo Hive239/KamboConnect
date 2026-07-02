@@ -305,7 +305,7 @@ export default function BookingReviewModal({ booking, onClose, onSubmit }) {
                 onClick={() => setReviewData(prev => ({...prev, would_recommend: false}))}
                 className={`flex items-center gap-2 px-6 py-3 rounded-lg border-2 transition-all ${
                   reviewData.would_recommend === false 
-                    ? "bg-red-50 border-red-300 text-red-800 shadow-sm" 
+                    ? "bg-destructive/10 border-red-300 text-destructive shadow-sm" 
                     : "bg-card border-input text-foreground hover:bg-accent"
                 }`}
               >

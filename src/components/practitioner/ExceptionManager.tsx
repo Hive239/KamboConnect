@@ -140,7 +140,7 @@ export default function ExceptionManager({ practitioner, onUpdate }) {
         <CardContent>
           {/* Add New Exception Form */}
           {isAdding && (
-            <Card className="mb-6 border-info/20 bg-blue-50">
+            <Card className="mb-6 border-info/20 bg-info/10">
               <CardContent className="p-4">
                 <h4 className="font-semibold mb-4">Create Schedule Exception</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -256,7 +256,7 @@ export default function ExceptionManager({ practitioner, onUpdate }) {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleDeleteException(exception.id)}
-                          className="text-red-700 hover:text-red-700"
+                          className="text-destructive hover:text-destructive"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>

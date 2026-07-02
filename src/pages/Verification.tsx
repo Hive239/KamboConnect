@@ -215,7 +215,7 @@ export default function VerificationPage() {
 
   if (!user) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen text-center p-6 bg-red-50 text-red-700">
+      <div className="flex flex-col items-center justify-center h-screen text-center p-6 bg-destructive/10 text-destructive">
         <AlertCircle className="w-16 h-16 mb-4" />
         <h1 className="text-3xl font-bold">Access Denied</h1>
         <p>You must be an administrator to view this page.</p>
