@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ShieldCheck, AlertTriangle, Flag, Clock, CheckCircle, XCircle } from "@/lib/icons";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { useSeo } from "@/lib/useSeo";
 
 export default function TrustSafety() {
@@ -52,15 +53,7 @@ export default function TrustSafety() {
 
   return (
     <div className="mx-auto max-w-6xl p-4 sm:p-8">
-      <div className="mb-6 flex items-center gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10">
-          <ShieldCheck className="h-6 w-6 text-primary" weight="duotone" />
-        </div>
-        <div>
-          <h1 className="font-display text-2xl font-semibold">Trust & Safety Center</h1>
-          <p className="text-sm text-muted-foreground">Moderation, reports, and credential oversight.</p>
-        </div>
-      </div>
+      <PageHeader icon={ShieldCheck} kicker="Admin" title="Trust & Safety Center" subtitle="Moderation, reports, and credential oversight." className="-mx-4 -mt-4 mb-6 sm:-mx-8 sm:-mt-8" />
 
       <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
         {stats.map((s) => (

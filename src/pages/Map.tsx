@@ -4,7 +4,8 @@ import { Practitioner } from "@/entities/all";
 import MapView from "@/components/directory/MapView";
 import { createPageUrl } from "@/utils";
 import { useSeo } from "@/lib/useSeo";
-import { Loader2 } from "@/lib/icons";
+import { Loader2, MapPin } from "@/lib/icons";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 /** Standalone full-page practitioner map (upgrade #1 discoverability). */
 export default function MapPage() {
@@ -30,8 +31,7 @@ export default function MapPage() {
 
   return (
     <div className="p-4 sm:p-6">
-      <h1 className="font-display text-2xl font-semibold">Practitioner Map</h1>
-      <p className="mb-4 text-muted-foreground">Explore verified Kambo practitioners near you.</p>
+      <PageHeader icon={MapPin} kicker="Discover" title="Practitioner Map" subtitle="Explore verified Kambo practitioners near you." className="-mx-4 -mt-4 mb-4 sm:-mx-6 sm:-mt-6" />
       <MapView
         practitioners={practitioners}
         onPractitionerSelect={(p: any) => navigate(createPageUrl(`PractitionerProfile?id=${p.id}`))}

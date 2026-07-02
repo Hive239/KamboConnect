@@ -79,7 +79,14 @@ export default function PractitionerApplicationForm({ onSuccess }) {
     if (!formData.cpr_certification_url) errors.cpr_certification_url = "CPR certification upload is required";
     if (!formData.kambo_certification_url) errors.kambo_certification_url = "Kambo certification upload is required";
     if (!formData.cpr_expiration_date) errors.cpr_expiration_date = "CPR expiration date is required";
-    
+
+    // Vetting standard — all required for review
+    if (!formData.certified_by.trim()) errors.certified_by = "Please name who certified you (and their contact)";
+    if (!String(formData.ceremonies_count).trim() || Number(formData.ceremonies_count) < 0)
+      errors.ceremonies_count = "Approximate number of ceremonies is required";
+    if (!formData.condition_experience.trim()) errors.condition_experience = "Please describe your experience with medical conditions";
+    if (!formData.client_references.trim()) errors.client_references = "At least 2 client references are required";
+
     // Address validation
     if (!formData.address.street.trim()) errors.address_street = "Street address is required";
     if (!formData.address.city.trim()) errors.address_city = "City is required";
@@ -377,16 +384,18 @@ export default function PractitionerApplicationForm({ onSuccess }) {
 
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="certified_by">Who certified you? (name & contact)</Label>
+                <Label htmlFor="certified_by">Who certified you? (name & contact) *</Label>
                 <Input
                   id="certified_by"
                   value={formData.certified_by}
                   onChange={(e) => handleInputChange('certified_by', e.target.value)}
                   placeholder="Trainer / certifying body + how to reach them"
+                  className={validationErrors.certified_by ? "border-red-500" : ""}
                 />
+                {validationErrors.certified_by && <p className="text-red-500 text-sm mt-1">{validationErrors.certified_by}</p>}
               </div>
               <div>
-                <Label htmlFor="ceremonies_count">Approx. ceremonies performed</Label>
+                <Label htmlFor="ceremonies_count">Approx. ceremonies performed *</Label>
                 <Input
                   id="ceremonies_count"
                   type="number"
@@ -394,30 +403,36 @@ export default function PractitionerApplicationForm({ onSuccess }) {
                   value={formData.ceremonies_count}
                   onChange={(e) => handleInputChange('ceremonies_count', e.target.value)}
                   placeholder="e.g. 250"
+                  className={validationErrors.ceremonies_count ? "border-red-500" : ""}
                 />
+                {validationErrors.ceremonies_count && <p className="text-red-500 text-sm mt-1">{validationErrors.ceremonies_count}</p>}
               </div>
             </div>
 
             <div>
-              <Label htmlFor="condition_experience">Experience with clients who have medical conditions</Label>
+              <Label htmlFor="condition_experience">Experience with clients who have medical conditions *</Label>
               <Textarea
                 id="condition_experience"
                 value={formData.condition_experience}
                 onChange={(e) => handleInputChange('condition_experience', e.target.value)}
                 rows={3}
                 placeholder="Briefly describe any experience working with clients who have/had cancer, autoimmune, or other diagnosed conditions."
+                className={validationErrors.condition_experience ? "border-red-500" : ""}
               />
+              {validationErrors.condition_experience && <p className="text-red-500 text-sm mt-1">{validationErrors.condition_experience}</p>}
             </div>
 
             <div>
-              <Label htmlFor="client_references">Client references (at least 2)</Label>
+              <Label htmlFor="client_references">Client references (at least 2) *</Label>
               <Textarea
                 id="client_references"
                 value={formData.client_references}
                 onChange={(e) => handleInputChange('client_references', e.target.value)}
                 rows={3}
                 placeholder="Name + contact for 2 clients you've worked with (for verification only, kept private)."
+                className={validationErrors.client_references ? "border-red-500" : ""}
               />
+              {validationErrors.client_references && <p className="text-red-500 text-sm mt-1">{validationErrors.client_references}</p>}
             </div>
 
             <div>

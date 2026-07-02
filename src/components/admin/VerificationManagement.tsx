@@ -8,6 +8,7 @@ import { notify } from "@/lib/notify";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
@@ -22,6 +23,18 @@ import { format } from "date-fns";
 
 const ApplicationCard = ({ application, onAction, onUpgrade }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+
+  // Approval gate: reviewer must confirm each item AND the underlying data must exist.
+  const CHECKLIST = [
+    { key: "cpr", label: "CPR / First-Aid certification on file & valid", ok: !!application.cpr_certification_url },
+    { key: "cert", label: "Kambo training certificate verified", ok: !!application.kambo_certification_url },
+    { key: "certifier", label: "Certifier confirmed (contacted / credible)", ok: !!application.certified_by },
+    { key: "refs", label: "Client references reviewed", ok: Array.isArray(application.client_references) ? application.client_references.length > 0 : !!application.client_references },
+    { key: "screening", label: "Condition-experience & safety answers reviewed", ok: !!application.condition_experience && !!application.safety_protocols },
+  ];
+  const [checked, setChecked] = useState({});
+  const allChecked = CHECKLIST.every((c) => checked[c.key]);
+  const dataComplete = CHECKLIST.every((c) => c.ok);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -149,28 +162,55 @@ const ApplicationCard = ({ application, onAction, onUpgrade }) => {
             </div>
           )}
 
+          {application.verification_level === 'pending' && (
+            <div className="rounded-lg border border-border bg-muted/40 p-3">
+              <p className="text-sm font-medium mb-2">Approval checklist</p>
+              <div className="space-y-1.5">
+                {CHECKLIST.map((c) => (
+                  <label key={c.key} className={`flex items-start gap-2 text-sm ${c.ok ? "" : "opacity-60"}`}>
+                    <Checkbox
+                      checked={!!checked[c.key]}
+                      disabled={!c.ok}
+                      onCheckedChange={(v) => setChecked((s) => ({ ...s, [c.key]: !!v }))}
+                      className="mt-0.5"
+                    />
+                    <span>
+                      {c.label}
+                      {!c.ok && <span className="ml-1 text-xs text-red-600">(missing from application)</span>}
+                    </span>
+                  </label>
+                ))}
+              </div>
+              {!dataComplete && (
+                <p className="mt-2 text-xs text-red-600">This application is missing required items and cannot be approved until the applicant provides them.</p>
+              )}
+            </div>
+          )}
+
           <div className="flex justify-between items-center">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="sm"
               onClick={() => setIsExpanded(!isExpanded)}
             >
               {isExpanded ? 'Hide Details' : 'View Full Application'}
             </Button>
-            
+
             <div className="flex gap-2 items-center">
               {application.verification_level === 'pending' && (
                 <>
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     variant="destructive"
                     onClick={() => onAction(application.id, 'reject')}
                   >
                     <XCircle className="w-3 h-3 mr-1" />
                     Reject
                   </Button>
-                  <Button 
+                  <Button
                     size="sm"
+                    disabled={!allChecked}
+                    title={!allChecked ? "Complete the approval checklist first" : undefined}
                     onClick={() => onAction(application.id, 'approve')}
                   >
                     <CheckCircle className="w-3 h-3 mr-1" />

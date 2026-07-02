@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { Package, Loader2, ShoppingCart } from "@/lib/icons";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { useSeo } from "@/lib/useSeo";
 import { toast } from "sonner";
 
@@ -57,8 +58,7 @@ export default function Orders() {
 
   return (
     <div className="mx-auto max-w-3xl p-4 sm:p-6">
-      <h1 className="font-display text-2xl font-semibold">My Orders</h1>
-      <p className="mb-6 text-muted-foreground">Your marketplace purchases.</p>
+      <PageHeader icon={Package} kicker="Marketplace" title="My Orders" subtitle="Your marketplace purchases." className="-mx-4 -mt-4 mb-6 sm:-mx-6 sm:-mt-6" />
 
       {orders.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border py-16 text-center text-muted-foreground">

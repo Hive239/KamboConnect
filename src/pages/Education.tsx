@@ -1,6 +1,8 @@
 import React from "react";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { BookOpen } from "@/lib/icons";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -11,9 +13,7 @@ import {
 export default function Education() {
   return (
     <div className="bg-muted" style={{ scrollBehavior: 'smooth' }}>
-      <div className="p-4 sm:p-6">
-        <h1 className="text-3xl font-bold text-foreground">Learn more about Kambo</h1>
-      </div>
+      <PageHeader icon={BookOpen} kicker="Learn" title="Learn more about Kambo" subtitle="Origins, safety, contraindications, and integration." />
 
       <div className="p-4 sm:p-6">
           <h2 className="text-xl font-bold text-foreground mb-4">For Clients</h2>
