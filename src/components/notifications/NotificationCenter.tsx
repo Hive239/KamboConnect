@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
 import { useNavigate } from "react-router-dom";
+import { enablePush, pushPermission } from "@/lib/push";
+import { toast } from "sonner";
 
 const NOTIFICATION_CHECK_INTERVAL = 120000; // Check every 2 minutes (reduced frequency)
 
@@ -17,7 +19,15 @@ export default function NotificationCenter() {
   const [isLoading, setIsLoading] = useState(false);
   const [isFailing, setIsFailing] = useState(false);
   const [lastFetchTime, setLastFetchTime] = useState(0);
+  const [pushPerm, setPushPerm] = useState<string>(() => pushPermission());
   const navigate = useNavigate();
+
+  const handleEnablePush = useCallback(async () => {
+    const res = await enablePush();
+    if (res.ok) toast.success("Push notifications enabled.");
+    else toast.error(res.reason || "Couldn't enable push notifications.");
+    setPushPerm(pushPermission());
+  }, []);
 
   const fetchNotifications = useCallback(async (currentUser, force = false) => {
     if (!currentUser || isFailing) return;
@@ -49,6 +59,12 @@ export default function NotificationCenter() {
       setIsLoading(false);
     }
   }, [isFailing, lastFetchTime]);
+
+  const markAllRead = useCallback(async () => {
+    const unread = notifications.filter((n) => !n.is_read);
+    setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true }))); // optimistic
+    await Promise.all(unread.map((n) => Notification.update(n.id, { is_read: true }).catch(() => {})));
+  }, [notifications]);
 
   const dismissNotification = useCallback(async (notificationId) => {
     setNotifications(prev => prev.filter(n => n.id !== notificationId));
@@ -171,9 +187,7 @@ export default function NotificationCenter() {
         <div className="flex items-center justify-between p-4 border-b bg-card">
           <h3 className="text-lg font-semibold text-foreground">Notifications</h3>
           {unreadCount > 0 && (
-            <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
-              {unreadCount} new
-            </Badge>
+            <button onClick={markAllRead} className="text-xs font-medium text-primary hover:underline">Mark all read</button>
           )}
         </div>
         
@@ -211,6 +225,19 @@ export default function NotificationCenter() {
             ))
           )}
         </div>
+
+        {pushPerm !== 'unsupported' && (
+          <div className="border-t p-2">
+            <button
+              onClick={handleEnablePush}
+              disabled={pushPerm === 'granted'}
+              className="flex w-full items-center justify-center gap-2 rounded-md px-3 py-2 text-xs font-medium text-primary transition-colors hover:bg-accent disabled:opacity-60"
+            >
+              <Bell className="h-3.5 w-3.5" weight="duotone" />
+              {pushPerm === 'granted' ? 'Push notifications are on' : 'Enable push notifications'}
+            </button>
+          </div>
+        )}
       </PopoverContent>
     </Popover>
   );

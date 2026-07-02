@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import AddressAutocomplete from "@/components/AddressAutocomplete";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
@@ -221,16 +222,9 @@ export default function EventManagement({ events, practitioner, onUpdate }) {
     }));
   };
 
-  // Mock payment integration - in real app, integrate with Stripe
-  const handlePaymentSetup = async (eventId) => {
-    // This would integrate with a real payment processor
-    console.log("Setting up payment for event:", eventId);
-    // For now, just show a success message
-    alert("Payment integration would be set up here (Stripe, etc.)");
-  };
-
   return (
     <div className="space-y-6">
+      {/* AddressAutocomplete imported below for venue geocoding */}
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold text-foreground">My Events ({events.length})</h2>
@@ -319,13 +313,21 @@ export default function EventManagement({ events, practitioner, onUpdate }) {
               <div className="grid md:grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="location">Location</Label>
-                  <Input
-                    id="location"
-                    value={eventData.location}
-                    onChange={(e) => setEventData(prev => ({...prev, location: e.target.value}))}
-                    placeholder={eventData.is_online ? "Online" : "City, State"}
-                    required
-                  />
+                  {eventData.is_online ? (
+                    <Input
+                      id="location"
+                      value={eventData.location}
+                      onChange={(e) => setEventData(prev => ({ ...prev, location: e.target.value }))}
+                      placeholder="Online"
+                    />
+                  ) : (
+                    <AddressAutocomplete
+                      value={eventData.location}
+                      onChange={(text) => setEventData(prev => ({ ...prev, location: text }))}
+                      onSelect={(addr) => setEventData(prev => ({ ...prev, location: addr.formatted, latitude: addr.latitude, longitude: addr.longitude }))}
+                      placeholder="Search the venue address…"
+                    />
+                  )}
                 </div>
                 <div>
                   <Label htmlFor="price">Price ($)</Label>

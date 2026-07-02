@@ -10,9 +10,9 @@ import { format } from 'date-fns';
 import { Check, X, Mail, Phone, MoreHorizontal, Briefcase, FileText, ShieldCheck, AlertCircle, Loader2 } from "@/lib/icons";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Booking } from '@/entities/Booking';
-import { Notification } from '@/entities/all';
-import { SendEmail } from '@/integrations/Core';
 import { ScreeningResponse, ConsentRecord } from '@/entities/all';
+import { notify } from '@/lib/notify';
+import { createPageUrl } from '@/utils';
 import { toast } from 'sonner';
 
 const IntakeDialog = ({ booking, onClose }) => {
@@ -71,6 +71,38 @@ const IntakeDialog = ({ booking, onClose }) => {
                 <p className="mt-1 text-muted-foreground">No screening on file for this booking.</p>
               )}
             </section>
+
+            {(screening?.medications?.length > 0 || screening?.interaction_flags?.length > 0) && (
+              <section className="border-t border-border pt-4">
+                <div className="flex items-center gap-2 font-semibold">
+                  <AlertCircle className="w-4 h-4 text-warning" weight="duotone" /> Medications & Interactions
+                </div>
+                {screening.interaction_flags?.length > 0 ? (
+                  <div className="mt-2 space-y-1.5">
+                    {screening.interaction_flags.map((f, i) => (
+                      <div key={i} className={`rounded-md border px-2.5 py-1.5 text-xs ${f.severity === 'absolute' ? 'border-destructive/30 bg-destructive/10 text-destructive' : 'border-warning/30 bg-warning/10 text-warning'}`}>
+                        <strong className="capitalize">{f.severity}: {f.medication}</strong> — {f.note}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="mt-1 text-muted-foreground">{(screening.medications || []).join(', ') || 'None reported'}</p>
+                )}
+              </section>
+            )}
+
+            {screening?.emergency_contact?.name && (
+              <section className="border-t border-border pt-4">
+                <div className="flex items-center gap-2 font-semibold">
+                  <Phone className="w-4 h-4 text-primary" weight="duotone" /> Emergency Contact
+                </div>
+                <p className="mt-2 text-muted-foreground">
+                  <span className="font-medium text-foreground">{screening.emergency_contact.name}</span>
+                  {screening.emergency_contact.relationship ? ` (${screening.emergency_contact.relationship})` : ''} · {screening.emergency_contact.phone}
+                </p>
+              </section>
+            )}
+
             <section className="border-t border-border pt-4">
               <div className="flex items-center gap-2 font-semibold">
                 <ShieldCheck className="w-4 h-4 text-primary" weight="duotone" /> Informed Consent
@@ -99,8 +131,9 @@ const StatusBadge = ({ status }) => {
       declined: "bg-red-100 text-red-800 border-red-200",
       completed: "bg-blue-100 text-blue-800 border-blue-200",
       cancelled: "bg-muted text-foreground border-border",
+      no_show: "bg-orange-100 text-orange-800 border-orange-200",
     };
-    return <Badge className={statusStyles[status] || statusStyles.pending}>{status}</Badge>;
+    return <Badge className={statusStyles[status] || statusStyles.pending}>{status === 'no_show' ? 'no show' : status}</Badge>;
 };
 
 const PractitionerBookingsView = ({ bookings, onUpdate }) => {
@@ -118,22 +151,27 @@ const PractitionerBookingsView = ({ bookings, onUpdate }) => {
     }
     await Booking.update(bookingId, { status });
     if (status === 'confirmed') { try { await Booking.update(bookingId, { waiver_signed: true }); } catch { /* noop */ } }
-    // Prompt the client to leave a review once the session is complete.
-    if (status === 'completed') {
-      try {
-        const bk = await Booking.get(bookingId);
-        if (bk?.client_id) {
-          await Notification.create({
-            user_id: bk.client_id, title: "How was your session?",
-            message: `Share your experience with ${bk.practitioner_name || "your practitioner"} — leave a review.`,
-            type: "review", priority: "normal", related_id: bookingId, action_url: "/Bookings",
-          });
-          if (bk.client_email) {
-            try { await SendEmail({ to: bk.client_email, subject: "How was your Kambo session?", body: `Thanks for booking through KamboGuide. We'd love your feedback — log in to leave a review for ${bk.practitioner_name || "your practitioner"}.` }); } catch { /* non-fatal */ }
-          }
-        }
-      } catch { /* non-fatal */ }
-    }
+
+    // Notify the client of the status change across all channels (in-app + email + push).
+    try {
+      const bk = await Booking.get(bookingId);
+      const who = bk?.practitioner_name || "your practitioner";
+      const messages = {
+        confirmed: { title: "Booking confirmed", body: `Your session with ${who} is confirmed.`, priority: "high", type: "booking" },
+        declined: { title: "Booking update", body: `${who} was unable to confirm your requested session.`, priority: "normal", type: "booking" },
+        cancelled: { title: "Booking cancelled", body: `Your session with ${who} has been cancelled.`, priority: "normal", type: "booking" },
+        completed: { title: "How was your session?", body: `Share your experience with ${who} — leave a review.`, priority: "normal", type: "review" },
+      };
+      const m = messages[status];
+      if (m && (bk?.client_id || bk?.client_email)) {
+        await notify({
+          userId: bk.client_id, userEmail: bk.client_email,
+          type: m.type as any, title: m.title, body: m.body, priority: m.priority as any,
+          relatedId: bookingId, link: createPageUrl("Bookings"),
+          email: status === 'confirmed' || status === 'completed',
+        });
+      }
+    } catch { /* non-fatal */ }
     onUpdate();
   };
 

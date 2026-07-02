@@ -14,6 +14,7 @@ import {
 } from "@/entities/all";
 import SafetyGate, { type SafetyData } from "./SafetyGate";
 import { fileScreeningAndWaiver } from "@/lib/fileWaiver";
+import { createCheckout } from "@/integrations/Payments";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -30,20 +31,8 @@ import {
   Shield,
   XCircle
 } from "@/lib/icons";
-import { format, parse, startOfDay, isSameDay } from "date-fns";
-
-// Helper function to generate time slots
-const generateTimeSlots = (start, end, interval) => {
-  const slots = [];
-  let currentTime = parse(start, 'HH:mm', new Date());
-  const endTime = parse(end, 'HH:mm', new Date());
-
-  while (currentTime < endTime) {
-    slots.push(format(currentTime, 'HH:mm'));
-    currentTime.setMinutes(currentTime.getMinutes() + interval);
-  }
-  return slots;
-};
+import { format, parse } from "date-fns";
+import { getAvailableSlots as computeSlots } from "@/lib/availability";
 
 
 export default function DirectBookingModal({ practitioner, onClose, onBookingComplete }) {
@@ -76,60 +65,11 @@ export default function DirectBookingModal({ practitioner, onClose, onBookingCom
     setSelectedTime(null);
     setError('');
 
-    const dayOfWeek = format(date, 'eeee').toLowerCase();
-
     try {
-      const [weeklyAvail, blockedDates, exceptions] = await Promise.all([
-        PractitionerAvailability.filter({ practitioner_id: practitioner.id, day_of_week: dayOfWeek }),
-        PractitionerBlockedDate.filter({ practitioner_id: practitioner.id }),
-        PractitionerException.filter({ practitioner_id: practitioner.id, date: format(date, 'yyyy-MM-dd') }),
-      ]);
-
-      let finalSlots = [];
-
-      // 1. Start with weekly availability
-      let baseSlots = weeklyAvail.filter(a => a.is_available).flatMap(a => generateTimeSlots(a.start_time, a.end_time, 60));
-
-      // 2. Apply exceptions for the day
-      const overrideException = exceptions.find(e => e.exception_type === 'override');
-      const additionalExceptions = exceptions.filter(e => e.exception_type === 'additional');
-      const removeExceptions = exceptions.filter(e => e.exception_type === 'remove');
-
-      if (overrideException) {
-        baseSlots = generateTimeSlots(overrideException.start_time, overrideException.end_time, 60);
-      }
-      
-      additionalExceptions.forEach(e => {
-        baseSlots.push(...generateTimeSlots(e.start_time, e.end_time, 60));
-      });
-
-      if (removeExceptions.length > 0) {
-        const removeRanges = removeExceptions.map(e => ({ start: parse(e.start_time, 'HH:mm', date), end: parse(e.end_time, 'HH:mm', date) }));
-        baseSlots = baseSlots.filter(slot => {
-          const slotTime = parse(slot, 'HH:mm', date);
-          return !removeRanges.some(range => slotTime >= range.start && slotTime < range.end);
-        });
-      }
-
-      // 3. Filter out blocked dates/times
-      const todayBlockedDates = blockedDates.filter(b => isSameDay(new Date(b.date), date));
-      if (todayBlockedDates.some(b => b.block_type === 'full_day')) {
-        finalSlots = [];
-      } else {
-        const partialBlocks = todayBlockedDates.filter(b => b.block_type === 'partial_day');
-        const blockedRanges = partialBlocks.map(b => ({ start: parse(b.start_time, 'HH:mm', date), end: parse(b.end_time, 'HH:mm', date) }));
-        
-        finalSlots = baseSlots.filter(slot => {
-          const slotTime = parse(slot, 'HH:mm', date);
-          return !blockedRanges.some(range => slotTime >= range.start && slotTime < range.end);
-        });
-      }
-
-      // Remove duplicates and sort
-      finalSlots = [...new Set(finalSlots)].sort();
-      
-      setAvailableSlots(finalSlots);
-
+      // Shared engine: composes availability/exceptions/blocks AND removes
+      // slots already taken by active bookings (no double-booking).
+      const slots = await computeSlots(practitioner.id, date);
+      setAvailableSlots(slots);
     } catch (err) {
       console.error("Error fetching availability:", err);
       setError("Could not load available times. Please try again.");
@@ -156,19 +96,24 @@ export default function DirectBookingModal({ practitioner, onClose, onBookingCom
       const bookingDateTime = parse(selectedTime, 'HH:mm', selectedDate);
       const sessionPrice = practitioner.pricing_range === '$' ? 150 : practitioner.pricing_range === '$$' ? 200 : 250;
 
-      // --- MOCK PAYMENT GATEWAY ---
-      // In a real app, this would redirect to Stripe Checkout or use Stripe Elements.
-      // Here, we simulate a successful payment by creating a Payment record.
+      // Payment via the single Payments seam (Stripe-ready — swaps to real Stripe
+      // Checkout the moment STRIPE_SECRET_KEY is set; mock until then).
+      const checkout = await createCheckout({
+        amount: sessionPrice,
+        description: `Kambo session with ${practitioner.full_name}`,
+        metadata: { user_id: user.id, practitioner_id: practitioner.id, type: 'booking' },
+      });
       const paymentRecord = await Payment.create({
         booking_id: null, // will be updated after booking is created
         user_id: user.id,
         practitioner_id: practitioner.id,
-        amount: sessionPrice,
+        amount: checkout.amount,
         payment_type: 'booking',
-        payment_status: 'completed',
-        payment_method: 'mock_credit_card',
+        payment_status: checkout.status === 'completed' ? 'completed' : 'failed',
+        payment_method: checkout.method,
+        stripe_payment_id: checkout.id,
+        payment_date: checkout.created_at,
       });
-      // --- END MOCK PAYMENT ---
 
       const bookingRecord = await Booking.create({
         practitioner_id: practitioner.id,
@@ -178,9 +123,13 @@ export default function DirectBookingModal({ practitioner, onClose, onBookingCom
         client_email: user.email,
         service_type: "Private Session",
         requested_date: format(bookingDateTime, "yyyy-MM-dd'T'HH:mm:ss'Z'"),
+        slot_start: format(bookingDateTime, "yyyy-MM-dd'T'HH:mm:ss'Z'"),
+        duration_minutes: 60,
         status: "confirmed", // Direct booking is auto-confirmed
         price: sessionPrice,
         payment_status: "paid",
+        deposit_amount: sessionPrice,
+        deposit_status: "paid",
         message: `Direct booking made via practitioner profile for ${format(bookingDateTime, 'PPP @ p')}`
       });
 

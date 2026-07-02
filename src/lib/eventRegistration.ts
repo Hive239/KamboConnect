@@ -39,7 +39,7 @@ export async function cancelAndPromote(reg: any, event: any): Promise<{ current_
       count += 1; // seat re-filled by promotion
       try {
         const [u] = promoted.participant_email ? await User.filter({ email: promoted.participant_email }) : [];
-        if (u) await Notification.create({ user_id: u.id, title: "You're off the waitlist!", message: `A spot opened up for "${event.title}" — you're now confirmed.`, type: "event", related_id: event.id });
+        if (u) await Notification.create({ user_id: u.id, title: "You're off the waitlist!", message: `A spot opened up for "${event.title}" — you're now confirmed.`, type: "event", related_id: event.id, action_url: `/EventDetail?id=${event.id}` });
       } catch { /* notify is best-effort */ }
     }
   }

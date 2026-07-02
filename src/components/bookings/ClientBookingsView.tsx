@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Booking, Practitioner, Message, User, Payment, Review, Conversation } from "@/entities/all";
 import { createPageUrl } from "@/utils";
 import { format } from 'date-fns';
-import { Calendar, Check, X, Hourglass, CalendarCheck2, AlertTriangle, MessageSquare, Loader2, RefreshCw, DollarSign, Star, CheckCircle } from '@/lib/icons';
+import { Calendar, Check, X, Hourglass, CalendarCheck2, AlertTriangle, MessageSquare, Loader2, RefreshCw, DollarSign, Star, CheckCircle, Book } from '@/lib/icons';
 import { NotificationService } from '../notifications/NotificationService';
 import BookingReviewModal from './BookingReviewModal';
 import AddToCalendar from "@/components/AddToCalendar";
@@ -67,6 +67,11 @@ const StatusInfo = ({ status }) => {
       icon: <CalendarCheck2 className="w-4 h-4 text-blue-600" />,
       text: "This session has been completed.",
       badge: "bg-blue-100 text-blue-800 border-blue-200",
+    },
+    no_show: {
+      icon: <X className="w-4 h-4 text-orange-600" />,
+      text: "This session was marked as a no-show.",
+      badge: "bg-orange-100 text-orange-800 border-orange-200",
     },
   };
 
@@ -389,6 +394,9 @@ const BookingCard = ({ booking, onAction, onReview, hasBeenReviewed }) => {
                             Cancel Session
                         </Button>
                         <RescheduleButton booking={booking} />
+                        <Link to={createPageUrl(`Journal?kind=intention&booking_id=${booking.id}`)}>
+                          <Button variant="outline" size="sm"><Book className="w-4 h-4 mr-2" /> Set intention</Button>
+                        </Link>
                     </>
                 )}
                 {booking.status === 'completed' && (
@@ -403,6 +411,11 @@ const BookingCard = ({ booking, onAction, onReview, hasBeenReviewed }) => {
                             Review Submitted
                         </Button>
                     ) : null
+                )}
+                {booking.status === 'completed' && (
+                    <Link to={createPageUrl(`Journal?kind=reflection&booking_id=${booking.id}`)}>
+                        <Button variant="outline" size="sm"><Book className="w-4 h-4 mr-2" /> Add reflection</Button>
+                    </Link>
                 )}
                 {(booking.status === 'declined' || booking.status === 'cancelled') && (
                     <Link to={createPageUrl(`Directory`)}>

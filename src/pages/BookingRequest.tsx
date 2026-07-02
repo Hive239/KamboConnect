@@ -15,7 +15,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Send, ArrowLeft, UserCircle, Loader2 } from "@/lib/icons";
+import { getAvailableSlots as computeSlots } from "@/lib/availability";
+import { Calendar as CalendarIcon, Send, ArrowLeft, UserCircle, Loader2, Clock } from "@/lib/icons";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import PageBreadcrumbs from "@/components/PageBreadcrumbs";
 
@@ -30,6 +31,9 @@ export default function BookingRequestPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [step, setStep] = useState<"form" | "safety">("form");
+  const [availableSlots, setAvailableSlots] = useState<string[]>([]);
+  const [isLoadingSlots, setIsLoadingSlots] = useState(false);
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     client_name: "",
@@ -75,10 +79,39 @@ export default function BookingRequestPage() {
     loadInitialData();
   }, [practitionerId, navigate]);
 
+  // Load real available slots (shared engine) when a date is chosen.
+  const handleDatePick = async (date) => {
+    setFormData((prev) => ({ ...prev, requested_date: date }));
+    setSelectedTime(null);
+    setAvailableSlots([]);
+    if (!date || !practitioner) return;
+    setIsLoadingSlots(true);
+    try {
+      setAvailableSlots(await computeSlots(practitioner.id, date));
+    } catch {
+      setAvailableSlots([]);
+    } finally {
+      setIsLoadingSlots(false);
+    }
+  };
+
+  // Combine the chosen date + slot into an ISO timestamp.
+  const requestedIso = () => {
+    const dt = formData.requested_date as Date | null;
+    if (!dt) return undefined;
+    const d = new Date(dt);
+    if (selectedTime) {
+      const [h, m] = selectedTime.split(":").map(Number);
+      d.setHours(h, m, 0, 0);
+    }
+    return d.toISOString();
+  };
+
   // Step 1 → move to the safety gate (health screening + consent) before booking.
   const handleContinue = (e) => {
     e.preventDefault();
     if (!formData.requested_date || !practitioner) return;
+    if (availableSlots.length > 0 && !selectedTime) return; // must pick a slot when times exist
     setStep("safety");
   };
 
@@ -87,8 +120,12 @@ export default function BookingRequestPage() {
     if (!practitioner) return;
     setIsSubmitting(true);
     try {
+      const iso = requestedIso();
       const newBooking = await Booking.create({
         ...formData,
+        requested_date: iso,
+        slot_start: selectedTime ? iso : undefined,
+        duration_minutes: selectedTime ? 60 : undefined,
         practitioner_id: practitioner.id,
         practitioner_name: practitioner.full_name,
         client_id: user?.id,
@@ -216,12 +253,43 @@ export default function BookingRequestPage() {
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0">
-                      <Calendar mode="single" selected={formData.requested_date} onSelect={date => setFormData({...formData, requested_date: date})} initialFocus disabled={(date) => date < new Date()} />
+                      <Calendar mode="single" selected={formData.requested_date} onSelect={handleDatePick} initialFocus disabled={(date) => date < new Date()} />
                     </PopoverContent>
                   </Popover>
                 </div>
               </div>
               
+              {formData.requested_date && (
+                <div>
+                  <Label className="flex items-center gap-1.5">
+                    <Clock className="h-4 w-4 text-muted-foreground" /> Available times
+                    {isLoadingSlots && <Loader2 className="h-3 w-3 animate-spin" />}
+                  </Label>
+                  {!isLoadingSlots && availableSlots.length === 0 ? (
+                    <p className="mt-1.5 text-sm text-muted-foreground">
+                      No set times published for this day — submit your request and the practitioner will arrange a time with you.
+                    </p>
+                  ) : (
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {availableSlots.map((t) => (
+                        <button
+                          type="button"
+                          key={t}
+                          onClick={() => setSelectedTime(t)}
+                          className={`rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${
+                            selectedTime === t
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : "border-border bg-card hover:bg-accent"
+                          }`}
+                        >
+                          {t}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div>
                 <Label htmlFor="message">Message</Label>
                 <Textarea id="message" value={formData.message} onChange={e => setFormData({...formData, message: e.target.value})} placeholder="Introduce yourself, mention any specific needs, or ask a question." />
@@ -231,7 +299,7 @@ export default function BookingRequestPage() {
                 <Button type="button" variant="outline" onClick={() => navigate(-1)} disabled={isSubmitting}>
                   Cancel
                 </Button>
-                <Button type="submit" disabled={isSubmitting || !formData.client_name || !formData.client_email || !formData.requested_date} className="bg-primary hover:bg-primary/90">
+                <Button type="submit" disabled={isSubmitting || !formData.client_name || !formData.client_email || !formData.requested_date || (availableSlots.length > 0 && !selectedTime)} className="bg-primary hover:bg-primary/90">
                   <Send className="w-4 h-4 mr-2" />
                   Continue to Safety Screening
                 </Button>

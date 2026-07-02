@@ -41,6 +41,26 @@ const StarRating = ({ rating, onRatingChange, label, description, required = fal
   </div>
 );
 
+const WellbeingScale = ({ value, onChange, label }) => (
+  <div>
+    <Label className="text-sm font-medium">{label}</Label>
+    <div className="mt-2 flex flex-wrap gap-1.5">
+      {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
+        <button
+          key={n}
+          type="button"
+          onClick={() => onChange(n)}
+          className={`h-8 w-8 rounded-md border text-sm font-medium transition-colors ${
+            value === n ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card hover:bg-accent"
+          }`}
+        >
+          {n}
+        </button>
+      ))}
+    </div>
+  </div>
+);
+
 export default function BookingReviewModal({ booking, onClose, onSubmit }) {
   const [user, setUser] = useState(null);
   const [reviewData, setReviewData] = useState({
@@ -49,6 +69,8 @@ export default function BookingReviewModal({ booking, onClose, onSubmit }) {
     communication_rating: 0,
     environment_rating: 0,
     professionalism_rating: 0,
+    wellbeing_before: 0,
+    wellbeing_after: 0,
     review_text: "",
     would_recommend: null,
     session_date: booking?.requested_date ? format(new Date(booking.requested_date), 'yyyy-MM-dd') : ""
@@ -120,6 +142,8 @@ export default function BookingReviewModal({ booking, onClose, onSubmit }) {
         communication_rating: reviewData.communication_rating || null,
         environment_rating: reviewData.environment_rating || null,
         professionalism_rating: reviewData.professionalism_rating || null,
+        wellbeing_before: reviewData.wellbeing_before || null,
+        wellbeing_after: reviewData.wellbeing_after || null,
         review_text: reviewData.review_text.trim(),
         would_recommend: reviewData.would_recommend,
         verified_client: true, // Always true when submitted via completed booking
@@ -238,6 +262,20 @@ export default function BookingReviewModal({ booking, onClose, onSubmit }) {
                 rating={reviewData.professionalism_rating}
                 onRatingChange={(rating) => setReviewData(prev => ({...prev, professionalism_rating: rating}))}
               />
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Well-being outcome */}
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-lg font-semibold text-foreground">Well-being outcome</h3>
+              <p className="text-sm text-muted-foreground">Optional — helps others understand real outcomes. Rate 1 (low) to 10 (high).</p>
+            </div>
+            <div className="grid gap-6 md:grid-cols-2">
+              <WellbeingScale label="Before the session" value={reviewData.wellbeing_before} onChange={(n) => setReviewData((p) => ({ ...p, wellbeing_before: n }))} />
+              <WellbeingScale label="After the session" value={reviewData.wellbeing_after} onChange={(n) => setReviewData((p) => ({ ...p, wellbeing_after: n }))} />
             </div>
           </div>
 

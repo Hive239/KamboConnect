@@ -25,6 +25,8 @@ export async function fileScreeningAndWaiver(a: FileArgs): Promise<string> {
   await ScreeningResponse.create({
     booking_id: bookingId, user_id: clientId, practitioner_id: practitionerId,
     answers: safety.answers, flagged: safety.flagged, notes: safety.screeningSummary,
+    medications: safety.medications, interaction_flags: safety.interactionFlags,
+    emergency_contact: safety.emergencyContact,
   });
 
   const documentUrl = await generateAndFileWaiverPdf({
@@ -49,7 +51,7 @@ export async function fileScreeningAndWaiver(a: FileArgs): Promise<string> {
 
   await upsertClientRecord({ practitionerId, clientId, clientName, clientEmail, clientPhone });
 
-  try { await Booking.update(bookingId, { waiver_signed: true }); } catch { /* booking may set it itself */ }
+  try { await Booking.update(bookingId, { waiver_signed: true, emergency_contact: safety.emergencyContact }); } catch { /* booking may set it itself */ }
 
   return documentUrl;
 }

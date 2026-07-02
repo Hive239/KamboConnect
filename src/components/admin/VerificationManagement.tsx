@@ -1,8 +1,11 @@
 
 import React, { useState, useEffect } from "react";
 import { Practitioner } from "@/entities/Practitioner";
+import { Credential, User } from "@/entities/all";
 import { makeEntity } from "@/data/store";
 import { openDoc } from "@/lib/storage";
+import { notify } from "@/lib/notify";
+import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -162,17 +165,42 @@ const ApplicationCard = ({ application, onAction, onUpgrade }) => {
   );
 };
 
+const CredentialCard = ({ credential, onReview }) => (
+  <Card className="mb-3">
+    <CardContent className="flex flex-wrap items-center justify-between gap-3 p-4">
+      <div className="min-w-0">
+        <p className="font-medium">{credential.title} <span className="text-xs capitalize text-muted-foreground">· {credential.type}</span></p>
+        <p className="text-sm text-muted-foreground">{[credential.issuer, credential.expiry_date ? `expires ${credential.expiry_date}` : null].filter(Boolean).join(' · ') || 'No issuer listed'}</p>
+        <p className="text-xs text-muted-foreground">Practitioner: {credential.practitioner_id}</p>
+      </div>
+      <div className="flex items-center gap-2">
+        {credential.file_uri && (
+          <Button variant="outline" size="sm" onClick={() => openDoc(credential.file_uri)}>
+            <ExternalLink className="w-3 h-3 mr-1" /> Document
+          </Button>
+        )}
+        <Button variant="destructive" size="sm" onClick={() => onReview(credential.id, 'rejected')}><XCircle className="w-3 h-3 mr-1" /> Reject</Button>
+        <Button size="sm" onClick={() => onReview(credential.id, 'verified')}><CheckCircle className="w-3 h-3 mr-1" /> Verify</Button>
+      </div>
+    </CardContent>
+  </Card>
+);
+
 export default function VerificationManagement() {
   const [pendingApps, setPendingApps] = useState([]);
   const [approvedApps, setApprovedApps] = useState([]);
   const [rejectedApps, setRejectedApps] = useState([]);
+  const [pendingCreds, setPendingCreds] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentTab, setCurrentTab] = useState("pending");
 
   const loadApplications = async (tab) => {
     setIsLoading(true);
     try {
-      if (tab === "pending") {
+      if (tab === "credentials") {
+        const creds = await Credential.filter({ status: "pending" }, '-created_date');
+        setPendingCreds(creds);
+      } else if (tab === "pending") {
         const applications = await Practitioner.filter({ verification_level: "pending" }, '-created_date');
         setPendingApps(applications);
       } else if (tab === "approved") {
@@ -233,6 +261,31 @@ export default function VerificationManagement() {
     }
   };
 
+  const reviewCredential = async (id, status) => {
+    try {
+      const me = await User.me().catch(() => null);
+      const cred = pendingCreds.find((c) => c.id === id);
+      await Credential.update(id, { status, reviewer_id: me?.id });
+      if (cred) {
+        const prac = await Practitioner.get(cred.practitioner_id).catch(() => null);
+        await notify({
+          userId: cred.practitioner_id,
+          userEmail: prac?.email,
+          type: 'system',
+          title: status === 'verified' ? 'Credential verified' : 'Credential not approved',
+          body: status === 'verified'
+            ? `Your credential "${cred.title}" was verified and now appears on your public profile.`
+            : `Your credential "${cred.title}" wasn't approved. Please review and resubmit if needed.`,
+          priority: 'normal',
+          link: createPageUrl('PractitionerDashboard'),
+        });
+      }
+      loadApplications('credentials');
+    } catch (e) {
+      console.error("Failed to review credential:", e);
+    }
+  };
+
 
   const renderContent = (applications) => {
     if (isLoading) {
@@ -275,7 +328,7 @@ export default function VerificationManagement() {
       </Card>
 
       <Tabs defaultValue="pending" onValueChange={setCurrentTab}>
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="pending">
             Pending ({pendingApps.length})
           </TabsTrigger>
@@ -284,6 +337,9 @@ export default function VerificationManagement() {
           </TabsTrigger>
           <TabsTrigger value="rejected">
             Rejected ({rejectedApps.length})
+          </TabsTrigger>
+          <TabsTrigger value="credentials">
+            Credentials ({pendingCreds.length})
           </TabsTrigger>
         </TabsList>
 
@@ -297,6 +353,16 @@ export default function VerificationManagement() {
 
         <TabsContent value="rejected" className="space-y-4">
           {renderContent(rejectedApps)}
+        </TabsContent>
+
+        <TabsContent value="credentials" className="space-y-4">
+          {isLoading ? (
+            <Card><CardContent className="p-8 text-center text-muted-foreground"><Loader2 className="w-12 h-12 mx-auto mb-4 animate-spin" /><p>Loading credentials...</p></CardContent></Card>
+          ) : pendingCreds.length === 0 ? (
+            <Card><CardContent className="p-8 text-center text-muted-foreground"><ShieldCheck className="w-12 h-12 mx-auto mb-4" /><p>No credentials awaiting review.</p></CardContent></Card>
+          ) : (
+            pendingCreds.map((c) => <CredentialCard key={c.id} credential={c} onReview={reviewCredential} />)
+          )}
         </TabsContent>
       </Tabs>
     </div>

@@ -8,7 +8,7 @@ import { getRole } from "@/lib/roles";
 import {
   Search, Users, Calendar, Store, BookOpen, Menu, Heart, User as UserIcon,
   LogOut, Shield, Briefcase, Settings, LogIn, MessageSquare, ShieldCheck,
-  PanelLeft, Sparkle, Trophy, MapPin, Package, Home, Crosshair,
+  PanelLeft, Sparkle, Trophy, MapPin, Package, Home, Crosshair, Book,
 } from "@/lib/icons";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -40,6 +40,7 @@ const mainNavItems = [
   { title: "Events", tKey: "nav.events", url: createPageUrl("Events"), icon: Calendar, isPublic: true },
   // Client-only.
   { title: "My Bookings", tKey: "nav.bookings", url: createPageUrl("Bookings"), icon: Briefcase, isPublic: false, roles: ["client"] },
+  { title: "Journal", tKey: "nav.journal", url: createPageUrl("Journal"), icon: Book, isPublic: false, roles: ["client"] },
   { title: "Messages", tKey: "nav.messages", url: createPageUrl("Messages"), icon: MessageSquare, isPublic: false },
   { title: "My Favorites", tKey: "nav.favorites", url: createPageUrl("Favorites"), icon: Heart, isPublic: false, roles: ["client"] },
   { title: "Market", tKey: "nav.market", url: createPageUrl("Market"), icon: Store, isPublic: true, roles: ["client"] },

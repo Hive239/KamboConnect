@@ -18,7 +18,8 @@ import { toast } from "sonner";
 export default function GroupsView() {
   const navigate = useNavigate();
   const [groups, setGroups] = useState<any[]>([]);
-  const [memberships, setMemberships] = useState<Record<string, string>>({}); // group_id -> membership id
+  const [memberships, setMemberships] = useState<Record<string, string>>({}); // group_id -> membership id (active)
+  const [pending, setPending] = useState<Set<string>>(new Set()); // group_ids with a pending request
   const [me, setMe] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
@@ -54,12 +55,21 @@ export default function GroupsView() {
   };
 
   const load = async () => {
-    const u = await User.me().catch(() => null);
-    setMe(u);
-    const [gs, mine] = await Promise.all([Group.list("-member_count"), u ? GroupMembership.filter({ user_id: u.id }) : Promise.resolve([])]);
-    setGroups(gs);
-    setMemberships(Object.fromEntries((mine as any[]).map((m) => [m.group_id, m.id])));
-    setLoading(false);
+    setLoading(true);
+    try {
+      const u = await User.me().catch(() => null);
+      setMe(u);
+      const [gs, mine] = await Promise.all([Group.list("-member_count"), u ? GroupMembership.filter({ user_id: u.id }) : Promise.resolve([])]);
+      setGroups(gs);
+      // Active memberships → "Joined"; pending private-group requests → "Requested".
+      setMemberships(Object.fromEntries((mine as any[]).filter((m) => (m.status || "active") === "active").map((m) => [m.group_id, m.id])));
+      setPending(new Set((mine as any[]).filter((m) => m.status === "pending").map((m) => m.group_id)));
+    } catch (e) {
+      console.error("Failed to load groups:", e);
+      setGroups([]);
+    } finally {
+      setLoading(false);
+    }
   };
   useEffect(() => { load(); }, []);
 
@@ -181,8 +191,8 @@ export default function GroupsView() {
               <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{g.description}</p>
               <div className="mt-3 flex items-center justify-between">
                 <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><UsersThree className="h-4 w-4" weight="duotone" /> {g.member_count || 0} members</span>
-                <Button size="sm" variant={joined ? "outline" : "default"} disabled={busy === g.id} onClick={(e) => { e.stopPropagation(); toggle(g); }} className="gap-1.5">
-                  {joined ? <><Check className="h-4 w-4" weight="bold" /> Joined</> : g.is_private ? <><Lock className="h-4 w-4" weight="bold" /> Request</> : <><Plus className="h-4 w-4" weight="bold" /> Join</>}
+                <Button size="sm" variant={joined || pending.has(g.id) ? "outline" : "default"} disabled={busy === g.id || pending.has(g.id)} onClick={(e) => { e.stopPropagation(); toggle(g); }} className="gap-1.5">
+                  {joined ? <><Check className="h-4 w-4" weight="bold" /> Joined</> : pending.has(g.id) ? <>Requested</> : g.is_private ? <><Lock className="h-4 w-4" weight="bold" /> Request</> : <><Plus className="h-4 w-4" weight="bold" /> Join</>}
                 </Button>
               </div>
             </CardContent>

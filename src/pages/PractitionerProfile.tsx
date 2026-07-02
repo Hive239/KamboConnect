@@ -16,7 +16,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
   Star, MapPin, CheckCircle, Mail, Globe, Phone, MessageSquare, ArrowLeft,
-  Users, Loader2, Calendar as CalendarIcon, ShareIcon
+  Users, Loader2, Calendar as CalendarIcon, ShareIcon, ShieldCheck
 } from "@/lib/icons";
 import { createPageUrl } from "@/utils";
 import { format } from 'date-fns';
@@ -382,7 +382,15 @@ export default function PractitionerProfile() {
             <div className="flex-1 mt-4 sm:mt-0 sm:ml-6 text-center sm:text-left">
               <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
                 <h1 className="text-3xl font-bold text-foreground">{practitioner.full_name}</h1>
-                {practitioner.is_verified && <CheckCircle className="w-6 h-6 text-primary" title="Verified Practitioner" />}
+                {practitioner.is_verified && (
+                  <Badge
+                    variant={practitioner.verification_level === 'master' ? 'featured' : practitioner.verification_level === 'advanced' ? 'preferred' : 'verified'}
+                    className="gap-1 rounded-full capitalize"
+                  >
+                    <CheckCircle className="w-3.5 h-3.5" weight="fill" />
+                    {practitioner.verification_level === 'master' ? 'Master Verified' : practitioner.verification_level === 'advanced' ? 'Advanced Verified' : 'Verified'}
+                  </Badge>
+                )}
               </div>
               <p className="text-muted-foreground flex items-center justify-center sm:justify-start gap-2">
                 <MapPin className="w-4 h-4" />
@@ -473,6 +481,43 @@ export default function PractitionerProfile() {
                 <p>{practitioner.training_background}</p>
               </CardContent>
             </Card>
+
+            {(practitioner.lineage || (practitioner.tradition && practitioner.tradition.length > 0) || practitioner.disclosed_teachers) && (
+              <Card>
+                <CardHeader><CardTitle>Lineage &amp; Tradition</CardTitle></CardHeader>
+                <CardContent className="space-y-3 text-foreground">
+                  {practitioner.tradition && practitioner.tradition.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {practitioner.tradition.map((t) => <Badge key={t} variant="secondary" className="rounded-full">{t}</Badge>)}
+                    </div>
+                  )}
+                  {practitioner.lineage && <p className="text-sm">{practitioner.lineage}</p>}
+                  {practitioner.disclosed_teachers && (
+                    <p className="text-sm text-muted-foreground"><span className="font-medium text-foreground">Teachers &amp; mentors:</span> {practitioner.disclosed_teachers}</p>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {credentials.filter((c) => c.status === 'verified').length > 0 && (
+              <Card>
+                <CardHeader><CardTitle className="flex items-center gap-2"><ShieldCheck className="w-5 h-5 text-primary" weight="duotone" /> Verified Credentials</CardTitle></CardHeader>
+                <CardContent className="space-y-2">
+                  {credentials.filter((c) => c.status === 'verified').map((c) => (
+                    <div key={c.id} className="flex items-center justify-between gap-3 rounded-lg border border-border p-3">
+                      <div className="min-w-0">
+                        <p className="truncate font-medium">{c.title}</p>
+                        {(c.issuer || c.expiry_date) && (
+                          <p className="truncate text-xs text-muted-foreground">{[c.issuer, c.expiry_date ? `expires ${c.expiry_date}` : null].filter(Boolean).join(' · ')}</p>
+                        )}
+                      </div>
+                      <Badge variant="success" className="shrink-0 gap-1 rounded-full"><CheckCircle className="w-3 h-3" weight="fill" /> Verified</Badge>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+
             <Card>
               <CardHeader><CardTitle>Safety Protocols</CardTitle></CardHeader>
               <CardContent className="text-foreground prose prose-sm max-w-none">
@@ -614,6 +659,18 @@ export default function PractitionerProfile() {
           <Card>
             <CardHeader>
               <CardTitle>Client Reviews ({reviews.length})</CardTitle>
+              {reviews.length > 0 && (() => {
+                const recommend = reviews.filter((r) => r.would_recommend).length;
+                const rate = Math.round((recommend / reviews.length) * 100);
+                const lifts = reviews.filter((r) => r.wellbeing_before && r.wellbeing_after).map((r) => r.wellbeing_after - r.wellbeing_before);
+                const avgLift = lifts.length ? lifts.reduce((a, b) => a + b, 0) / lifts.length : null;
+                return (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <Badge variant="success" className="gap-1 rounded-full"><CheckCircle className="w-3 h-3" weight="fill" /> {rate}% recommend</Badge>
+                    {avgLift !== null && avgLift > 0 && <Badge variant="info" className="rounded-full">+{avgLift.toFixed(1)} avg well-being lift</Badge>}
+                  </div>
+                );
+              })()}
             </CardHeader>
             <CardContent className="p-0">
               {reviews.length > 0 ? (
@@ -624,9 +681,14 @@ export default function PractitionerProfile() {
                         <AvatarFallback>{review.reviewer_name.charAt(0)}</AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <p className="font-semibold text-foreground">{review.reviewer_name}</p>
-                          <p className="text-xs text-muted-foreground">{format(new Date(review.created_date), "MMM d, yyyy")}</p>
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <p className="font-semibold text-foreground">{review.reviewer_name}</p>
+                            {review.verified_client && (
+                              <Badge variant="tier" className="gap-1 rounded-full text-[10px]"><CheckCircle className="h-2.5 w-2.5" weight="fill" /> Verified booking</Badge>
+                            )}
+                          </div>
+                          <p className="shrink-0 text-xs text-muted-foreground">{format(new Date(review.created_date), "MMM d, yyyy")}</p>
                         </div>
                         <div className="flex items-center gap-1 my-1">
                           {[...Array(5)].map((_, i) => (

@@ -19,7 +19,7 @@ const JOURNEY = [
   { key: "consult", title: "Consult", body: "Request a free consultation to make sure it's a fit.", page: "Directory", icon: MessageSquare },
   { key: "screen", title: "Screen", body: "Complete a health screening & informed consent.", page: "Bookings", icon: ShieldCheck },
   { key: "book", title: "Book", body: "Confirm your session with confidence.", page: "Bookings", icon: CalendarCheck },
-  { key: "integrate", title: "Integrate", body: "Reflect and connect with the community afterward.", page: "Community", icon: Users },
+  { key: "integrate", title: "Integrate", body: "Journal, reflect, and track your well-being afterward.", page: "Journal", icon: BookOpen },
 ];
 
 const QUICK_ACTIONS = [

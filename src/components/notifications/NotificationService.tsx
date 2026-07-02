@@ -98,7 +98,7 @@ export class NotificationService {
       type: 'event',
       priority: config.priority,
       related_id: eventData.id,
-      action_url: createPageUrl('Events'),
+      action_url: `${createPageUrl('EventDetail')}?id=${eventData.id}`,
       metadata: {
         event_title: eventData.title
       }

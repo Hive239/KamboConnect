@@ -7,6 +7,7 @@ import __Layout from './Layout';
 export const PAGES = {
     "ForYou": lazy(() => import('./pages/ForYou')),
     "Guide": lazy(() => import('./pages/Guide')),
+    "Journal": lazy(() => import('./pages/Journal')),
     "Directory": lazy(() => import('./pages/Directory')),
     "Matchmaking": lazy(() => import('./pages/Matchmaking')),
     "Education": lazy(() => import('./pages/Education')),

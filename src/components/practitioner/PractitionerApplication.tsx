@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from "react";
 import { Practitioner, User, Notification } from "@/entities/all";
 import { UploadPrivateFile, SendEmail } from "@/integrations/Core";
+import { geocodeAddress } from "@/lib/geocode";
+import AddressAutocomplete from "@/components/AddressAutocomplete";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -101,6 +103,22 @@ export default function PractitionerApplicationForm({ onSuccess }) {
     }
   };
 
+  const handleAddressResolved = (addr) => {
+    setFormData(prev => ({
+      ...prev,
+      address: {
+        street: addr.street || prev.address.street,
+        city: addr.city || "",
+        state_province: addr.state_province || "",
+        postal_code: addr.postal_code || "",
+        country: addr.country || "",
+      },
+      latitude: addr.latitude ?? null,
+      longitude: addr.longitude ?? null,
+    }));
+    setValidationErrors(prev => ({ ...prev, address_street: null, address_city: null, address_country: null }));
+  };
+
   const handleAddressChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, address: { ...prev.address, [name]: value } }));
@@ -116,27 +134,14 @@ export default function PractitionerApplicationForm({ onSuccess }) {
     setValidationErrors(prev => ({ ...prev, [field]: null }));
   };
 
-  const geocodeAddress = async (address) => {
-    // Simple geocoding fallback - in production you'd use a proper service
-    try {
-      // For now, just return null coordinates - the app should work without them
-      return { lat: null, lng: null };
-    } catch (err) {
-      console.warn("Geocoding failed:", err);
-      return { lat: null, lng: null };
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setNetworkStatus('online');
 
-    console.log("Form submission started");
 
     if (!validateForm()) {
       setError("Please fill in all required fields marked with *");
-      console.log("Validation failed:", validationErrors);
       return;
     }
 
@@ -148,7 +153,6 @@ export default function PractitionerApplicationForm({ onSuccess }) {
       try {
         attempt++;
         setRetryAttempt(attempt);
-        console.log(`Submission attempt ${attempt}/${maxRetries}`);
 
         // Check network connectivity first
         if (!navigator.onLine) {
@@ -156,8 +160,10 @@ export default function PractitionerApplicationForm({ onSuccess }) {
           throw new Error('You appear to be offline. Please check your internet connection.');
         }
 
-        const fullAddress = `${formData.address.street}, ${formData.address.city}, ${formData.address.state_province || ''}, ${formData.address.country}`.replace(/,\s*,/g, ',').trim();
-        const location = await geocodeAddress(fullAddress);
+        // Prefer coords the user picked from autocomplete; else geocode the typed address.
+        const location = (formData.latitude && formData.longitude)
+          ? { lat: formData.latitude, lng: formData.longitude }
+          : await geocodeAddress(formData.address);
 
         // Unified identity: the practitioner listing id === the owner's user id.
         const owner = await User.me().catch(() => null);
@@ -170,9 +176,7 @@ export default function PractitionerApplicationForm({ onSuccess }) {
           longitude: location?.lng || null,
         };
 
-        console.log("Creating practitioner record...");
         const newPractitioner = await Practitioner.create(applicationData);
-        console.log("✅ Practitioner created successfully:", newPractitioner.id);
 
         // Try notifications and email, but don't fail if they don't work
         try {
@@ -197,12 +201,10 @@ export default function PractitionerApplicationForm({ onSuccess }) {
             subject: "We've Received Your KamboGuide Application",
             body: `<h1>Thank You, ${formData.full_name}!</h1><p>We have successfully received your practitioner application. Our team will review it within the next 5-7 business days. We'll notify you via email once your application has been processed.</p><p>The KamboGuide Team</p>`
           });
-          console.log("✅ Confirmation email sent");
         } catch (emailError) {
           console.warn("⚠️ Email failed (non-critical):", emailError.message);
         }
 
-        console.log("🎉 Application submitted successfully!");
         onSuccess();
         return true; // Indicate success
       } catch (err) {
@@ -220,7 +222,6 @@ export default function PractitionerApplicationForm({ onSuccess }) {
           setNetworkStatus('unstable');
           
           if (attempt < maxRetries) {
-            console.log(`⏳ Retrying in ${attempt * 2} seconds...`);
             setTimeout(() => attemptSubmission(), attempt * 2000); // Exponential backoff
             return false; // Indicate failure but might retry
           } else {
@@ -303,11 +304,17 @@ export default function PractitionerApplicationForm({ onSuccess }) {
             <div>
               <Label>Primary Location Address *</Label>
               <div className="space-y-2 p-3 bg-muted rounded-md border">
-                <Input 
-                  name="street" 
-                  value={formData.address.street} 
-                  onChange={handleAddressChange} 
-                  placeholder="Street Address" 
+                <AddressAutocomplete
+                  value={formData.address.street ? `${formData.address.street}, ${formData.address.city || ""}` : ""}
+                  onSelect={handleAddressResolved}
+                  placeholder="Search your address…"
+                />
+                <p className="text-xs text-muted-foreground">Search to auto-fill and pin your real location, or enter it manually below.</p>
+                <Input
+                  name="street"
+                  value={formData.address.street}
+                  onChange={handleAddressChange}
+                  placeholder="Street Address"
                   required
                   className={validationErrors.address_street ? "border-red-500" : ""}
                 />

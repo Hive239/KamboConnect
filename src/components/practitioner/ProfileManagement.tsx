@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Practitioner } from "@/entities/Practitioner";
 import { UploadFile } from "@/integrations/Core";
+import { geocodeToLatLng } from "@/lib/geocode";
+import AddressAutocomplete from "@/components/AddressAutocomplete";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +30,9 @@ export default function ProfileManagement({ practitioner, user, onUpdate }) {
     languages: practitioner.languages || ["English"],
     safety_protocols: practitioner.safety_protocols || "",
     training_background: practitioner.training_background || "",
+    lineage: practitioner.lineage || "",
+    tradition: practitioner.tradition || [],
+    disclosed_teachers: practitioner.disclosed_teachers || "",
     why_practitioner: practitioner.why_practitioner || "",
     profile_image_url: practitioner.profile_image_url || "",
     image_urls: practitioner.image_urls || []
@@ -41,18 +46,15 @@ export default function ProfileManagement({ practitioner, user, onUpdate }) {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    console.log("Uploading profile image:", file.name);
     setIsUploading(true);
     try {
       const { file_url } = await UploadFile({ file });
-      console.log("Upload successful, URL:", file_url);
       
       // Update local state
       setProfileData(prev => ({ ...prev, profile_image_url: file_url }));
       
       // Save to database immediately
       await Practitioner.update(practitioner.id, { profile_image_url: file_url });
-      console.log("Profile image saved to database");
       
       // Refresh parent component
       onUpdate();
@@ -70,11 +72,9 @@ export default function ProfileManagement({ practitioner, user, onUpdate }) {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    console.log("Uploading gallery image:", file.name);
     setIsUploading(true);
     try {
       const { file_url } = await UploadFile({ file });
-      console.log("Upload successful, URL:", file_url);
       
       // Update local state
       const newImageUrls = [...profileData.image_urls, file_url];
@@ -82,7 +82,6 @@ export default function ProfileManagement({ practitioner, user, onUpdate }) {
       
       // Save to database immediately
       await Practitioner.update(practitioner.id, { image_urls: newImageUrls });
-      console.log("Gallery image saved to database");
       
       // Refresh parent component
       onUpdate();
@@ -105,7 +104,6 @@ export default function ProfileManagement({ practitioner, user, onUpdate }) {
       
       // Save to database immediately
       await Practitioner.update(practitioner.id, { image_urls: updatedUrls });
-      console.log("Gallery image removed from database");
       
       // Refresh parent component
       onUpdate();
@@ -153,6 +151,21 @@ export default function ProfileManagement({ practitioner, user, onUpdate }) {
     }
   };
 
+  const handleAddressResolved = (addr) => {
+    setProfileData(prev => ({
+      ...prev,
+      address: {
+        street: addr.street || prev.address.street || "",
+        city: addr.city || "",
+        state_province: addr.state_province || "",
+        postal_code: addr.postal_code || "",
+        country: addr.country || "",
+      },
+      latitude: addr.latitude ?? prev.latitude,
+      longitude: addr.longitude ?? prev.longitude,
+    }));
+  };
+
   const handleAddressChange = (e) => {
     const { name, value } = e.target;
     setProfileData(prev => ({
@@ -167,7 +180,11 @@ export default function ProfileManagement({ practitioner, user, onUpdate }) {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      await Practitioner.update(practitioner.id, profileData);
+      // Use coords picked from autocomplete; else geocode the typed address.
+      const geo = (profileData.latitude && profileData.longitude)
+        ? { latitude: profileData.latitude, longitude: profileData.longitude }
+        : await geocodeToLatLng(profileData.address);
+      await Practitioner.update(practitioner.id, { ...profileData, ...geo });
       onUpdate();
     } catch (error) {
       console.error("Failed to save profile:", error);
@@ -339,6 +356,11 @@ export default function ProfileManagement({ practitioner, user, onUpdate }) {
               <div>
                   <Label>Full Address</Label>
                   <div className="space-y-2">
+                      <AddressAutocomplete
+                        value={profileData.address.street || ""}
+                        onSelect={handleAddressResolved}
+                        placeholder="Search your address…"
+                      />
                       <Input name="street" value={profileData.address.street || ""} onChange={handleAddressChange} placeholder="Street Address" />
                       <div className="grid md:grid-cols-2 gap-4">
                            <Input name="city" value={profileData.address.city || ""} onChange={handleAddressChange} placeholder="City" />
@@ -482,6 +504,37 @@ export default function ProfileManagement({ practitioner, user, onUpdate }) {
                   onChange={(e) => setProfileData(prev => ({...prev, training_background: e.target.value}))}
                   rows={3}
                   placeholder="Describe your training, certifications, and learning path..."
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="tradition">Tradition / Lineage tags</Label>
+                <Input
+                  id="tradition"
+                  value={(profileData.tradition || []).join(", ")}
+                  onChange={(e) => setProfileData(prev => ({ ...prev, tradition: e.target.value.split(",").map(s => s.trim()).filter(Boolean) }))}
+                  placeholder="e.g. Matsés, Katukina, IAKP (comma-separated)"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="lineage">Lineage narrative</Label>
+                <Textarea
+                  id="lineage"
+                  value={profileData.lineage}
+                  onChange={(e) => setProfileData(prev => ({ ...prev, lineage: e.target.value }))}
+                  rows={3}
+                  placeholder="Describe the lineage you carry and how you were initiated..."
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="teachers">Teachers &amp; mentors</Label>
+                <Input
+                  id="teachers"
+                  value={profileData.disclosed_teachers}
+                  onChange={(e) => setProfileData(prev => ({ ...prev, disclosed_teachers: e.target.value }))}
+                  placeholder="Named teachers/mentors, for transparency"
                 />
               </div>
 

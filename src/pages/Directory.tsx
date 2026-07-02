@@ -236,8 +236,8 @@ export default function Directory() {
   };
 
   const handleMapPractitionersUpdate = (practitioners) => {
-    // This function can be used if we want the map to filter the main list,
-    // but for now we'll keep them separate.
+    // "Search this area" → narrow the map to practitioners within the viewport.
+    setMapPractitioners(practitioners || []);
   };
 
   // Updated handler for clicking a practitioner to open the modal
@@ -526,11 +526,19 @@ export default function Directory() {
               )}
             </div>
           ) : (
-            <MapView 
-              practitioners={filteredPractitioners}
-              onPractitionerSelect={(practitioner) => handlePractitionerClick(practitioner, true)}
-              onMapPractitionersUpdate={handleMapPractitionersUpdate}
-            />
+            <div className="relative">
+              {mapPractitioners.length > 0 && (
+                <div className="absolute bottom-3 left-1/2 z-[1000] flex -translate-x-1/2 items-center gap-2 rounded-full border border-border bg-card/95 px-3.5 py-1.5 text-sm shadow-md backdrop-blur">
+                  <span className="font-medium">{mapPractitioners.length} in this area</span>
+                  <button onClick={() => setMapPractitioners([])} className="font-medium text-primary hover:underline">Clear</button>
+                </div>
+              )}
+              <MapView
+                practitioners={mapPractitioners.length ? mapPractitioners : filteredPractitioners}
+                onPractitionerSelect={(practitioner) => handlePractitionerClick(practitioner, true)}
+                onMapPractitionersUpdate={handleMapPractitionersUpdate}
+              />
+            </div>
           )}
         </div>
       </div>

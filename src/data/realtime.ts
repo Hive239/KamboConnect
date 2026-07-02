@@ -13,6 +13,10 @@ const TABLE_TO_ENTITY: Record<string, EntityName> = {
   feed_items: 'FeedItem',
   conversations: 'Conversation',
   follows: 'Follow', // FeedView listens for Follow changes to refresh the "Following" feed
+  journal_entries: 'JournalEntry',
+  reactions: 'Reaction', // likes propagate across tabs/devices
+  group_memberships: 'GroupMembership', // join requests / approvals live-update
+  event_registrations: 'EventRegistration', // capacity counts live-update
 };
 
 let started = false;

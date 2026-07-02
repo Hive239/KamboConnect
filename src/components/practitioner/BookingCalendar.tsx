@@ -1,7 +1,8 @@
 
 import React, { useState } from 'react';
-import { Booking, Message, Conversation } from "@/entities/all";
+import { Booking, Message, Conversation, ConsentRecord } from "@/entities/all";
 import { SendEmail } from "@/integrations/Core";
+import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -28,7 +29,18 @@ export default function BookingCalendar({ bookings, practitioner, onUpdate }) {
   const updateBookingStatus = async (bookingId, status) => {
     setIsUpdating(true);
     try {
+      // Safety gate: never confirm a session until the consent waiver is signed
+      // (parity with PractitionerBookingsView).
+      if (status === 'confirmed') {
+        const consent = await ConsentRecord.filter({ booking_id: bookingId }).catch(() => []);
+        if (!consent.some((c) => c.agreed)) {
+          toast.error("The client's consent waiver must be signed before you can confirm.");
+          setIsUpdating(false);
+          return;
+        }
+      }
       await Booking.update(bookingId, { status });
+      if (status === 'confirmed') { try { await Booking.update(bookingId, { waiver_signed: true }); } catch {} }
       const booking = bookings.find(b => b.id === bookingId);
 
       if (booking) {
@@ -123,6 +135,8 @@ export default function BookingCalendar({ bookings, practitioner, onUpdate }) {
       confirmed: "bg-primary/10 text-primary border-primary/20",
       declined: "bg-red-100 text-red-800 border-red-200",
       completed: "bg-blue-100 text-blue-800 border-blue-200",
+      cancelled: "bg-muted text-foreground border-border",
+      no_show: "bg-orange-100 text-orange-800 border-orange-200",
     };
     return colors[status] || colors.pending;
   };

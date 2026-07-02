@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { toast } from "sonner";
 import { User } from "@/entities/User";
 import { Post } from "@/entities/Post";
 import ReactQuill from 'react-quill';
@@ -38,8 +39,8 @@ export default function NewPost() {
     e.preventDefault();
     if (!title.trim() || !content.trim() || !user) return;
     // Length caps — prevent multi-MB payloads (storage/render abuse).
-    if (title.length > 200) { alert("Title must be 200 characters or fewer."); return; }
-    if (content.length > 20000) { alert("Post is too long (20,000 character limit)."); return; }
+    if (title.length > 200) { toast.error("Title must be 200 characters or fewer."); return; }
+    if (content.length > 20000) { toast.error("Post is too long (20,000 character limit)."); return; }
 
     setIsSubmitting(true);
     try {
@@ -56,10 +57,11 @@ export default function NewPost() {
         verb: "posted", object_type: "post", object_id: newPost.id,
         summary: title, action_url: `/Post?id=${newPost.id}`,
       });
+      toast.success("Post published");
       navigate(createPageUrl(`Post?id=${newPost.id}`));
     } catch (error) {
       console.error("Failed to create post:", error);
-      // Handle error, e.g., show a toast message
+      toast.error("Couldn't publish. Please try again.");
     } finally {
       setIsSubmitting(false);
     }

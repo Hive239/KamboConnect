@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Event, EventRegistration, Practitioner, User } from "@/entities/all";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import AddToCalendar from "@/components/AddToCalendar";
 import { toast } from "sonner";
 import { submitRegistration, cancelAndPromote } from "@/lib/eventRegistration";
@@ -199,7 +200,12 @@ export default function Events() {
               {myRegistrations.map((r) => (
                 <div key={r.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-muted/60 px-4 py-3">
                   <div>
-                    <p className="font-medium text-foreground">{r.event.title}</p>
+                    <p className="flex items-center gap-2 font-medium text-foreground">
+                      {r.event.title}
+                      {r.registration_status === "waitlist"
+                        ? <Badge variant="secondary" className="text-[10px]">Waitlist</Badge>
+                        : <Badge variant="verified" className="text-[10px]">Confirmed</Badge>}
+                    </p>
                     <p className="text-sm text-muted-foreground">
                       {r.event.start_date ? format(new Date(r.event.start_date), "EEE, MMM d, yyyy · h:mm a") : ""}
                       {r.event.is_online ? " · Online" : r.event.location ? ` · ${r.event.location}` : ""}

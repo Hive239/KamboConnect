@@ -70,7 +70,14 @@ export default function GroupDetail() {
     setBusy(true);
     try {
       if (myMembership) {
-        // Leave (or cancel a pending request).
+        // An owner can't just leave — they'd orphan the group.
+        if (myMembership.role === "owner") {
+          toast.error("As the owner you can't leave. Transfer ownership or delete the group first.");
+          setBusy(false);
+          return;
+        }
+        const verb = isPending ? "Cancel your request to join" : "Leave";
+        if (!window.confirm(`${verb} "${group.name}"?`)) { setBusy(false); return; }
         await GroupMembership.delete(myMembership.id);
         if (isActiveMember) await Group.update(group.id, { member_count: Math.max(0, (group.member_count || 1) - 1) });
         setMembershipId(null);
@@ -128,6 +135,12 @@ export default function GroupDetail() {
   };
 
   if (loading) return <div className="flex h-[60vh] items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+  if (!group) return (
+    <div className="mx-auto max-w-3xl p-6 text-center text-muted-foreground">
+      <p>This group couldn't be loaded.</p>
+      <Button variant="outline" className="mt-4" onClick={() => navigate(createPageUrl("Community"))}>Back to Community</Button>
+    </div>
+  );
 
   const joined = !!membershipId;
 

@@ -35,3 +35,5 @@ export { ConsultationNote } from './ConsultationNote';
 export { ClientDocument } from './ClientDocument';
 export { ActivityEvent } from './ActivityEvent';
 export { Reaction } from './Reaction';
+export { JournalEntry } from './JournalEntry';
+export { PushSubscription } from './PushSubscription';

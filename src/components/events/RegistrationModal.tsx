@@ -61,7 +61,7 @@ export default function RegistrationModal({ event, onClose, onSubmitRegistration
             message: `You are now registered for "${event.title}".`,
             type: 'event',
             related_id: event.id,
-            action_url: createPageUrl("Bookings") // Or an event-specific page
+            action_url: `${createPageUrl("EventDetail")}?id=${event.id}`
         });
       }
 
