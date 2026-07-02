@@ -213,7 +213,15 @@ export default function NotificationCenter() {
                   {getNotificationIcon(notification.type)}
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm text-foreground">{notification.message}</p>
+                  {notification.title && (
+                    <p className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                      {(notification.priority === "urgent" || notification.priority === "high") && (
+                        <span className={`inline-block h-2 w-2 shrink-0 rounded-full ${notification.priority === "urgent" ? "bg-destructive" : "bg-warning"}`} />
+                      )}
+                      {notification.title}
+                    </p>
+                  )}
+                  <p className="text-sm text-muted-foreground">{notification.message}</p>
                   <p className="text-xs text-muted-foreground mt-1">
                     {formatDistanceToNow(new Date(notification.created_date), { addSuffix: true })}
                   </p>

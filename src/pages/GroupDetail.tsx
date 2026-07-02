@@ -14,6 +14,9 @@ import { ArrowLeft, UsersThree, Lock, Loader2, Check, Plus } from "@/lib/icons";
 import { formatDate } from "@/lib/format";
 import { useSeo } from "@/lib/useSeo";
 import PageBreadcrumbs from "@/components/PageBreadcrumbs";
+import ShareButton from "@/components/ShareButton";
+import ReactionButton from "@/components/social/ReactionButton";
+import { loadReactions } from "@/lib/reactions";
 
 /** Group detail — members + group-scoped discussions (Post.group_id). Completes #13. */
 export default function GroupDetail() {
@@ -164,12 +167,15 @@ export default function GroupDetail() {
               <p className="mt-1 text-muted-foreground">{group.description}</p>
               <span className="mt-2 inline-flex items-center gap-1.5 text-sm text-muted-foreground"><UsersThree className="h-4 w-4" weight="duotone" /> {group.member_count || members.length} members</span>
             </div>
-            <Button variant={myMembership ? "outline" : "default"} disabled={busy} onClick={toggleJoin} className="gap-1.5">
-              {isActiveMember ? <><Check className="h-4 w-4" weight="bold" /> Joined</>
-                : isPending ? <>Requested</>
-                : isPrivate ? <><Lock className="h-4 w-4" weight="bold" /> Request to join</>
-                : <><Plus className="h-4 w-4" weight="bold" /> Join</>}
-            </Button>
+            <div className="flex items-center gap-2">
+              {!isPrivate && <ShareButton title={group.name} />}
+              <Button variant={myMembership ? "outline" : "default"} disabled={busy} onClick={toggleJoin} className="gap-1.5">
+                {isActiveMember ? <><Check className="h-4 w-4" weight="bold" /> Joined</>
+                  : isPending ? <>Requested</>
+                  : isPrivate ? <><Lock className="h-4 w-4" weight="bold" /> Request to join</>
+                  : <><Plus className="h-4 w-4" weight="bold" /> Join</>}
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -247,8 +253,13 @@ export default function GroupDetail() {
         <div className="rounded-xl border border-dashed border-border py-12 text-center text-muted-foreground">No posts yet. {isActiveMember ? "Be the first!" : "Join to start a discussion."}</div>
       ) : (
         <div className="space-y-3">
-          {posts.map((p) => (
-            <Card key={p.id} className="cursor-pointer hover:shadow-sm transition-shadow" onClick={() => navigate(createPageUrl(`Post?id=${p.id}`))}>
+          {posts.map((p) => {
+            const open = () => navigate(createPageUrl(`Post?id=${p.id}`));
+            return (
+            <Card key={p.id} role="button" tabIndex={0} aria-label={`Open ${p.title}`}
+              className="cursor-pointer hover:shadow-sm transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              onClick={open}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } }}>
               <CardContent className="p-4">
                 <div className="flex items-center gap-2">
                   <Avatar className="h-7 w-7"><AvatarFallback>{(p.author_name || "?")[0]}</AvatarFallback></Avatar>
@@ -257,9 +268,13 @@ export default function GroupDetail() {
                 </div>
                 <h3 className="mt-2 font-semibold">{p.title}</h3>
                 <p className="line-clamp-2 text-sm text-muted-foreground">{p.content}</p>
+                <div className="mt-2" onClick={(e) => e.stopPropagation()}>
+                  <ReactionButton targetType="post" targetId={p.id} count={postReactions.counts[p.id] || 0} liked={postReactions.mine.has(p.id)} />
+                </div>
               </CardContent>
             </Card>
-          ))}
+            );
+          })}
         </div>
       )}
       </>

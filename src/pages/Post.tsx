@@ -16,6 +16,7 @@ import { parseMentions } from "@/lib/mentions";
 import { Badge } from "@/components/ui/badge";
 import ReportButton from "@/components/profile/ReportButton";
 import ReactionButton from "@/components/social/ReactionButton";
+import ShareButton from "@/components/ShareButton";
 import { format } from "date-fns";
 import 'react-quill/dist/quill.snow.css';
 
@@ -306,7 +307,10 @@ export default function PostPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-3xl">{post.title}</CardTitle>
+            <div className="flex items-start justify-between gap-3">
+              <CardTitle className="text-3xl">{post.title}</CardTitle>
+              <ShareButton title={post.title} />
+            </div>
             <div className="flex items-center gap-3 text-sm text-muted-foreground mt-2">
               <Avatar className="h-8 w-8">
                 <AvatarFallback>{post.author_name.charAt(0)}</AvatarFallback>

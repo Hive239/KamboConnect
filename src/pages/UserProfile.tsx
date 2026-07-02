@@ -12,6 +12,7 @@ import { format } from "date-fns";
 import FollowButton from "@/components/social/FollowButton";
 import ReportButton from "@/components/profile/ReportButton";
 import PageBreadcrumbs from "@/components/PageBreadcrumbs";
+import ShareButton from "@/components/ShareButton";
 
 /**
  * Public profile for a community member (non-practitioner user). Shows identity,
@@ -94,15 +95,23 @@ export default function UserProfile() {
               Member since {user.created_date ? format(new Date(user.created_date), "MMMM yyyy") : "—"} · {posts.length} posts · {replyCount} replies
             </p>
           </div>
-          {!isSelf && (
-            <div className="flex flex-col gap-2">
-              <FollowButton followeeId={user.id} followeeType="user" followeeName={user.full_name} followeeImage={user.profile_image_url} size="default" />
-              <Button variant="outline" size="sm" onClick={messageUser} className="gap-1.5">
-                <MessageSquare className="h-4 w-4" /> Message
-              </Button>
-              <ReportButton itemType="user" itemId={user.id} itemTitle={user.full_name || "this member"} />
-            </div>
-          )}
+          <div className="flex flex-col gap-2">
+            {!isSelf ? (
+              <>
+                <FollowButton followeeId={user.id} followeeType="user" followeeName={user.full_name} followeeImage={user.profile_image_url} size="default" />
+                <Button variant="outline" size="sm" onClick={messageUser} className="gap-1.5">
+                  <MessageSquare className="h-4 w-4" /> Message
+                </Button>
+                <ShareButton title={user.full_name} />
+                <ReportButton itemType="user" itemId={user.id} itemTitle={user.full_name || "this member"} />
+              </>
+            ) : (
+              <>
+                <Button variant="outline" size="sm" asChild><Link to={createPageUrl("MyAccount")}>Edit profile</Link></Button>
+                <ShareButton title={user.full_name} />
+              </>
+            )}
+          </div>
         </CardContent>
       </Card>
 

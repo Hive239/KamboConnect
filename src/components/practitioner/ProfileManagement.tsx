@@ -26,6 +26,7 @@ export default function ProfileManagement({ practitioner, user, onUpdate }) {
     years_experience: practitioner.years_experience || 0,
     pricing_range: practitioner.pricing_range || "$",
     website_url: practitioner.website_url || "",
+    is_online: practitioner.is_online || false,
     specializations: practitioner.specializations || [],
     languages: practitioner.languages || ["English"],
     safety_protocols: practitioner.safety_protocols || "",
@@ -378,6 +379,15 @@ export default function ProfileManagement({ practitioner, user, onUpdate }) {
                   onChange={(e) => setProfileData(prev => ({...prev, website_url: e.target.value}))}
                   placeholder="https://yourwebsite.com"
                 />
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="is_online"
+                  checked={profileData.is_online}
+                  onChange={(e) => setProfileData(prev => ({ ...prev, is_online: e.target.checked }))}
+                />
+                <Label htmlFor="is_online">I offer online / remote sessions</Label>
               </div>
             </CardContent>
           </Card>
