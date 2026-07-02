@@ -30,14 +30,14 @@ export default function ApplicationSuccess({ practitioner }) {
       <Card>
         <CardContent className="p-6">
           <h2 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
-            <Clock className="w-5 h-5 text-blue-600" />
+            <Clock className="w-5 h-5 text-info" />
             What Happens Next?
           </h2>
           
           <div className="space-y-4">
             <div className="flex gap-4">
               <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="text-sm font-semibold text-blue-600">1</span>
+                <span className="text-sm font-semibold text-info">1</span>
               </div>
               <div>
                 <h3 className="font-medium text-foreground">Initial Review (1-2 days)</h3>
@@ -47,7 +47,7 @@ export default function ApplicationSuccess({ practitioner }) {
 
             <div className="flex gap-4">
               <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="text-sm font-semibold text-blue-600">2</span>
+                <span className="text-sm font-semibold text-info">2</span>
               </div>
               <div>
                 <h3 className="font-medium text-foreground">Verification Process (2-3 days)</h3>
@@ -57,7 +57,7 @@ export default function ApplicationSuccess({ practitioner }) {
 
             <div className="flex gap-4">
               <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="text-sm font-semibold text-blue-600">3</span>
+                <span className="text-sm font-semibold text-info">3</span>
               </div>
               <div>
                 <h3 className="font-medium text-foreground">Final Approval & Activation</h3>

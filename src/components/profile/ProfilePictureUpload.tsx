@@ -135,7 +135,7 @@ export default function ProfilePictureUpload({ user, onUpdate }) {
 
       {/* Error display */}
       {error && (
-        <Alert className="mt-4 border-red-200 bg-red-50">
+        <Alert className="mt-4 border-destructive/20 bg-red-50">
           <X className="h-4 w-4 text-red-700" />
           <AlertDescription className="text-red-800">
             {error}
@@ -164,7 +164,7 @@ export default function ProfilePictureUpload({ user, onUpdate }) {
             </p>
 
             {error && (
-              <Alert className="border-red-200 bg-red-50">
+              <Alert className="border-destructive/20 bg-red-50">
                 <X className="h-4 w-4 text-red-700" />
                 <AlertDescription className="text-red-800">
                   {error}

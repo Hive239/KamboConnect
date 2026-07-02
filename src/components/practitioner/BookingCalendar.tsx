@@ -131,12 +131,12 @@ export default function BookingCalendar({ bookings, practitioner, onUpdate }) {
 
   const getStatusColor = (status) => {
     const colors = {
-      pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
+      pending: "bg-warning/10 text-warning border-warning/20",
       confirmed: "bg-primary/10 text-primary border-primary/20",
-      declined: "bg-red-100 text-red-800 border-red-200",
-      completed: "bg-blue-100 text-blue-800 border-blue-200",
+      declined: "bg-destructive/10 text-destructive border-destructive/20",
+      completed: "bg-info/10 text-info border-info/20",
       cancelled: "bg-muted text-foreground border-border",
-      no_show: "bg-orange-100 text-orange-800 border-orange-200",
+      no_show: "bg-warning/10 text-warning border-warning/20",
     };
     return colors[status] || colors.pending;
   };
@@ -221,9 +221,9 @@ export default function BookingCalendar({ bookings, practitioner, onUpdate }) {
                         key={booking.id}
                         className={`text-xs p-1 rounded text-white cursor-pointer truncate ${
                           booking.status === 'confirmed' ? 'bg-primary hover:bg-primary/90' :
-                          booking.status === 'pending' ? 'bg-yellow-500 hover:bg-yellow-600' :
-                          booking.status === 'declined' ? 'bg-red-500 hover:bg-red-600' :
-                          'bg-blue-500 hover:bg-blue-600'
+                          booking.status === 'pending' ? 'bg-warning hover:bg-yellow-600' :
+                          booking.status === 'declined' ? 'bg-destructive hover:bg-red-600' :
+                          'bg-info hover:bg-blue-600'
                         }`}
                         title={`${booking.client_name} - ${booking.service_type} - ${booking.status}`}
                         onClick={() => setSelectedBooking(booking)}

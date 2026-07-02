@@ -3,7 +3,7 @@ import { computePlatformAnalytics, TIER_PRICES, type PlatformAnalytics as PA } f
 import { formatCurrency } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatCard } from "@/components/ui/StatCard";
-import { AreaChartGlow } from "@/components/ui/charts";
+import { AreaChartGlow, GLASS_TOOLTIP } from "@/components/ui/charts";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import GeoMap from "./GeoMap";
@@ -81,12 +81,16 @@ export default function PlatformAnalytics() {
             <CardContent>
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={a.revenue.byMonth}>
+                  <defs>
+                    <linearGradient id="rev-clay" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="hsl(var(--clay))" stopOpacity={0.95} /><stop offset="100%" stopColor="hsl(var(--clay))" stopOpacity={0.5} /></linearGradient>
+                    <linearGradient id="rev-primary" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.95} /><stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0.5} /></linearGradient>
+                  </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                  <XAxis dataKey="month" tick={{ fontSize: 12 }} /><YAxis tick={{ fontSize: 12 }} />
-                  <RTooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }} />
+                  <XAxis dataKey="month" tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} /><YAxis tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                  <RTooltip contentStyle={GLASS_TOOLTIP} cursor={{ fill: "hsl(var(--muted) / 0.4)" }} />
                   <Legend />
-                  <Bar dataKey="sessions" stackId="r" name="Session fees" fill="hsl(var(--clay))" />
-                  <Bar dataKey="subscriptions" stackId="r" name="Subscriptions" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="sessions" stackId="r" name="Session fees" fill="url(#rev-clay)" />
+                  <Bar dataKey="subscriptions" stackId="r" name="Subscriptions" fill="url(#rev-primary)" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -99,7 +103,7 @@ export default function PlatformAnalytics() {
                   <Pie data={a.revenue.bySource} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
                     {a.revenue.bySource.map((_, i) => <Cell key={i} fill={PIE[i % PIE.length]} />)}
                   </Pie>
-                  <RTooltip formatter={(v: any) => formatCurrency(Number(v))} />
+                  <RTooltip formatter={(v: any) => formatCurrency(Number(v))} contentStyle={GLASS_TOOLTIP} />
                 </PieChart>
               </ResponsiveContainer>
             </CardContent>

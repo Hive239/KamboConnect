@@ -198,10 +198,10 @@ export default function EventManagement({ events, practitioner, onUpdate }) {
   const getEventTypeBadge = (type) => {
     const badges = {
       circle: { color: "bg-primary/10 text-primary", text: "Kambo Circle" },
-      workshop: { color: "bg-blue-100 text-blue-800", text: "Workshop" },
-      retreat: { color: "bg-purple-100 text-purple-800", text: "Retreat" },
-      meetup: { color: "bg-orange-100 text-orange-800", text: "Meetup" },
-      training: { color: "bg-red-100 text-red-800", text: "Training" }
+      workshop: { color: "bg-info/10 text-info", text: "Workshop" },
+      retreat: { color: "bg-clay/10 text-clay", text: "Retreat" },
+      meetup: { color: "bg-warning/10 text-warning", text: "Meetup" },
+      training: { color: "bg-destructive/10 text-destructive", text: "Training" }
     };
     return badges[type] || badges.circle;
   };
@@ -421,13 +421,13 @@ export default function EventManagement({ events, practitioner, onUpdate }) {
                         {badge.text}
                       </Badge>
                       {event.is_online && (
-                        <Badge className="bg-blue-100 text-blue-800 border-blue-200 flex items-center gap-1">
+                        <Badge className="bg-info/10 text-info border-info/20 flex items-center gap-1">
                           <Video className="w-3 h-3" />
                           Online
                         </Badge>
                       )}
                       {event.status === "draft" && (
-                        <Badge className="bg-amber-100 text-amber-800">Draft</Badge>
+                        <Badge className="bg-warning/10 text-warning">Draft</Badge>
                       )}
                       {event.status === "cancelled" && (
                         <Badge variant="destructive">Cancelled</Badge>
@@ -497,7 +497,7 @@ export default function EventManagement({ events, practitioner, onUpdate }) {
                     <Users className="w-4 h-4 text-muted-foreground" />
                     <span>{event.current_participants || 0}/{event.max_participants} spots</span>
                     {spotsLeft <= 2 && spotsLeft > 0 && (
-                      <Badge className="bg-orange-100 text-orange-800">
+                      <Badge className="bg-warning/10 text-warning">
                         {spotsLeft} left!
                       </Badge>
                     )}

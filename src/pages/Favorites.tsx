@@ -124,7 +124,7 @@ const FavoritePostCard = ({ favorite, onRemove }) => {
         <CardContent className="p-4">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <MessageSquare className="w-6 h-6 text-blue-600" />
+              <MessageSquare className="w-6 h-6 text-info" />
             </div>
             <div className="flex-1">
               <h3 className="font-semibold text-foreground line-clamp-2">{favorite.item_title}</h3>

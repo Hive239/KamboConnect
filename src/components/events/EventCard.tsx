@@ -140,7 +140,7 @@ export default function EventCard({ event, practitioner, onViewDetails, onRegist
                   <MapPin className="w-4 h-4" />
                   <span className="truncate flex-1">{event.location}</span>
                   {event.distance !== null && event.distance !== undefined && (
-                    <span className="text-blue-600 font-medium ml-auto">
+                    <span className="text-info font-medium ml-auto">
                       {formatDistance(event.distance)}
                     </span>
                   )}

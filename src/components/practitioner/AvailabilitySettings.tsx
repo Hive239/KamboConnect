@@ -299,7 +299,7 @@ export default function AvailabilitySettings({ practitioner, onUpdate }) {
             </Card>
             <Card>
               <CardContent className="p-4 text-center">
-                <div className="text-2xl font-bold text-blue-600">
+                <div className="text-2xl font-bold text-info">
                   {availability.filter(a => a.is_available).reduce((total, slot) => {
                     const start = new Date(`2000-01-01T${slot.start_time}`);
                     const end = new Date(`2000-01-01T${slot.end_time}`);

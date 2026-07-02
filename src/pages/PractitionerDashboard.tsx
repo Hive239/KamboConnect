@@ -6,6 +6,7 @@ import { User, Practitioner, Booking, Event, Message } from "@/entities/all";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatCard } from "@/components/ui/StatCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -218,7 +219,7 @@ export default function PractitionerDashboard() {
               <MessageSquare className="w-4 h-4" />
               <span className="hidden sm:inline">Messages</span>
               {unreadMessages > 0 && (
-                <Badge className="bg-red-500 text-white text-xs ml-1 px-1 py-0 min-w-[16px] h-4 rounded-full hidden sm:flex items-center justify-center">
+                <Badge className="bg-destructive text-white text-xs ml-1 px-1 py-0 min-w-[16px] h-4 rounded-full hidden sm:flex items-center justify-center">
                   {unreadMessages}
                 </Badge>
               )}
@@ -227,60 +228,10 @@ export default function PractitionerDashboard() {
 
           <TabsContent value="overview" className="py-6">
             {/* Quick Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-              <Card 
-                className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
-                onClick={() => setActiveTab("bookings")}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Pending Bookings</p>
-                      <p className="text-2xl font-bold text-foreground">{pendingBookings}</p>
-                      {pendingBookings > 0 && (
-                        <p className="text-xs text-primary mt-1">Click to review →</p>
-                      )}
-                    </div>
-                    <Calendar className="w-8 h-8 text-primary" />
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card 
-                className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
-                onClick={() => setActiveTab("messages")}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Unread Messages</p>
-                      <p className="text-2xl font-bold text-foreground">{unreadMessages}</p>
-                      {unreadMessages > 0 && (
-                        <p className="text-xs text-blue-600 mt-1">Click to view →</p>
-                      )}
-                    </div>
-                    <MessageSquare className="w-8 h-8 text-blue-600" />
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card 
-                className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
-                onClick={() => setActiveTab("events")}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Upcoming Events</p>
-                      <p className="text-2xl font-bold text-foreground">{upcomingEvents}</p>
-                      {upcomingEvents > 0 && (
-                        <p className="text-xs text-amber-600 mt-1">Click to manage →</p>
-                      )}
-                    </div>
-                    <CalendarDays className="w-8 h-8 text-amber-600" />
-                  </div>
-                </CardContent>
-              </Card>
+            <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <StatCard icon={Calendar} label="Pending Bookings" value={pendingBookings} color="primary" onClick={() => setActiveTab("bookings")} sub={pendingBookings > 0 ? "Click to review →" : undefined} />
+              <StatCard icon={MessageSquare} label="Unread Messages" value={unreadMessages} color="info" onClick={() => setActiveTab("messages")} sub={unreadMessages > 0 ? "Click to view →" : undefined} />
+              <StatCard icon={CalendarDays} label="Upcoming Events" value={upcomingEvents} color="warning" onClick={() => setActiveTab("events")} sub={upcomingEvents > 0 ? "Click to manage →" : undefined} />
             </div>
           </TabsContent>
 

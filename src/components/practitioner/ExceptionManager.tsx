@@ -92,9 +92,9 @@ export default function ExceptionManager({ practitioner, onUpdate }) {
 
   const getExceptionTypeColor = (exceptionType) => {
     const colors = {
-      override: "bg-blue-100 text-blue-800 border-blue-200",
+      override: "bg-info/10 text-info border-info/20",
       additional: "bg-primary/10 text-primary border-primary/20",
-      remove: "bg-red-100 text-red-800 border-red-200"
+      remove: "bg-destructive/10 text-destructive border-destructive/20"
     };
     return colors[exceptionType] || colors.override;
   };
@@ -140,7 +140,7 @@ export default function ExceptionManager({ practitioner, onUpdate }) {
         <CardContent>
           {/* Add New Exception Form */}
           {isAdding && (
-            <Card className="mb-6 border-blue-200 bg-blue-50">
+            <Card className="mb-6 border-info/20 bg-blue-50">
               <CardContent className="p-4">
                 <h4 className="font-semibold mb-4">Create Schedule Exception</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

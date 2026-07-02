@@ -7,6 +7,7 @@ import { computeReputation } from "@/lib/reputation";
 import { formatCurrency } from "@/lib/format";
 import { useSeo } from "@/lib/useSeo";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatCard } from "@/components/ui/StatCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Trophy, Star, Briefcase, DollarSign, Loader2 } from "@/lib/icons";
@@ -93,11 +94,8 @@ export default function Billing() {
 
       {/* Analytics */}
       <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {statCards.map((s) => (
-          <Card key={s.label}><CardContent className="flex items-center justify-between p-4">
-            <div><p className="text-sm text-muted-foreground">{s.label}</p><p className="text-2xl font-bold">{s.value}</p></div>
-            <s.icon className="h-6 w-6 text-primary" weight="duotone" />
-          </CardContent></Card>
+        {statCards.map((s, i) => (
+          <StatCard key={s.label} icon={s.icon} label={s.label} value={s.value} color={(["primary", "success", "warning", "info"] as const)[i % 4]} />
         ))}
       </div>
       <Card className="mb-8">

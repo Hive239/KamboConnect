@@ -25,11 +25,11 @@ const ApplicationCard = ({ application, onAction, onUpgrade }) => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
+      case 'pending': return 'bg-warning/10 text-warning';
       case 'basic': return 'bg-primary/10 text-primary';
-      case 'advanced': return 'bg-blue-100 text-blue-800';
-      case 'master': return 'bg-purple-100 text-purple-800';
-      case 'rejected': return 'bg-red-100 text-red-800';
+      case 'advanced': return 'bg-info/10 text-info';
+      case 'master': return 'bg-clay/10 text-clay';
+      case 'rejected': return 'bg-destructive/10 text-destructive';
       default: return 'bg-muted text-foreground';
     }
   };
@@ -76,6 +76,33 @@ const ApplicationCard = ({ application, onAction, onUpgrade }) => {
                 <p className="text-sm bg-muted p-3 rounded">{application.training_background}</p>
               </div>
 
+              {/* Vetting standard — certifier, volume, condition experience, references */}
+              <div className="rounded border border-amber-200 bg-amber-50 p-3 space-y-3">
+                <h4 className="font-medium text-amber-900">Screening & Vetting</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <span className="font-medium">Certified by:</span>{" "}
+                    {application.certified_by || <span className="text-muted-foreground italic">Not provided</span>}
+                  </div>
+                  <div>
+                    <span className="font-medium">Ceremonies performed:</span>{" "}
+                    {application.ceremonies_count ?? <span className="text-muted-foreground italic">Not provided</span>}
+                  </div>
+                </div>
+                <div className="text-sm">
+                  <span className="font-medium">Experience with medical conditions:</span>
+                  <p className="mt-1">{application.condition_experience || <span className="text-muted-foreground italic">Not provided</span>}</p>
+                </div>
+                <div className="text-sm">
+                  <span className="font-medium">Client references:</span>
+                  <p className="mt-1 whitespace-pre-line">
+                    {Array.isArray(application.client_references)
+                      ? application.client_references.join("\n")
+                      : (application.client_references || <span className="text-muted-foreground italic">Not provided</span>)}
+                  </p>
+                </div>
+              </div>
+
               <div>
                 <h4 className="font-medium mb-2">Safety Protocols:</h4>
                 <p className="text-sm bg-muted p-3 rounded">{application.safety_protocols}</p>
@@ -89,7 +116,7 @@ const ApplicationCard = ({ application, onAction, onUpgrade }) => {
                       <button
                         type="button"
                         onClick={() => openDoc(application.cpr_certification_url)}
-                        className="flex items-center gap-2 text-sm text-blue-600 hover:underline"
+                        className="flex items-center gap-2 text-sm text-info hover:underline"
                       >
                         <ExternalLink className="w-3 h-3" />
                         CPR Certification
@@ -99,7 +126,7 @@ const ApplicationCard = ({ application, onAction, onUpgrade }) => {
                       <button
                         type="button"
                         onClick={() => openDoc(application.kambo_certification_url)}
-                        className="flex items-center gap-2 text-sm text-blue-600 hover:underline"
+                        className="flex items-center gap-2 text-sm text-info hover:underline"
                       >
                         <ExternalLink className="w-3 h-3" />
                         Kambo Training Certificate
@@ -321,7 +348,7 @@ export default function VerificationManagement() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <ShieldCheck className="w-5 h-5 text-purple-600" />
+            <ShieldCheck className="w-5 h-5 text-clay" />
             Practitioner Verification
           </CardTitle>
         </CardHeader>

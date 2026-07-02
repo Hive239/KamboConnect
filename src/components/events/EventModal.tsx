@@ -23,10 +23,10 @@ export default function EventModal({ event, practitioner, onClose, onRegister })
   const getEventTypeBadge = (type) => {
     const badges = {
       circle: { color: "bg-primary/10 text-primary", text: "Kambo Circle" },
-      workshop: { color: "bg-blue-100 text-blue-800", text: "Workshop" },
-      retreat: { color: "bg-purple-100 text-purple-800", text: "Retreat" },
-      meetup: { color: "bg-orange-100 text-orange-800", text: "Meetup" },
-      training: { color: "bg-red-100 text-red-800", text: "Training" }
+      workshop: { color: "bg-info/10 text-info", text: "Workshop" },
+      retreat: { color: "bg-clay/10 text-clay", text: "Retreat" },
+      meetup: { color: "bg-warning/10 text-warning", text: "Meetup" },
+      training: { color: "bg-destructive/10 text-destructive", text: "Training" }
     };
     return badges[type] || badges.circle;
   };
@@ -68,7 +68,7 @@ export default function EventModal({ event, practitioner, onClose, onRegister })
                     {badge.text}
                   </Badge>
                   {event.is_online && (
-                    <Badge className="bg-blue-100 text-blue-800 border-blue-200 flex items-center gap-1">
+                    <Badge className="bg-info/10 text-info border-info/20 flex items-center gap-1">
                       <Video className="w-3 h-3" />
                       Online
                     </Badge>
@@ -190,7 +190,7 @@ export default function EventModal({ event, practitioner, onClose, onRegister })
                 disabled={isFull}
                 className={`px-8 ${
                   isFull
-                    ? "bg-gray-400 cursor-not-allowed"
+                    ? "bg-muted cursor-not-allowed"
                     : "bg-primary hover:bg-primary/90"
                 }`}
               >
@@ -215,7 +215,7 @@ export default function EventModal({ event, practitioner, onClose, onRegister })
           {event.requirements && event.requirements.length > 0 && (
             <div>
               <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5 text-amber-600" />
+                <AlertTriangle className="w-5 h-5 text-warning" />
                 Requirements
               </h3>
               <ul className="space-y-2">
@@ -245,7 +245,7 @@ export default function EventModal({ event, practitioner, onClose, onRegister })
           )}
 
           {isFull && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="bg-red-50 border border-destructive/20 rounded-lg p-4">
               <p className="text-red-800 font-medium">
                 This event is currently full. You can still register to join the waitlist.
               </p>

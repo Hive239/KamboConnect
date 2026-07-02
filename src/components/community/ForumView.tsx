@@ -27,7 +27,7 @@ const PostListItem = ({ post, practitionerIds, reactionCount, reactionLiked }) =
         <CardContent className="p-4 flex items-start gap-4">
             <div className="flex-1">
               {post.is_pinned && (
-                <div className="flex items-center gap-1.5 text-xs text-amber-600 font-medium mb-2">
+                <div className="flex items-center gap-1.5 text-xs text-warning font-medium mb-2">
                   <Pin className="w-3.5 h-3.5"/> Pinned Post
                 </div>
               )}

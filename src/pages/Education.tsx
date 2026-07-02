@@ -246,7 +246,7 @@ export default function Education() {
           </CardHeader>
           <CardContent>
             {/* Contraindications Warning */}
-            <div className="mb-8 p-6 bg-red-50 border border-red-200 rounded-lg">
+            <div className="mb-8 p-6 bg-red-50 border border-destructive/20 rounded-lg">
               <h3 className="text-xl font-bold text-red-700 mb-4 flex items-center gap-2">
                 Kambo Contraindications
               </h3>
@@ -266,15 +266,15 @@ export default function Education() {
                 <div className="grid md:grid-cols-2 gap-4">
                   <ul className="space-y-2 text-sm text-red-700">
                     <li className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
                       <span>Pregnancy (at any stage)</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
                       <span>Breastfeeding (until complete cessation)</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
                       <div>
                         <span className="font-semibold">Heart conditions, including:</span>
                         <ul className="ml-4 mt-1 space-y-1">
@@ -288,19 +288,19 @@ export default function Education() {
                       </div>
                     </li>
                     <li className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
                       <span>Aneurysms (or family history)</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
                       <span>Blood clots, thrombosis, or embolism history</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
                       <span>Stroke or brain hemorrhage (history of)</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
                       <div>
                         <span className="font-semibold">Severe or active psychiatric disorders:</span>
                         <ul className="ml-4 mt-1 space-y-1">
@@ -311,61 +311,61 @@ export default function Education() {
                       </div>
                     </li>
                     <li className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
                       <span>Organ transplant recipients</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
                       <span>Addison's Disease</span>
                     </li>
                   </ul>
                   <ul className="space-y-2 text-sm text-red-700">
                     <li className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
                       <span>Recent surgery (within 6–8 weeks)</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
                       <span>Recent COVID-19 vaccine (within the last 3 months)</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
                       <span>Chronic low blood pressure (hypotension) that is symptomatic</span>
                     </li>
                     <li className="flex items-start gap-2">
-                        <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                        <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
                         <span>High blood pressure – must be stable and well-controlled; monitor during session</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
                       <span>Active infection or illness (especially flu, COVID-19, or fever)</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
                       <span>Epilepsy or seizure disorders (unless well-managed with practitioner approval)</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
                       <span>Serious autoimmune conditions (e.g., Lupus, MS – use with great caution)</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
                       <span>Severe asthma or other chronic lung conditions</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
                       <span>Current chemotherapy or radiation treatment</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
                       <span>Severe liver or kidney impairment</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
                       <span>Use of recreational drugs, alcohol, or entactogens within the last 48–72 hours</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
                       <div>
                         <span className="font-semibold">Current psychiatric medications:</span>
                         <ul className="ml-4 mt-1 space-y-1">
@@ -386,7 +386,7 @@ export default function Education() {
                 <h4 className="text-lg font-bold text-orange-700 mb-3 flex items-center gap-2">
                   Relative Contraindications / Use With Caution
                 </h4>
-                <p className="text-sm text-orange-600 mb-4 italic">
+                <p className="text-sm text-warning mb-4 italic">
                   (Kambo may be used if the condition is managed and practitioner is experienced)
                 </p>
                 <ul className="space-y-2 text-sm text-orange-700 grid md:grid-cols-2 gap-4">
@@ -435,31 +435,31 @@ export default function Education() {
                 </p>
                 <ul className="space-y-2 text-sm text-yellow-700 grid md:grid-cols-2 gap-4">
                   <li className="flex items-start gap-2">
-                    <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <div className="w-2 h-2 bg-warning rounded-full mt-2 flex-shrink-0"></div>
                     <span>COVID-19 infection – wait minimum 6 weeks after full recovery</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <div className="w-2 h-2 bg-warning rounded-full mt-2 flex-shrink-0"></div>
                     <span>COVID-19 vaccine – wait at least 3 months post-vaccine to ensure no interaction with immune system</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <div className="w-2 h-2 bg-warning rounded-full mt-2 flex-shrink-0"></div>
                     <span>Fasting for more than 24 hours – can cause blood pressure drop</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <div className="w-2 h-2 bg-warning rounded-full mt-2 flex-shrink-0"></div>
                     <span>Recent use of Bufo (5-MeO-DMT) – wait 2–4 weeks minimum</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <div className="w-2 h-2 bg-warning rounded-full mt-2 flex-shrink-0"></div>
                     <span>Iboga/Ibogaine – wait at least 3 months</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <div className="w-2 h-2 bg-warning rounded-full mt-2 flex-shrink-0"></div>
                     <span>Ayahuasca/Yagé – wait at least 7–10 days</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <div className="w-2 h-2 bg-warning rounded-full mt-2 flex-shrink-0"></div>
                     <span>Intense emotional trauma or recent loss – practitioner discretion recommended</span>
                   </li>
                 </ul>
@@ -551,19 +551,19 @@ export default function Education() {
                   <span className="text-sm">Proper training and certification</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Badge variant="secondary" className="bg-blue-100 text-blue-800 border-blue-200">
+                  <Badge variant="secondary" className="bg-info/10 text-info border-info/20">
                     Important
                   </Badge>
                   <span className="text-sm">Years of experience with Kambo</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Badge variant="secondary" className="bg-purple-100 text-purple-800 border-purple-200">
+                  <Badge variant="secondary" className="bg-clay/10 text-clay border-clay/20">
                     Critical
                   </Badge>
                   <span className="text-sm">Clear safety protocols in place</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Badge variant="secondary" className="bg-orange-100 text-orange-800 border-orange-200">
+                  <Badge variant="secondary" className="bg-warning/10 text-warning border-warning/20">
                     Valuable
                   </Badge>
                   <span className="text-sm">Positive client testimonials</span>

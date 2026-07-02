@@ -129,7 +129,7 @@ export default function EventDetail() {
         <div>
           <div className="mb-1 flex items-center gap-2">
             <Badge variant="tier">{TYPE_LABEL[event.event_type] || "Event"}</Badge>
-            {event.is_online && <Badge className="gap-1 bg-blue-100 text-blue-800"><Globe className="h-3 w-3" /> Online</Badge>}
+            {event.is_online && <Badge className="gap-1 bg-info/10 text-info"><Globe className="h-3 w-3" /> Online</Badge>}
             {event.status === "cancelled" && <Badge variant="destructive">Cancelled</Badge>}
           </div>
           <h1 className="font-display text-3xl font-semibold text-foreground">{event.title}</h1>

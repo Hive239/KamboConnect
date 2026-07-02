@@ -137,7 +137,7 @@ export default function MessagingCenter({ messages, practitioner, bookings, onUp
                           <UserIcon className="w-4 h-4 text-muted-foreground" />
                           <span className="font-medium text-sm">{booking.client_name}</span>
                           {unreadCount > 0 && (
-                            <Badge className="bg-red-500 text-white text-xs">{unreadCount}</Badge>
+                            <Badge className="bg-destructive text-white text-xs">{unreadCount}</Badge>
                           )}
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">
@@ -213,7 +213,7 @@ export default function MessagingCenter({ messages, practitioner, bookings, onUp
                         <p className="text-sm">{message.content}</p>
                         {/* Only show unread indicator for messages sent by others to the practitioner */}
                         {!message.is_read && message.sender_id !== practitioner.id && (
-                          <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 ml-auto"></div>
+                          <div className="w-2 h-2 bg-info rounded-full mt-2 ml-auto"></div>
                         )}
                       </div>
                     </div>

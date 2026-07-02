@@ -194,7 +194,7 @@ export default function ContentModeration() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <MessageSquare className="w-5 h-5 text-blue-600" />
+            <MessageSquare className="w-5 h-5 text-info" />
             Content Moderation
           </CardTitle>
           <div className="relative">
@@ -259,7 +259,7 @@ export default function ContentModeration() {
                         Reported {format(new Date(report.created_date), 'MMM d, yyyy')}
                       </p>
                     </div>
-                    <Badge variant="outline" className="text-orange-600">
+                    <Badge variant="outline" className="text-warning">
                       Needs Review
                     </Badge>
                   </div>

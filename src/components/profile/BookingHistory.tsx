@@ -9,10 +9,10 @@ import { format } from "date-fns";
 import { Calendar, Briefcase } from "@/lib/icons";
 
 const statusColors = {
-  pending: "bg-yellow-100 text-yellow-800",
+  pending: "bg-warning/10 text-warning",
   confirmed: "bg-primary/10 text-primary",
-  declined: "bg-red-100 text-red-800",
-  completed: "bg-blue-100 text-blue-800",
+  declined: "bg-destructive/10 text-destructive",
+  completed: "bg-info/10 text-info",
 };
 
 export default function BookingHistory({ bookings }) {

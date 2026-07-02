@@ -47,7 +47,7 @@ const StatusInfo = ({ status }) => {
     pending: {
       icon: <Hourglass className="w-4 h-4 text-yellow-600" />,
       text: "Pending practitioner confirmation.",
-      badge: "bg-yellow-100 text-yellow-800 border-yellow-200",
+      badge: "bg-warning/10 text-warning border-warning/20",
     },
     confirmed: {
       icon: <Check className="w-4 h-4 text-primary" />,
@@ -57,7 +57,7 @@ const StatusInfo = ({ status }) => {
     declined: {
       icon: <X className="w-4 h-4 text-red-700" />,
       text: "This booking was declined by the practitioner.",
-      badge: "bg-red-100 text-red-800 border-red-200",
+      badge: "bg-destructive/10 text-destructive border-destructive/20",
     },
     cancelled: {
       icon: <X className="w-4 h-4 text-muted-foreground" />,
@@ -65,14 +65,14 @@ const StatusInfo = ({ status }) => {
       badge: "bg-muted text-foreground border-border",
     },
     completed: {
-      icon: <CalendarCheck2 className="w-4 h-4 text-blue-600" />,
+      icon: <CalendarCheck2 className="w-4 h-4 text-info" />,
       text: "This session has been completed.",
-      badge: "bg-blue-100 text-blue-800 border-blue-200",
+      badge: "bg-info/10 text-info border-info/20",
     },
     no_show: {
-      icon: <X className="w-4 h-4 text-orange-600" />,
+      icon: <X className="w-4 h-4 text-warning" />,
       text: "This session was marked as a no-show.",
-      badge: "bg-orange-100 text-orange-800 border-orange-200",
+      badge: "bg-warning/10 text-warning border-warning/20",
     },
   };
 
