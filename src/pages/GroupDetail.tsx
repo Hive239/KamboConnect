@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import { Group, GroupMembership, Post, User } from "@/entities/all";
+import { Group, GroupMembership, Post, User, Notification } from "@/entities/all";
+import { toast } from "sonner";
 import { useCurrentUser } from "@/lib/useCurrentUser";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent } from "@/components/ui/card";
@@ -54,19 +55,60 @@ export default function GroupDetail() {
   };
   useEffect(() => { load(); }, [groupId, me?.id]);
 
+  const myMembership = members.find((m: any) => m.user_id === me?.id);
+  const myStatus = myMembership ? (myMembership.status || "active") : null; // legacy rows → active
+  const isActiveMember = myStatus === "active";
+  const isPending = myStatus === "pending";
+  const isManager = me?.role === "admin" || myMembership?.role === "owner" || myMembership?.role === "moderator";
+  const isPrivate = !!group?.is_private;
+  const canViewContent = !isPrivate || isActiveMember || isManager;
+  const pendingRequests = members.filter((m: any) => m.status === "pending");
+  const activeMembers = members.filter((m: any) => (m.status || "active") === "active");
+
   const toggleJoin = async () => {
     if (!me) { await User.login(); return; }
     setBusy(true);
     try {
-      if (membershipId) {
-        await GroupMembership.delete(membershipId);
-        await Group.update(group.id, { member_count: Math.max(0, (group.member_count || 1) - 1) });
+      if (myMembership) {
+        // Leave (or cancel a pending request).
+        await GroupMembership.delete(myMembership.id);
+        if (isActiveMember) await Group.update(group.id, { member_count: Math.max(0, (group.member_count || 1) - 1) });
         setMembershipId(null);
+      } else if (isPrivate) {
+        // Request to join — pending until an owner/moderator approves.
+        await GroupMembership.create({ group_id: group.id, user_id: me.id, user_name: me.full_name, role: "member", status: "pending" });
+        if (group.created_by && group.created_by !== me.id) {
+          await Notification.create({ user_id: group.created_by, title: "New join request", message: `${me.full_name} asked to join "${group.name}".`, type: "community", related_id: group.id, action_url: createPageUrl(`GroupDetail?id=${group.id}`) }).catch(() => {});
+        }
+        toast.success("Request sent — you'll be notified when it's approved.");
       } else {
-        const rec = await GroupMembership.create({ group_id: group.id, user_id: me.id, user_name: me.full_name, role: "member" });
+        const rec = await GroupMembership.create({ group_id: group.id, user_id: me.id, user_name: me.full_name, role: "member", status: "active" });
         await Group.update(group.id, { member_count: (group.member_count || 0) + 1 });
         setMembershipId(rec.id);
       }
+      load();
+    } finally { setBusy(false); }
+  };
+
+  const approveRequest = async (m: any) => {
+    setBusy(true);
+    try {
+      await GroupMembership.update(m.id, { status: "active" });
+      await Group.update(group.id, { member_count: (group.member_count || 0) + 1 });
+      await Notification.create({ user_id: m.user_id, title: "Request approved", message: `You're now a member of "${group.name}".`, type: "community", related_id: group.id, action_url: createPageUrl(`GroupDetail?id=${group.id}`) }).catch(() => {});
+      load();
+    } finally { setBusy(false); }
+  };
+  const denyRequest = async (m: any) => {
+    setBusy(true);
+    try { await GroupMembership.delete(m.id); load(); } finally { setBusy(false); }
+  };
+  const removeMember = async (m: any) => {
+    if (!window.confirm(`Remove ${m.user_name || "this member"} from the group?`)) return;
+    setBusy(true);
+    try {
+      await GroupMembership.delete(m.id);
+      await Group.update(group.id, { member_count: Math.max(0, (group.member_count || 1) - 1) });
       load();
     } finally { setBusy(false); }
   };
@@ -109,14 +151,46 @@ export default function GroupDetail() {
               <p className="mt-1 text-muted-foreground">{group.description}</p>
               <span className="mt-2 inline-flex items-center gap-1.5 text-sm text-muted-foreground"><UsersThree className="h-4 w-4" weight="duotone" /> {group.member_count || members.length} members</span>
             </div>
-            <Button variant={joined ? "outline" : "default"} disabled={busy} onClick={toggleJoin} className="gap-1.5">
-              {joined ? <><Check className="h-4 w-4" weight="bold" /> Joined</> : <><Plus className="h-4 w-4" weight="bold" /> Join</>}
+            <Button variant={myMembership ? "outline" : "default"} disabled={busy} onClick={toggleJoin} className="gap-1.5">
+              {isActiveMember ? <><Check className="h-4 w-4" weight="bold" /> Joined</>
+                : isPending ? <>Requested</>
+                : isPrivate ? <><Lock className="h-4 w-4" weight="bold" /> Request to join</>
+                : <><Plus className="h-4 w-4" weight="bold" /> Join</>}
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      {joined && (
+      {/* Pending join requests — owner/moderator only. */}
+      {isManager && pendingRequests.length > 0 && (
+        <Card className="mb-6 border-amber-200">
+          <CardContent className="p-4">
+            <h2 className="mb-3 font-semibold">Pending requests ({pendingRequests.length})</h2>
+            <div className="space-y-2">
+              {pendingRequests.map((m: any) => (
+                <div key={m.id} className="flex items-center justify-between gap-3 rounded-lg bg-muted/50 px-3 py-2">
+                  <span className="text-sm font-medium">{m.user_name || "Member"}</span>
+                  <div className="flex gap-2">
+                    <Button size="sm" disabled={busy} onClick={() => approveRequest(m)}>Approve</Button>
+                    <Button size="sm" variant="outline" disabled={busy} onClick={() => denyRequest(m)}>Deny</Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {!canViewContent ? (
+        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-16 text-center">
+          <Lock className="h-10 w-10 text-muted-foreground/40" />
+          <h3 className="mt-3 text-lg font-semibold">This is a private group</h3>
+          <p className="mt-1 max-w-sm text-sm text-muted-foreground">{isPending ? "Your request is pending approval." : "Request to join to see discussions and members."}</p>
+          {!myMembership && <Button className="mt-4 gap-1.5" onClick={toggleJoin} disabled={busy}><Lock className="h-4 w-4" /> Request to join</Button>}
+        </div>
+      ) : (
+      <>
+      {isActiveMember && (
         <Card className="mb-6">
           <CardContent className="space-y-3 p-4">
             <h2 className="font-semibold">Start a discussion</h2>
@@ -129,16 +203,19 @@ export default function GroupDetail() {
         </Card>
       )}
 
-      {members.length > 0 && (
+      {activeMembers.length > 0 && (
         <div className="mb-6">
-          <h2 className="mb-3 font-semibold">Members ({group.member_count || members.length})</h2>
+          <h2 className="mb-3 font-semibold">Members ({group.member_count || activeMembers.length})</h2>
           <div className="flex flex-wrap gap-2">
-            {members.slice(0, 24).map((m: any) => {
+            {activeMembers.slice(0, 24).map((m: any) => {
               const inner = (
                 <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-sm">
                   <Avatar className="h-6 w-6"><AvatarFallback className="text-xs">{(m.user_name || "?")[0]}</AvatarFallback></Avatar>
                   <span className="text-foreground">{m.user_name || "Member"}</span>
                   {m.role && m.role !== "member" && <Badge variant="secondary" className="capitalize text-[10px]">{m.role}</Badge>}
+                  {isManager && m.user_id !== me?.id && m.role !== "owner" && (
+                    <button onClick={(e) => { e.preventDefault(); removeMember(m); }} aria-label={`Remove ${m.user_name}`} className="text-muted-foreground hover:text-destructive">✕</button>
+                  )}
                 </span>
               );
               return m.user_id ? (
@@ -147,14 +224,14 @@ export default function GroupDetail() {
                 <span key={m.id}>{inner}</span>
               );
             })}
-            {members.length > 24 && <span className="self-center text-sm text-muted-foreground">+{members.length - 24} more</span>}
+            {activeMembers.length > 24 && <span className="self-center text-sm text-muted-foreground">+{activeMembers.length - 24} more</span>}
           </div>
         </div>
       )}
 
       <h2 className="mb-3 font-semibold">Discussions ({posts.length})</h2>
       {posts.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-border py-12 text-center text-muted-foreground">No posts yet. {joined ? "Be the first!" : "Join to start a discussion."}</div>
+        <div className="rounded-xl border border-dashed border-border py-12 text-center text-muted-foreground">No posts yet. {isActiveMember ? "Be the first!" : "Join to start a discussion."}</div>
       ) : (
         <div className="space-y-3">
           {posts.map((p) => (
@@ -171,6 +248,8 @@ export default function GroupDetail() {
             </Card>
           ))}
         </div>
+      )}
+      </>
       )}
     </div>
   );

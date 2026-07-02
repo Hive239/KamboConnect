@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Group, GroupMembership, User } from "@/entities/all";
+import { Group, GroupMembership, User, Notification } from "@/entities/all";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -74,8 +74,16 @@ export default function GroupsView() {
         setMemberships((m) => { const n = { ...m }; delete n[g.id]; return n; });
         setGroups((gs) => gs.map((x) => (x.id === g.id ? { ...x, member_count: Math.max(0, (x.member_count || 1) - 1) } : x)));
         toast.success(`Left ${g.name}`);
+      } else if (g.is_private) {
+        // Private group → request to join (pending until approved); no count bump, no feed.
+        const rec = await GroupMembership.create({ group_id: g.id, user_id: me.id, user_name: me.full_name, role: "member", status: "pending" });
+        if (g.created_by && g.created_by !== me.id) {
+          await Notification.create({ user_id: g.created_by, title: "New join request", message: `${me.full_name} asked to join "${g.name}".`, type: "community", related_id: g.id, action_url: `/GroupDetail?id=${g.id}` }).catch(() => {});
+        }
+        setMemberships((m) => ({ ...m, [g.id]: rec.id }));
+        toast.success("Request sent — you'll be notified when it's approved.");
       } else {
-        const rec = await GroupMembership.create({ group_id: g.id, user_id: me.id, user_name: me.full_name, role: "member" });
+        const rec = await GroupMembership.create({ group_id: g.id, user_id: me.id, user_name: me.full_name, role: "member", status: "active" });
         await Group.update(g.id, { member_count: (g.member_count || 0) + 1 });
         emitFeed({ actor_id: me.id, actor_name: me.full_name, actor_image_url: me.profile_image_url, verb: "joined_group", object_type: "group", object_id: g.id, summary: g.name, action_url: `/GroupDetail?id=${g.id}` });
         setMemberships((m) => ({ ...m, [g.id]: rec.id }));
@@ -174,7 +182,7 @@ export default function GroupsView() {
               <div className="mt-3 flex items-center justify-between">
                 <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><UsersThree className="h-4 w-4" weight="duotone" /> {g.member_count || 0} members</span>
                 <Button size="sm" variant={joined ? "outline" : "default"} disabled={busy === g.id} onClick={(e) => { e.stopPropagation(); toggle(g); }} className="gap-1.5">
-                  {joined ? <><Check className="h-4 w-4" weight="bold" /> Joined</> : <><Plus className="h-4 w-4" weight="bold" /> Join</>}
+                  {joined ? <><Check className="h-4 w-4" weight="bold" /> Joined</> : g.is_private ? <><Lock className="h-4 w-4" weight="bold" /> Request</> : <><Plus className="h-4 w-4" weight="bold" /> Join</>}
                 </Button>
               </div>
             </CardContent>

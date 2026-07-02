@@ -67,18 +67,16 @@ export default function EventDetail() {
   } : {});
 
   const handleRegistrationSubmit = async (registrationData: any) => {
-    const existing = registrationData.participant_email
-      ? await EventRegistration.filter({ event_id: eventId, participant_email: registrationData.participant_email }).catch(() => [])
-      : [];
-    if (existing.length > 0) throw new Error("You're already registered for this event.");
-    if (event.max_participants && (event.current_participants || 0) >= event.max_participants) throw new Error("This event is full.");
-    await EventRegistration.create(registrationData);
-    const next = (event.current_participants || 0) + 1;
-    try { await Event.update(event.id, { current_participants: next }); } catch { /* non-fatal */ }
-    setEvent((e: any) => ({ ...e, current_participants: next }));
+    const { status, current_participants } = await submitRegistration(event, registrationData);
+    setEvent((e: any) => ({ ...e, current_participants }));
     setIsRegistered(true);
     const me = await User.me().catch(() => null);
-    if (me) await Notification.create({ user_id: me.id, title: "Event Registration Confirmed", message: `You're registered for "${event.title}".`, type: "event", related_id: event.id, action_url: `${createPageUrl("EventDetail")}?id=${event.id}` }).catch(() => {});
+    if (me) await Notification.create({
+      user_id: me.id,
+      title: status === "waitlist" ? "You're on the waitlist" : "Event Registration Confirmed",
+      message: status === "waitlist" ? `"${event.title}" is full — we'll notify you if a spot opens.` : `You're registered for "${event.title}".`,
+      type: "event", related_id: event.id, action_url: `${createPageUrl("EventDetail")}?id=${event.id}`,
+    }).catch(() => {});
   };
 
   const share = async () => {

@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Post } from "@/entities/Post";
 import { Practitioner } from "@/entities/Practitioner";
+import { User } from "@/entities/User";
+import { loadReactions } from "@/lib/reactions";
+import ReactionButton from "@/components/social/ReactionButton";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
@@ -11,7 +14,7 @@ import { Plus, Search, MessageSquare, Pin, ArrowRight } from "@/lib/icons";
 import { formatDistanceToNow } from "date-fns";
 import FavoriteButton from "../favorites/FavoriteButton";
 
-const PostListItem = ({ post, practitionerIds }) => {
+const PostListItem = ({ post, practitionerIds, reactionCount, reactionLiked }) => {
   const categoryColors = {
     "General Discussion": "bg-blue-100 text-blue-800 border-blue-200",
     "Experience Sharing": "bg-primary/10 text-primary border-primary/20",
@@ -58,11 +61,14 @@ const PostListItem = ({ post, practitionerIds }) => {
               </div>
             </div>
             <div className="flex items-center gap-4">
+              <div onClick={(e) => e.preventDefault()}>
+                <ReactionButton targetType="post" targetId={post.id} count={reactionCount} liked={reactionLiked} />
+              </div>
               <div className="flex flex-col items-center justify-center text-center">
                 <div className="text-2xl font-bold text-foreground">{post.reply_count}</div>
                 <div className="text-xs text-muted-foreground">replies</div>
               </div>
-              
+
               {/* Favorite button */}
               <div className="opacity-0 group-hover:opacity-100 transition-opacity">
                 <FavoriteButton
@@ -95,14 +101,16 @@ export default function ForumView() {
   // Author names link to a public profile only when the author is a practitioner
   // (there is no generic user-profile page).
   const [practitionerIds, setPractitionerIds] = useState(() => new Set());
+  const [sortBy, setSortBy] = useState("active"); // active | new | top
+  const [reactions, setReactions] = useState({ counts: {}, mine: new Set() });
 
   useEffect(() => {
     const fetchPosts = async () => {
       if (hasFetched) return; // Prevent multiple fetches
-      
+
       setIsLoading(true);
       setHasFetched(true);
-      
+
       try {
         const allPosts = await Post.list("-last_reply_date");
         // Group-scoped posts live on their group page; hidden posts are moderated out.
@@ -112,6 +120,10 @@ export default function ForumView() {
           const pracs = await Practitioner.list();
           setPractitionerIds(new Set(pracs.map((p) => p.id)));
         } catch { /* author links are a non-critical enhancement */ }
+        try {
+          const me = await User.me().catch(() => null);
+          setReactions(await loadReactions("post", me?.id));
+        } catch { /* reactions are a non-critical enhancement */ }
       } catch (error) {
         console.error("Failed to load posts:", error);
         setPosts([]);
@@ -122,13 +134,21 @@ export default function ForumView() {
     fetchPosts();
   }, []); // Empty dependency array to run only once
 
-  const filteredPosts = posts.filter(post => 
+  const filteredPosts = posts.filter(post =>
     post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     post.content.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  
-  const pinnedPosts = filteredPosts.filter(p => p.is_pinned);
-  const regularPosts = filteredPosts.filter(p => !p.is_pinned);
+
+  const sortPosts = (list) => {
+    const arr = [...list];
+    if (sortBy === "new") arr.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+    else if (sortBy === "top") arr.sort((a, b) => (reactions.counts[b.id] || 0) - (reactions.counts[a.id] || 0));
+    else arr.sort((a, b) => new Date(b.last_reply_date || b.created_date) - new Date(a.last_reply_date || a.created_date));
+    return arr;
+  };
+
+  const pinnedPosts = sortPosts(filteredPosts.filter(p => p.is_pinned));
+  const regularPosts = sortPosts(filteredPosts.filter(p => !p.is_pinned));
 
   return (
     <div>
@@ -142,6 +162,16 @@ export default function ForumView() {
             className="pl-11 h-11 rounded-xl bg-card border-input"
           />
         </div>
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+          aria-label="Sort discussions"
+          className="h-11 rounded-xl border border-input bg-card px-3 text-sm"
+        >
+          <option value="active">Active</option>
+          <option value="new">New</option>
+          <option value="top">Top</option>
+        </select>
         <Link to={createPageUrl("NewPost")}>
           <Button className="w-full sm:w-auto bg-primary hover:bg-primary/90 h-11 rounded-xl">
             <Plus className="w-4 h-4 mr-2" />
@@ -158,8 +188,8 @@ export default function ForumView() {
         </div>
       ) : filteredPosts.length > 0 ? (
         <div className="space-y-3">
-          {pinnedPosts.map(post => <PostListItem key={post.id} post={post} practitionerIds={practitionerIds} />)}
-          {regularPosts.map(post => <PostListItem key={post.id} post={post} practitionerIds={practitionerIds} />)}
+          {pinnedPosts.map(post => <PostListItem key={post.id} post={post} practitionerIds={practitionerIds} reactionCount={reactions.counts[post.id] || 0} reactionLiked={reactions.mine.has(post.id)} />)}
+          {regularPosts.map(post => <PostListItem key={post.id} post={post} practitionerIds={practitionerIds} reactionCount={reactions.counts[post.id] || 0} reactionLiked={reactions.mine.has(post.id)} />)}
         </div>
       ) : (
         <div className="text-center py-12">

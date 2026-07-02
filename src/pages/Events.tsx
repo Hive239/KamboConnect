@@ -3,6 +3,7 @@ import { Event, EventRegistration, Practitioner, User } from "@/entities/all";
 import { Button } from "@/components/ui/button";
 import AddToCalendar from "@/components/AddToCalendar";
 import { toast } from "sonner";
+import { submitRegistration, cancelAndPromote } from "@/lib/eventRegistration";
 import { Calendar, List, ChevronLeft, ChevronRight, Loader2 } from "@/lib/icons";
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSameMonth } from "date-fns";
 
@@ -102,14 +103,8 @@ export default function Events() {
   const cancelRegistration = async (reg) => {
     if (!window.confirm(`Cancel your registration for "${reg.event.title}"?`)) return;
     try {
-      await EventRegistration.delete(reg.id);
-      // Free the spot (counter was only ever incremented).
-      const ev = reg.event;
-      if (ev && (ev.current_participants || 0) > 0) {
-        const next = Math.max(0, (ev.current_participants || 1) - 1);
-        try { await Event.update(ev.id, { current_participants: next }); } catch { /* non-fatal */ }
-        setEvents((prev) => prev.map((e) => (e.id === ev.id ? { ...e, current_participants: next } : e)));
-      }
+      const { current_participants } = await cancelAndPromote(reg, reg.event);
+      if (reg.event) setEvents((prev) => prev.map((e) => (e.id === reg.event.id ? { ...e, current_participants } : e)));
       setMyRegistrations((prev) => prev.filter((r) => r.id !== reg.id));
       toast.success("Registration cancelled");
     } catch (e) {
@@ -120,28 +115,10 @@ export default function Events() {
 
   const handleRegistrationSubmit = async (registrationData) => {
     const ev = events.find((e) => e.id === registrationData.event_id);
-    // Guard against duplicate registrations (same email + event) — the create path
-    // never checked, so re-registering created dupes AND inflated the counter.
-    if (registrationData.participant_email) {
-      const existing = await EventRegistration.filter({
-        event_id: registrationData.event_id,
-        participant_email: registrationData.participant_email,
-      }).catch(() => []);
-      if (existing.length > 0) throw new Error("You're already registered for this event.");
-    }
-    // Capacity enforcement — don't overbook.
-    if (ev && ev.max_participants && (ev.current_participants || 0) >= ev.max_participants) {
-      throw new Error("This event is full.");
-    }
-
-    await EventRegistration.create(registrationData);
-    // Increment the event's participant count (was never updated — capacity/"spots
-    // left" stayed at seed values and sold-out was never enforced).
-    if (ev) {
-      const next = (ev.current_participants || 0) + 1;
-      try { await Event.update(ev.id, { current_participants: next }); } catch { /* non-fatal */ }
-      setEvents((prev) => prev.map((e) => (e.id === ev.id ? { ...e, current_participants: next } : e)));
-    }
+    // dedup + capacity → confirmed or waitlist (throws "already registered").
+    const { status, current_participants } = await submitRegistration(ev || { id: registrationData.event_id }, registrationData);
+    if (ev) setEvents((prev) => prev.map((e) => (e.id === ev.id ? { ...e, current_participants } : e)));
+    if (status === "waitlist") toast.info("This event is full — you've been added to the waitlist.");
     // Do NOT close here — RegistrationModal shows its own success + Add-to-Calendar
     // screen and closes via its Done button / onClose.
   };

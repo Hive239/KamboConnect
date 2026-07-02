@@ -153,6 +153,8 @@ export interface Reply extends BaseRecord {
   content: string;
   author_id: string;
   author_name: string;
+  parent_id?: string;
+  is_accepted?: boolean;
 }
 
 export interface CommunityResource extends BaseRecord {
@@ -332,6 +334,7 @@ export interface GroupMembership extends BaseRecord {
   user_id: string;
   user_name?: string;
   role?: 'member' | 'moderator' | 'owner';
+  status?: 'active' | 'pending';
 }
 
 export interface FeedItem extends BaseRecord {
@@ -492,6 +495,13 @@ export interface ActivityEvent extends BaseRecord {
   path?: string;
 }
 
+export interface Reaction extends BaseRecord {
+  target_type: 'post' | 'reply' | 'feed_item' | 'event';
+  target_id: string;
+  user_id: string;
+  type?: string;
+}
+
 export interface EntityTypeMap {
   User: User;
   Practitioner: Practitioner;
@@ -528,6 +538,7 @@ export interface EntityTypeMap {
   ConsultationNote: ConsultationNote;
   ClientDocument: ClientDocument;
   ActivityEvent: ActivityEvent;
+  Reaction: Reaction;
 }
 
 export type EntityName = keyof EntityTypeMap;

@@ -23,6 +23,10 @@ import ProfileMenu from "@/components/layout/ProfileMenu";
 // `roles` restricts a logged-in user to that tier (admin sees everything).
 // Items with no `roles` are shared across all authenticated roles.
 const mainNavItems = [
+  // Admin console (only admins) — surfaced in the rail, not just the profile menu.
+  { title: "Admin", tKey: "nav.adminDashboard", url: createPageUrl("AdminDashboard"), icon: ShieldCheck, isPublic: false, roles: ["admin"] },
+  { title: "Trust & Safety", tKey: "nav.trustSafety", url: createPageUrl("TrustSafety"), icon: Shield, isPublic: false, roles: ["admin"] },
+  { title: "Verification", tKey: "nav.verification", url: createPageUrl("Verification"), icon: ShieldCheck, isPublic: false, roles: ["admin"] },
   // Practitioner hub (only practitioners/admin).
   { title: "Dashboard", tKey: "nav.practitionerDashboard", url: createPageUrl("PractitionerDashboard"), icon: Briefcase, isPublic: false, roles: ["practitioner"] },
   // Client discovery + commerce.

@@ -7,6 +7,8 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Calendar, MessageSquare, Star, UsersThree, Storefront, ShieldCheck, Users } from "@/lib/icons";
+import { loadReactions } from "@/lib/reactions";
+import ReactionButton from "@/components/social/ReactionButton";
 
 const VERB_META: Record<string, { icon: any; label: string }> = {
   hosted_event: { icon: Calendar, label: "hosted an event" },
@@ -23,6 +25,7 @@ export default function FeedView() {
   const [onlyFollowing, setOnlyFollowing] = useState(false);
   const [followedIds, setFollowedIds] = useState<Set<string>>(new Set());
   const [practitionerIds, setPractitionerIds] = useState<Set<string>>(new Set());
+  const [reactions, setReactions] = useState<{ counts: Record<string, number>; mine: Set<string> }>({ counts: {}, mine: new Set() });
 
   const load = async () => {
     try {
@@ -37,6 +40,7 @@ export default function FeedView() {
         const pracs = await Practitioner.list();
         setPractitionerIds(new Set(pracs.map((p: any) => p.id)));
       } catch { /* badge is a non-critical enhancement */ }
+      try { setReactions(await loadReactions("feed_item", me?.id)); } catch { /* non-critical */ }
     } catch (e) {
       console.error("Failed to load feed:", e);
       setItems([]);
@@ -91,6 +95,9 @@ export default function FeedView() {
                     <div className="mt-1 flex items-center gap-2">
                       <Badge variant="tier" className="gap-1"><meta.icon className="h-3 w-3" weight="duotone" /> {it.object_type}</Badge>
                       <span className="text-xs text-muted-foreground">{new Date(it.created_date).toLocaleDateString()}</span>
+                      <span className="ml-auto" onClick={(e) => e.preventDefault()}>
+                        <ReactionButton targetType="feed_item" targetId={it.id} count={reactions.counts[it.id] || 0} liked={reactions.mine.has(it.id)} />
+                      </span>
                     </div>
                   </div>
                   {it.image_url && <img loading="lazy" src={it.image_url} alt="" className="h-16 w-16 rounded-lg object-cover" />}

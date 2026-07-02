@@ -9,11 +9,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2, MessageSquare, Lock } from "@/lib/icons";
+import { ArrowLeft, Loader2, MessageSquare, Lock, CheckCircle } from "@/lib/icons";
 import PageBreadcrumbs from "@/components/PageBreadcrumbs";
 import { sanitizeHtml } from "@/lib/sanitize";
+import { parseMentions } from "@/lib/mentions";
 import { Badge } from "@/components/ui/badge";
 import ReportButton from "@/components/profile/ReportButton";
+import ReactionButton from "@/components/social/ReactionButton";
 import { format } from "date-fns";
 import 'react-quill/dist/quill.snow.css';
 
@@ -32,6 +34,7 @@ export default function PostPage() {
   const [editDraft, setEditDraft] = useState({ title: "", content: "" });
   const [editingReplyId, setEditingReplyId] = useState(null);
   const [editReplyText, setEditReplyText] = useState("");
+  const [replyingTo, setReplyingTo] = useState(null); // { id, name } of the parent reply
 
   const postId = new URLSearchParams(location.search).get("id");
 
@@ -117,6 +120,19 @@ export default function PostPage() {
     } catch (e) { console.error(e); toast.error("Couldn't delete."); }
   };
 
+  const markAnswer = async (reply) => {
+    try {
+      // Only one accepted answer per Q&A post.
+      await Promise.all(replies.filter((r) => r.is_accepted && r.id !== reply.id).map((r) => Reply.update(r.id, { is_accepted: false })));
+      await Reply.update(reply.id, { is_accepted: true });
+      setReplies((prev) => prev.map((r) => ({ ...r, is_accepted: r.id === reply.id })));
+      if (reply.author_id && reply.author_id !== user?.id) {
+        await Notification.create({ user_id: reply.author_id, title: "Your reply was marked as the answer", message: `${user?.full_name || "The author"} accepted your answer on "${post.title}".`, type: "community", related_id: post.id, action_url: createPageUrl(`Post?id=${post.id}`) }).catch(() => {});
+      }
+      toast.success("Marked as the answer");
+    } catch (e) { console.error(e); toast.error("Couldn't mark the answer."); }
+  };
+
   const handleReplySubmit = async (e) => {
     e.preventDefault(); // Keep preventDefault for form submission
     if (!newReply.trim() || !user || !post) return; // Added !post check for safety
@@ -127,7 +143,9 @@ export default function PostPage() {
         content: newReply,
         author_id: user.id,
         author_name: user.full_name,
+        parent_id: replyingTo?.id || null, // threaded reply
       });
+      setReplyingTo(null);
 
       // Update post's reply_count and last_reply_date
       await Post.update(post.id, {
@@ -148,6 +166,22 @@ export default function PostPage() {
           });
       }
       
+      // @mentions — notify any thread participant named in the reply.
+      const participants = new Map();
+      participants.set(post.author_id, post.author_name);
+      replies.forEach((r) => participants.set(r.author_id, r.author_name));
+      const people = [...participants].map(([id, name]) => ({ id, name })).filter((p) => p.id);
+      const mentioned = parseMentions(newReply, people).filter((m) => m.id !== user.id && m.id !== post.author_id);
+      await Promise.all(mentioned.map((m) => Notification.create({
+        user_id: m.id,
+        title: `${user.full_name} mentioned you`,
+        message: `You were mentioned in a reply on "${post.title}".`,
+        type: "community",
+        related_id: post.id,
+        action_url: createPageUrl(`Post?id=${post.id}`),
+        sender_image_url: user.profile_image_url,
+      }).catch(() => {})));
+
       // Optimistically add the new reply to the list
       // Include author_profile_image_url for avatar rendering
       setReplies(prev => [...prev, { ...createdReply, author_profile_image_url: user.profile_image_url }]);
@@ -179,6 +213,80 @@ export default function PostPage() {
       </div>
     );
   }
+
+  // Build the reply tree. Roots = replies with no parent; a Q&A's accepted answer floats first.
+  const isQA = post.category === "Q&A";
+  const childrenByParent = {};
+  for (const r of replies) { const k = r.parent_id || "__root__"; (childrenByParent[k] ||= []).push(r); }
+  const orderReplies = (list) => [...list].sort((a, b) => {
+    if (isQA && (a.is_accepted || b.is_accepted)) return (b.is_accepted ? 1 : 0) - (a.is_accepted ? 1 : 0);
+    return new Date(a.created_date) - new Date(b.created_date);
+  });
+  const rootReplies = orderReplies(childrenByParent["__root__"] || []);
+
+  const renderReply = (reply, depth) => {
+    const kids = orderReplies(childrenByParent[reply.id] || []);
+    return (
+      <div key={reply.id} className={depth > 0 ? "ml-6 border-l-2 border-border pl-4" : ""}>
+        <Card className={`bg-card ${reply.is_accepted ? "border-primary/50 ring-1 ring-primary/30" : ""}`}>
+          <CardHeader className="flex flex-row items-start gap-4 space-y-0 p-4">
+            <Avatar className="h-10 w-10">
+              <AvatarFallback>{reply.author_name.charAt(0)}</AvatarFallback>
+              {reply.author_profile_image_url && <AvatarImage src={reply.author_profile_image_url} alt={reply.author_name} />}
+            </Avatar>
+            <div className="flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                {reply.author_id && practitionerIds.has(reply.author_id) ? (
+                  <>
+                    <Link to={createPageUrl(`PractitionerProfile?id=${reply.author_id}`)} className="font-semibold text-primary hover:underline">{reply.author_name}</Link>
+                    <Badge variant="tier" className="text-[10px]">Practitioner</Badge>
+                  </>
+                ) : reply.author_id ? (
+                  <Link to={createPageUrl(`UserProfile?id=${reply.author_id}`)} className="font-semibold hover:underline">{reply.author_name}</Link>
+                ) : (
+                  <span className="font-semibold">{reply.author_name}</span>
+                )}
+                {reply.is_accepted && <Badge className="bg-success/15 text-success text-[10px] gap-1"><CheckCircle className="h-3 w-3" weight="fill" /> Answer</Badge>}
+                <span className="text-xs text-muted-foreground">{format(new Date(reply.created_date), "MMM d, yyyy, p")}</span>
+              </div>
+              {editingReplyId === reply.id ? (
+                <div className="mt-1 space-y-2">
+                  <Textarea rows={3} value={editReplyText} onChange={(e) => setEditReplyText(e.target.value)} />
+                  <div className="flex justify-end gap-2">
+                    <Button variant="outline" size="sm" onClick={() => setEditingReplyId(null)}>Cancel</Button>
+                    <Button size="sm" onClick={() => saveEditReply(reply)} disabled={!editReplyText.trim()}>Save</Button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <p className="text-foreground mt-1">{reply.content}</p>
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <ReactionButton targetType="reply" targetId={reply.id} />
+                    {user && !post.is_locked && depth < 3 && (
+                      <button className="text-xs text-muted-foreground hover:text-foreground" onClick={() => { setReplyingTo({ id: reply.id, name: reply.author_name }); document.getElementById("reply-composer")?.scrollIntoView({ behavior: "smooth" }); }}>Reply</button>
+                    )}
+                    {isQA && user && user.id === post.author_id && !reply.is_accepted && (
+                      <button className="text-xs font-medium text-success hover:underline" onClick={() => markAnswer(reply)}>Mark as answer</button>
+                    )}
+                    {canEdit(reply.author_id) && (
+                      <>
+                        <button className="text-xs text-muted-foreground hover:text-foreground" onClick={() => { setEditingReplyId(reply.id); setEditReplyText(reply.content); }}>Edit</button>
+                        <button className="text-xs text-muted-foreground hover:text-destructive" onClick={() => deleteReply(reply)}>Delete</button>
+                      </>
+                    )}
+                    {user && user.id !== reply.author_id && (
+                      <ReportButton itemType="reply" itemId={reply.id} itemTitle={`reply by ${reply.author_name}`} size="sm" variant="ghost" />
+                    )}
+                  </div>
+                </>
+              )}
+              {kids.length > 0 && <div className="mt-3 space-y-3">{kids.map((c) => renderReply(c, depth + 1))}</div>}
+            </div>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  };
 
   return (
     <div className="p-4 sm:p-6 bg-muted min-h-screen">
@@ -238,16 +346,19 @@ export default function PostPage() {
                   className="prose max-w-none"
                   dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content) }}
                 />
-                <div className="mt-4 flex items-center justify-end gap-2 border-t border-border pt-3">
-                  {canEdit(post.author_id) && (
-                    <>
-                      <Button variant="ghost" size="sm" onClick={startEditPost}>Edit</Button>
-                      <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={deletePost}>Delete</Button>
-                    </>
-                  )}
-                  {user && user.id !== post.author_id && (
-                    <ReportButton itemType="post" itemId={post.id} itemTitle={post.title} />
-                  )}
+                <div className="mt-4 flex items-center justify-between gap-2 border-t border-border pt-3">
+                  <ReactionButton targetType="post" targetId={post.id} size="default" />
+                  <div className="flex items-center gap-2">
+                    {canEdit(post.author_id) && (
+                      <>
+                        <Button variant="ghost" size="sm" onClick={startEditPost}>Edit</Button>
+                        <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={deletePost}>Delete</Button>
+                      </>
+                    )}
+                    {user && user.id !== post.author_id && (
+                      <ReportButton itemType="post" itemId={post.id} itemTitle={post.title} />
+                    )}
+                  </div>
                 </div>
               </>
             )}
@@ -257,63 +368,7 @@ export default function PostPage() {
         <div className="mt-8">
           <h3 className="text-2xl font-bold mb-4">{replies.length} Replies</h3>
           <div className="space-y-6">
-            {replies.map((reply) => (
-              <Card key={reply.id} className="bg-card">
-                <CardHeader className="flex flex-row items-start gap-4 space-y-0 p-4">
-                   <Avatar className="h-10 w-10">
-                    <AvatarFallback>{reply.author_name.charAt(0)}</AvatarFallback>
-                    {reply.author_profile_image_url && (
-                        <AvatarImage src={reply.author_profile_image_url} alt={reply.author_name} />
-                    )}
-                  </Avatar>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      {reply.author_id && practitionerIds.has(reply.author_id) ? (
-                        <>
-                          <Link to={createPageUrl(`PractitionerProfile?id=${reply.author_id}`)} className="font-semibold text-primary hover:underline">
-                            {reply.author_name}
-                          </Link>
-                          <Badge variant="tier" className="text-[10px]">Practitioner</Badge>
-                        </>
-                      ) : reply.author_id ? (
-                        <Link to={createPageUrl(`UserProfile?id=${reply.author_id}`)} className="font-semibold hover:underline">{reply.author_name}</Link>
-                      ) : (
-                        <span className="font-semibold">{reply.author_name}</span>
-                      )}
-                      <span className="text-xs text-muted-foreground">
-                        {format(new Date(reply.created_date), "MMM d, yyyy, p")}
-                      </span>
-                    </div>
-                    {editingReplyId === reply.id ? (
-                      <div className="mt-1 space-y-2">
-                        <Textarea rows={3} value={editReplyText} onChange={(e) => setEditReplyText(e.target.value)} />
-                        <div className="flex justify-end gap-2">
-                          <Button variant="outline" size="sm" onClick={() => setEditingReplyId(null)}>Cancel</Button>
-                          <Button size="sm" onClick={() => saveEditReply(reply)} disabled={!editReplyText.trim()}>Save</Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <>
-                        <p className="text-foreground mt-1">{reply.content}</p>
-                        {(canEdit(reply.author_id) || (user && user.id !== reply.author_id)) && (
-                          <div className="mt-2 flex items-center gap-2">
-                            {canEdit(reply.author_id) && (
-                              <>
-                                <button className="text-xs text-muted-foreground hover:text-foreground" onClick={() => { setEditingReplyId(reply.id); setEditReplyText(reply.content); }}>Edit</button>
-                                <button className="text-xs text-muted-foreground hover:text-destructive" onClick={() => deleteReply(reply)}>Delete</button>
-                              </>
-                            )}
-                            {user && user.id !== reply.author_id && (
-                              <ReportButton itemType="reply" itemId={reply.id} itemTitle={`reply by ${reply.author_name}`} size="sm" variant="ghost" />
-                            )}
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </CardHeader>
-              </Card>
-            ))}
+            {rootReplies.map((reply) => renderReply(reply, 0))}
           </div>
         </div>
 
@@ -322,11 +377,14 @@ export default function PostPage() {
             <Lock className="h-4 w-4" /> This thread is locked — new replies are disabled.
           </div>
         ) : user && (
-          <Card className="mt-8">
+          <Card className="mt-8" id="reply-composer">
             <CardHeader>
-              <CardTitle>Leave a Reply</CardTitle>
+              <CardTitle>{replyingTo ? `Replying to ${replyingTo.name}` : "Leave a Reply"}</CardTitle>
             </CardHeader>
             <CardContent>
+              {replyingTo && (
+                <button className="mb-2 text-xs text-muted-foreground hover:text-foreground" onClick={() => setReplyingTo(null)}>Cancel reply — post at top level instead</button>
+              )}
               <form onSubmit={handleReplySubmit} className="space-y-4">
                 <Textarea
                   value={newReply}

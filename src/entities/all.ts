@@ -34,3 +34,4 @@ export { ClientRecord } from './ClientRecord';
 export { ConsultationNote } from './ConsultationNote';
 export { ClientDocument } from './ClientDocument';
 export { ActivityEvent } from './ActivityEvent';
+export { Reaction } from './Reaction';
