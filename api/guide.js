@@ -39,6 +39,24 @@ async function viaApi(messages) {
   } catch { return null; }
 }
 
+/** Try a self-hosted "guide sidecar" (a box running server/guide-cli-server.mjs with
+ *  the claude CLI). Lets the Vercel cloud function get CLI-backed answers. Returns null
+ *  when GUIDE_PROXY_URL isn't configured or the call fails. */
+async function viaProxy(message, history) {
+  const url = process.env.GUIDE_PROXY_URL;
+  const secret = process.env.GUIDE_PROXY_SECRET;
+  if (!url) return null;
+  try {
+    const r = await fetch(url, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', ...(secret ? { authorization: `Bearer ${secret}` } : {}) },
+      body: JSON.stringify({ message, history }),
+    });
+    const j = await r.json().catch(() => ({}));
+    return j?.answer ? String(j.answer) : null;
+  } catch { return null; }
+}
+
 /** Try the local `claude` CLI (print mode). Returns answer text or null.
  *  Uses execFile with an args array (no shell) so the user message can't inject commands. */
 async function viaCli(message, history) {
@@ -68,12 +86,15 @@ export default async function handler(req, res) {
     { role: 'user', content: msg },
   ];
 
-  // 1) API key, 2) local CLI, 3) skip → client heuristic.
+  // 1) API key, 2) local CLI, 3) self-hosted sidecar proxy, 4) skip → client heuristic.
   const apiAnswer = await viaApi(messages);
   if (apiAnswer) return res.status(200).json({ answer: apiAnswer, via: 'api' });
 
   const cliAnswer = await viaCli(msg, history);
   if (cliAnswer) return res.status(200).json({ answer: cliAnswer, via: 'cli' });
 
-  return res.status(200).json({ skipped: true, reason: 'no ANTHROPIC_API_KEY and no claude CLI available' });
+  const proxyAnswer = await viaProxy(msg, history);
+  if (proxyAnswer) return res.status(200).json({ answer: proxyAnswer, via: 'proxy' });
+
+  return res.status(200).json({ skipped: true, reason: 'no ANTHROPIC_API_KEY, claude CLI, or GUIDE_PROXY_URL' });
 }

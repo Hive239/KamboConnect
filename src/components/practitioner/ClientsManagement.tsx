@@ -45,7 +45,7 @@ export default function ClientsManagement({ practitioner }: { practitioner: any 
     <div>
       <div className="mb-4 flex items-center gap-2">
         <Users className="h-5 w-5 text-primary" weight="duotone" />
-        <h2 className="font-semibold">Clients ({clients.length})</h2>
+        <h2 className="flex items-center gap-2 font-semibold"><Users className="h-5 w-5 text-primary" weight="duotone" /> Clients ({clients.length})</h2>
       </div>
       {clients.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border py-12 text-center text-muted-foreground">No clients yet. They'll appear here after their first consultation or booking.</div>

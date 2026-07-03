@@ -178,7 +178,7 @@ export default function PractitionerDashboard() {
         <PageHeader icon={Storefront} kicker="Your practice" title="Practitioner Dashboard" subtitle="Manage your practice and connect with clients." className="-mx-4 -mt-4 mb-6 sm:-mx-6 sm:-mt-6" />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-11 gap-1 h-auto bg-muted p-1 rounded-xl">
+          <TabsList className="w-full flex-nowrap justify-start gap-1 overflow-x-auto h-auto [&>*]:flex-none [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border">
             <TabsTrigger value="overview" className="flex flex-col sm:flex-row items-center gap-1 p-2 text-xs sm:text-sm">
               <Home className="w-4 h-4" />
               <span className="hidden sm:inline">Overview</span>

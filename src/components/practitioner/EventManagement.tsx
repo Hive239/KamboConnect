@@ -227,7 +227,7 @@ export default function EventManagement({ events, practitioner, onUpdate }) {
       {/* AddressAutocomplete imported below for venue geocoding */}
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-foreground">My Events ({events.length})</h2>
+        <h2 className="flex items-center gap-2 font-display text-xl font-semibold tracking-tight"><Calendar className="h-5 w-5 text-primary" weight="duotone" /> My Events ({events.length})</h2>
         <Button 
           onClick={() => setShowCreateForm(true)}
           className="bg-primary hover:bg-primary/90"
