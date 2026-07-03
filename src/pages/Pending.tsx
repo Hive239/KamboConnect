@@ -10,10 +10,12 @@ export default function Pending() {
   const [loading, setLoading] = useState(true);
   useEffect(() => { User.me().then(setUser).catch(() => setUser(null)).finally(() => setLoading(false)); }, []);
 
-  // If they're actually approved, don't strand them here.
+  // Approved → go home; logged-out → sign in (don't show "awaiting approval").
   useEffect(() => {
-    if (user && (!user.status || user.status === "active")) window.location.assign("/");
-  }, [user]);
+    if (loading) return;
+    if (!user) { window.location.assign(createPageUrl("Auth")); return; }
+    if (!user.status || user.status === "active") window.location.assign("/");
+  }, [user, loading]);
 
   const status = user?.status || "pending";
   const signOut = async () => { await User.logout(); window.location.assign(createPageUrl("Auth")); };
