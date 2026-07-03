@@ -42,12 +42,15 @@ export default function SecuritySettings() {
     finally { setBusy(false); }
   };
 
-  const [notifState, setNotifState] = useState(typeof Notification !== "undefined" ? Notification.permission : "default");
+  // NB: use window.Notification — the bare `Notification` is the imported entity, which shadows the browser API.
+  const [notifState, setNotifState] = useState<string>(
+    typeof window !== "undefined" && "Notification" in window ? window.Notification.permission : "default",
+  );
   const enableNotifications = async () => {
-    if (typeof Notification === "undefined") { toast.error("Notifications not supported in this browser."); return; }
-    const p = await Notification.requestPermission();
+    if (typeof window === "undefined" || !("Notification" in window)) { toast.error("Notifications not supported in this browser."); return; }
+    const p = await window.Notification.requestPermission();
     setNotifState(p);
-    if (p === "granted") { new Notification("KamboGuide", { body: "Notifications enabled." }); toast.success("Browser notifications enabled."); }
+    if (p === "granted") { new window.Notification("KamboGuide", { body: "Notifications enabled." }); toast.success("Browser notifications enabled."); }
     else toast.error("Notifications blocked — enable them in your browser settings.");
   };
 

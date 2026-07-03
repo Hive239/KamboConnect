@@ -3,6 +3,7 @@ import { Course, User } from "@/entities/all";
 import { getRole } from "@/lib/roles";
 import { useSeo } from "@/lib/useSeo";
 import { Card, CardContent } from "@/components/ui/card";
+import { Reveal } from "@/components/ui/Reveal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -110,9 +111,10 @@ export default function Courses() {
             No courses listed yet{filter !== "all" ? " for this format" : ""}. {isAdmin ? "Add one to get started." : "Check back soon."}
           </CardContent></Card>
         ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <Reveal stagger className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {shown.map((c) => (
-              <Card key={c.id} className="flex flex-col overflow-hidden">
+              <Reveal.Item key={c.id}>
+              <Card className="flex flex-col overflow-hidden">
                 {c.image_url && <img src={c.image_url} alt={c.title} className="h-40 w-full object-cover" loading="lazy" />}
                 <CardContent className="flex flex-1 flex-col gap-3 p-5">
                   <div className="flex items-start justify-between gap-2">
@@ -151,8 +153,9 @@ export default function Courses() {
                   </div>
                 </CardContent>
               </Card>
+              </Reveal.Item>
             ))}
-          </div>
+          </Reveal>
         )}
 
         <p className="mt-8 text-center text-xs text-muted-foreground">

@@ -11,7 +11,7 @@ const cache = new Map<string, GeoResult | null>();
 let lastCall = 0;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-export function addressToQuery(a?: Address | null): string {
+function addressToQuery(a?: Address | null): string {
   if (!a) return '';
   return [a.street, a.city, a.state_province, a.postal_code, a.country]
     .map((s) => (s || '').trim())

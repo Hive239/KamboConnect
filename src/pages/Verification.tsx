@@ -10,6 +10,7 @@ import {
 } from "@/lib/icons";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { Reveal } from "@/components/ui/Reveal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -242,10 +243,10 @@ export default function VerificationPage() {
       <Card>
         <CardContent>
           {pending.length > 0 ? (
-            <div className="space-y-4">
+            <Reveal stagger className="space-y-4">
               {pending.map(app => (
-                <div 
-                  key={app.id} 
+                <Reveal.Item key={app.id}>
+                <div
                   className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent cursor-pointer transition-colors"
                   onClick={() => setSelectedApplication(app)}
                 >
@@ -261,8 +262,9 @@ export default function VerificationPage() {
                     <p className="font-medium">{new Date(app.created_date).toLocaleDateString()}</p>
                   </div>
                 </div>
+                </Reveal.Item>
               ))}
-            </div>
+            </Reveal>
           ) : (
             <div className="text-center py-12 text-muted-foreground">
               <ShieldCheck className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />

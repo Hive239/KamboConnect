@@ -14,6 +14,7 @@ import {
   User as UserIcon, Settings, Briefcase, Star, CalendarCheck, Edit, Loader2, LogIn, Calendar, Heart
 } from "@/lib/icons";
 import { GradientMesh } from "@/components/ui/GradientMesh";
+import { Reveal } from "@/components/ui/Reveal";
 
 import AccountSettings from "../components/profile/AccountSettings";
 import BookingHistory from "../components/profile/BookingHistory";
@@ -189,16 +190,18 @@ export default function Profile() {
                 You're not following anyone yet. <Link to={createPageUrl("Directory")} className="text-primary hover:underline">Find practitioners</Link>
               </div>
             ) : (
-              <div className="grid gap-3 sm:grid-cols-2">
+              <Reveal stagger className="grid gap-3 sm:grid-cols-2">
                 {following.map((f) => (
-                  <Link key={f.id} to={f.followee_type === "practitioner" ? `${createPageUrl("PractitionerProfile")}?id=${f.followee_id}` : f.followee_type === "group" ? `${createPageUrl("GroupDetail")}?id=${f.followee_id}` : `${createPageUrl("UserProfile")}?id=${f.followee_id}`}>
+                  <Reveal.Item key={f.id}>
+                  <Link to={f.followee_type === "practitioner" ? `${createPageUrl("PractitionerProfile")}?id=${f.followee_id}` : f.followee_type === "group" ? `${createPageUrl("GroupDetail")}?id=${f.followee_id}` : `${createPageUrl("UserProfile")}?id=${f.followee_id}`}>
                     <Card className="transition-shadow hover:shadow-md"><CardContent className="flex items-center gap-3 p-3">
                       <Avatar className="h-10 w-10"><AvatarImage src={f.followee_image_url} /><AvatarFallback>{(f.followee_name || "?")[0]}</AvatarFallback></Avatar>
                       <div><p className="font-medium">{f.followee_name || "Unknown"}</p><p className="text-xs capitalize text-muted-foreground">{f.followee_type}</p></div>
                     </CardContent></Card>
                   </Link>
+                  </Reveal.Item>
                 ))}
-              </div>
+              </Reveal>
             )}
           </TabsContent>
           <TabsContent value="reviews" className="py-6">

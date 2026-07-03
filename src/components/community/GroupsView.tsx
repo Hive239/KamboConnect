@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Group, GroupMembership, User, Notification } from "@/entities/all";
 import { Card, CardContent } from "@/components/ui/card";
+import { Reveal } from "@/components/ui/Reveal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -169,12 +170,12 @@ export default function GroupsView() {
   return (
     <>
       {header}
-      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+      <Reveal stagger className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
       {groups.map((g) => {
         const joined = !!memberships[g.id];
         return (
+          <Reveal.Item key={g.id}>
           <Card
-            key={g.id}
             role="button"
             tabIndex={0}
             aria-label={`Open ${g.name}`}
@@ -197,9 +198,10 @@ export default function GroupsView() {
               </div>
             </CardContent>
           </Card>
+          </Reveal.Item>
         );
       })}
-      </div>
+      </Reveal>
       {createDialog}
     </>
   );

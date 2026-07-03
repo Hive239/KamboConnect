@@ -123,14 +123,10 @@ export default function UserManagement() {
         resolution_action: selectedAction
       });
 
-      // Update user status (in a real app, this would update user fields like 'is_suspended', 'suspension_until', etc.)
-      await User.update(selectedUser.id, {
-        admin_notes: `${selectedAction.toUpperCase()}: ${reason}`,
-        // In a real implementation, you'd add fields like:
-        // is_suspended: selectedAction === 'suspend',
-        // suspension_until: selectedAction === 'suspend' ? new Date(Date.now() + duration * 24 * 60 * 60 * 1000) : null,
-        // is_banned: selectedAction === 'ban'
-      });
+      // Actually enforce the action on the user's account status.
+      // (profiles has `status` but no admin_notes column — the reason is logged on the Report above.)
+      const nextStatus = selectedAction === "ban" ? "banned" : selectedAction === "suspend" ? "suspended" : "active";
+      await User.update(selectedUser.id, { status: nextStatus });
 
       // Refresh user list
       loadUsers();

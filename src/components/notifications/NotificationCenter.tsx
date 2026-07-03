@@ -116,10 +116,11 @@ export default function NotificationCenter() {
           unsub = subscribe('Notification', (change: any) => {
             fetchNotifications(currentUser, true);
             // Fire a native browser notification for new ones (if the user opted in).
-            if (change?.op === 'create' && typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+            // NB: window.Notification — the bare `Notification` is the imported entity (shadowed).
+            if (change?.op === 'create' && typeof window !== 'undefined' && 'Notification' in window && window.Notification.permission === 'granted') {
               const n = change.record || {};
               if (n.user_id === currentUser.id) {
-                try { new Notification(n.title || 'KamboGuide', { body: n.message || '', icon: '/icon.svg' }); } catch { /* ignore */ }
+                try { new window.Notification(n.title || 'KamboGuide', { body: n.message || '', icon: '/icon.svg' }); } catch { /* ignore */ }
               }
             }
           });

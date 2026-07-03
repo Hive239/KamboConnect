@@ -19,6 +19,7 @@ import {
   Users, Loader2, Calendar as CalendarIcon, ShareIcon, ShieldCheck, Trash2
 } from "@/lib/icons";
 import { GradientMesh } from "@/components/ui/GradientMesh";
+import { Reveal } from "@/components/ui/Reveal";
 import { createPageUrl } from "@/utils";
 import { format } from 'date-fns';
 import { toast } from "sonner";
@@ -624,17 +625,18 @@ export default function PractitionerProfile() {
         {practitionerEvents.length > 0 && (
           <div className="mt-8">
             <h2 className="mb-4 text-2xl font-bold text-foreground">Upcoming Sessions</h2>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <Reveal stagger className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {practitionerEvents.slice(0, 6).map((event) => (
+                <Reveal.Item key={event.id}>
                 <EventCard
-                  key={event.id}
                   event={event}
                   practitioner={practitioner}
                   onViewDetails={() => navigate(createPageUrl("Events"))}
                   onRegister={() => navigate(createPageUrl("Events"))}
                 />
+                </Reveal.Item>
               ))}
-            </div>
+            </Reveal>
           </div>
         )}
 
@@ -645,16 +647,17 @@ export default function PractitionerProfile() {
               <h2 className="text-2xl font-bold text-foreground">Shop</h2>
               <Link to={createPageUrl("Market")} className="text-sm text-primary hover:underline">View all in Market</Link>
             </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <Reveal stagger className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
               {practitionerProducts.slice(0, 4).map((product) => (
+                <Reveal.Item key={product.id}>
                 <ProductCard
-                  key={product.id}
                   product={product}
                   onOpen={() => navigate(createPageUrl("Market"))}
                   onAdd={() => navigate(createPageUrl("Market"))}
                 />
+                </Reveal.Item>
               ))}
-            </div>
+            </Reveal>
           </div>
         )}
 

@@ -16,7 +16,7 @@ import { format, parse, isSameDay } from 'date-fns';
 /** Bookings in these states hold a slot (so it can't be re-booked). */
 const ACTIVE_STATUSES = ['pending', 'confirmed'];
 
-export function generateTimeSlots(start: string, end: string, interval = 60): string[] {
+function generateTimeSlots(start: string, end: string, interval = 60): string[] {
   const slots: string[] = [];
   if (!start || !end) return slots;
   let cur = parse(start, 'HH:mm', new Date());

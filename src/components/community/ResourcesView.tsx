@@ -12,6 +12,7 @@ import { ArrowUpRight, Book, Video, Link as LinkIcon, FileText, Shield, Users, H
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { useSpotlight } from "@/lib/useSpotlight";
 import { Spotlight } from "@/components/ui/Spotlight";
+import { Reveal } from "@/components/ui/Reveal";
 import { toast } from "sonner";
 // Small local groupBy (replaces the lodash dependency)
 function groupBy<T>(items: T[], key: keyof T | string): Record<string, T[]> {
@@ -250,11 +251,13 @@ export default function ResourcesView() {
                   category={category} 
                   count={groupedResources[category].length}
                 />
-                <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+                <Reveal stagger className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
                   {groupedResources[category].map(resource => (
-                    <ResourceCard key={resource.id} resource={resource} me={me} onDelete={deleteResource} />
+                    <Reveal.Item key={resource.id}>
+                      <ResourceCard resource={resource} me={me} onDelete={deleteResource} />
+                    </Reveal.Item>
                   ))}
-                </div>
+                </Reveal>
               </div>
             )
           ))}

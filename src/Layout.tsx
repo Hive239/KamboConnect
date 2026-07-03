@@ -36,20 +36,20 @@ const mainNavItems = [
   { title: "Dashboard", tKey: "nav.practitionerDashboard", url: createPageUrl("PractitionerDashboard"), icon: Briefcase, isPublic: false, roles: ["practitioner"] },
   // Client discovery + commerce.
   { title: "For You", tKey: "nav.forYou", url: createPageUrl("ForYou"), icon: Home, isPublic: false, roles: ["client"] },
-  { title: "Ask the Guide", tKey: "nav.guide", url: createPageUrl("Guide"), icon: Sparkle, isPublic: true, roles: ["client", "practitioner"] },
-  { title: "Directory", tKey: "nav.directory", url: createPageUrl("Directory"), icon: Search, isPublic: true, roles: ["client"] },
-  { title: "Map", tKey: "nav.map", url: createPageUrl("Map"), icon: MapPin, isPublic: true, roles: ["client", "practitioner"] },
-  { title: "Find Your Match", tKey: "nav.matchmaking", url: createPageUrl("Matchmaking"), icon: Crosshair, isPublic: true, roles: ["client"] },
+  { title: "Ask the Guide", tKey: "nav.guide", url: createPageUrl("Guide"), icon: Sparkle, isPublic: false, roles: ["client", "practitioner"] },
+  { title: "Directory", tKey: "nav.directory", url: createPageUrl("Directory"), icon: Search, isPublic: false, roles: ["client"] },
+  { title: "Map", tKey: "nav.map", url: createPageUrl("Map"), icon: MapPin, isPublic: false, roles: ["client", "practitioner"] },
+  { title: "Find Your Match", tKey: "nav.matchmaking", url: createPageUrl("Matchmaking"), icon: Crosshair, isPublic: false, roles: ["client"] },
   // Shared community (all roles).
-  { title: "Community", tKey: "nav.community", url: createPageUrl("Community"), icon: Users, isPublic: true },
-  { title: "Events", tKey: "nav.events", url: createPageUrl("Events"), icon: Calendar, isPublic: true },
+  { title: "Community", tKey: "nav.community", url: createPageUrl("Community"), icon: Users, isPublic: false },
+  { title: "Events", tKey: "nav.events", url: createPageUrl("Events"), icon: Calendar, isPublic: false },
   // Client-only.
   { title: "My Bookings", tKey: "nav.bookings", url: createPageUrl("Bookings"), icon: Briefcase, isPublic: false, roles: ["client"] },
   { title: "Journal", tKey: "nav.journal", url: createPageUrl("Journal"), icon: Book, isPublic: false, roles: ["client"] },
   { title: "Messages", tKey: "nav.messages", url: createPageUrl("Messages"), icon: MessageSquare, isPublic: false },
   { title: "My Favorites", tKey: "nav.favorites", url: createPageUrl("Favorites"), icon: Heart, isPublic: false, roles: ["client"] },
-  { title: "Market", tKey: "nav.market", url: createPageUrl("Market"), icon: Store, isPublic: true, roles: ["client", "practitioner"] },
-  { title: "Learn", tKey: "nav.learn", url: createPageUrl("Education"), icon: BookOpen, isPublic: true },
+  { title: "Market", tKey: "nav.market", url: createPageUrl("Market"), icon: Store, isPublic: false, roles: ["client", "practitioner"] },
+  { title: "Learn", tKey: "nav.learn", url: createPageUrl("Education"), icon: BookOpen, isPublic: false },
   { title: "Courses", tKey: "nav.courses", url: createPageUrl("Courses"), icon: Book, isPublic: false },
   { title: "Coursework", tKey: "nav.coursework", url: createPageUrl("Coursework"), icon: GraduationCap, isPublic: false },
 ];
@@ -142,9 +142,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         { title: "Profile", tKey: "nav.profile", url: createPageUrl("Profile"), icon: UserIcon },
       ]
     : [
-        navByTitle("Directory"), navByTitle("Ask the Guide"), navByTitle("Community"),
-        navByTitle("Events"),
-        { title: "Learn", tKey: "nav.learn", url: createPageUrl("Education"), icon: BookOpen },
+        // Logged-out: only public destinations (app pages redirect to /Auth).
+        { title: "Home", tKey: "nav.home", url: "/", icon: Home },
+        { title: "Sign in", tKey: "nav.signin", url: createPageUrl("Auth"), icon: LogIn },
+        { title: "Disclaimer", tKey: "nav.disclaimer", url: createPageUrl("Disclaimer"), icon: Shield },
       ];
 
   const isActive = (url: string) => location.pathname === url;

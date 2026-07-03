@@ -9,6 +9,7 @@ import { useSeo } from "@/lib/useSeo";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatCard } from "@/components/ui/StatCard";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { Reveal } from "@/components/ui/Reveal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Trophy, Star, Briefcase, DollarSign, Loader2 } from "@/lib/icons";
@@ -136,11 +137,12 @@ export default function Billing() {
           )}
         </div>
       )}
-      <div className="grid gap-5 md:grid-cols-3">
+      <Reveal stagger className="grid gap-5 md:grid-cols-3">
         {TIERS.map((t) => {
           const current = prac.listing_tier === t.id;
           return (
-            <Card key={t.id} className={current ? "border-primary ring-1 ring-primary" : ""}>
+            <Reveal.Item key={t.id}>
+            <Card className={current ? "border-primary ring-1 ring-primary" : ""}>
               <CardContent className="p-6">
                 <div className="mb-2 flex items-center justify-between">
                   <h3 className="font-display text-xl font-semibold">{t.name}</h3>
@@ -161,9 +163,10 @@ export default function Billing() {
                 )}
               </CardContent>
             </Card>
+            </Reveal.Item>
           );
         })}
-      </div>
+      </Reveal>
     </div>
   );
 }

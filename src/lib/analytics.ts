@@ -12,7 +12,7 @@ const pct = (num: number, den: number) => (den > 0 ? Math.round((num / den) * 10
 const DAY = 86400000;
 
 /** Platform economics. */
-export const PLATFORM_FEE_RATE = 0.05; // platform keeps 5% of each paid session
+const PLATFORM_FEE_RATE = 0.05; // platform keeps 5% of each paid session
 export const TIER_PRICES: Record<string, number> = { basic: 0, preferred: 29, featured: 49 };
 
 const monthKey = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;

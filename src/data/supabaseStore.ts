@@ -8,7 +8,7 @@ import type { BaseRecord, EntityName, EntityTypeMap } from '@/types/entities';
 import type { EntityClient } from './store';
 
 /** Entity name → Postgres table name (snake_case plural). */
-export const TABLE: Record<EntityName, string> = {
+const TABLE: Record<EntityName, string> = {
   User: 'profiles',
   Practitioner: 'practitioners',
   Review: 'reviews',

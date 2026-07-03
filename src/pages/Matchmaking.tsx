@@ -13,6 +13,7 @@ import PractitionerCard from "@/components/directory/PractitionerCard";
 import PractitionerModal from "@/components/directory/PractitionerModal";
 import { Sparkle, CheckCircle, Crosshair, ArrowRight, ArrowLeft, MapPin } from "@/lib/icons";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { Reveal } from "@/components/ui/Reveal";
 import { useSeo } from "@/lib/useSeo";
 
 const MODALITIES = ["Traditional Kambo", "Sananga", "Hapé / Rapé", "Integration Coaching", "Group Circles", "Women’s Circles", "Trauma-Informed", "Microdosing Guidance"];
@@ -171,9 +172,9 @@ export default function Matchmaking() {
             <h2 className="text-xl font-semibold">{results.length} matches for you</h2>
             <Button variant="outline" size="sm" onClick={() => { setResults(null); setStep(0); }}>Refine</Button>
           </div>
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <Reveal stagger className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {results.map(({ practitioner, score, reasons }) => (
-              <div key={practitioner.id} className="space-y-2">
+              <Reveal.Item key={practitioner.id} className="space-y-2">
                 <div className="relative">
                   <PractitionerCard practitioner={practitioner} averageRating={ratingFor(practitioner).toFixed(1)} reviewCount={reviews.filter((r) => r.practitioner_id === practitioner.id).length} onClick={() => setSelected(practitioner)} size="large" />
                   <Badge variant="premium" className="absolute -top-2 -right-2 z-10 shadow">{score}% match</Badge>
@@ -187,9 +188,9 @@ export default function Matchmaking() {
                     ))}
                   </ul>
                 )}
-              </div>
+              </Reveal.Item>
             ))}
-          </div>
+          </Reveal>
         </div>
       )}
 

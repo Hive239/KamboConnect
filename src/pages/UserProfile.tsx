@@ -13,6 +13,7 @@ import FollowButton from "@/components/social/FollowButton";
 import ReportButton from "@/components/profile/ReportButton";
 import PageBreadcrumbs from "@/components/PageBreadcrumbs";
 import { GradientMesh } from "@/components/ui/GradientMesh";
+import { Reveal } from "@/components/ui/Reveal";
 import ShareButton from "@/components/ShareButton";
 
 /**
@@ -124,9 +125,10 @@ export default function UserProfile() {
           No posts yet.
         </div>
       ) : (
-        <div className="space-y-3">
+        <Reveal stagger className="space-y-3">
           {posts.map((p) => (
-            <Link key={p.id} to={createPageUrl(`Post?id=${p.id}`)} className="block">
+            <Reveal.Item key={p.id}>
+            <Link to={createPageUrl(`Post?id=${p.id}`)} className="block">
               <Card className="transition-shadow hover:shadow-md">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between gap-2">
@@ -139,8 +141,9 @@ export default function UserProfile() {
                 </CardContent>
               </Card>
             </Link>
+            </Reveal.Item>
           ))}
-        </div>
+        </Reveal>
       )}
     </div>
   );

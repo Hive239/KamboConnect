@@ -7,6 +7,7 @@ import ReactionButton from "@/components/social/ReactionButton";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
+import { Reveal } from "@/components/ui/Reveal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -192,10 +193,10 @@ export default function ForumView() {
           ))}
         </div>
       ) : filteredPosts.length > 0 ? (
-        <div className="space-y-3">
-          {pinnedPosts.map(post => <PostListItem key={post.id} post={post} practitionerIds={practitionerIds} reactionCount={reactions.counts[post.id] || 0} reactionLiked={reactions.mine.has(post.id)} />)}
-          {regularPosts.map(post => <PostListItem key={post.id} post={post} practitionerIds={practitionerIds} reactionCount={reactions.counts[post.id] || 0} reactionLiked={reactions.mine.has(post.id)} />)}
-        </div>
+        <Reveal stagger className="space-y-3">
+          {pinnedPosts.map(post => <Reveal.Item key={post.id}><PostListItem post={post} practitionerIds={practitionerIds} reactionCount={reactions.counts[post.id] || 0} reactionLiked={reactions.mine.has(post.id)} /></Reveal.Item>)}
+          {regularPosts.map(post => <Reveal.Item key={post.id}><PostListItem post={post} practitionerIds={practitionerIds} reactionCount={reactions.counts[post.id] || 0} reactionLiked={reactions.mine.has(post.id)} /></Reveal.Item>)}
+        </Reveal>
       ) : (
         <div className="text-center py-12">
           <MessageSquare className="w-12 h-12 text-muted-foreground/40 mx-auto mb-4" />

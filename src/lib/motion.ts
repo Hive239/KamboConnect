@@ -13,7 +13,7 @@ export const spring = {
 };
 
 /** Easing curve matching the CSS `fade-up` animation. */
-export const easeOutExpo: Transition["ease"] = [0.22, 1, 0.36, 1];
+const easeOutExpo: Transition["ease"] = [0.22, 1, 0.36, 1];
 
 /** Standard entrance — fade + rise. */
 export const fadeUp: Variants = {

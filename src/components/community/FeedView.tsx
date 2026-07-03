@@ -7,6 +7,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
+import { Reveal } from "@/components/ui/Reveal";
 import { formatDistanceToNow } from "date-fns";
 import { Calendar, MessageSquare, Star, UsersThree, Storefront, ShieldCheck, Users } from "@/lib/icons";
 import { loadReactions } from "@/lib/reactions";
@@ -78,7 +79,7 @@ export default function FeedView() {
           {onlyFollowing ? "Follow practitioners to see their activity here." : "No activity yet."}
         </div>
       ) : (
-        <div className="space-y-3">
+        <Reveal stagger className="space-y-3">
           {shown.map((it) => {
             const meta = VERB_META[it.verb] || { icon: MessageSquare, label: it.verb };
             const Body = (
@@ -89,13 +90,13 @@ export default function FeedView() {
                     <AvatarFallback className="bg-primary/10 text-primary text-xs">{it.actor_name?.[0]}</AvatarFallback>
                   </Avatar>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm">
+                    <div className="text-sm">
                       <span className="font-semibold">{it.actor_name}</span>
                       {it.actor_id && practitionerIds.has(it.actor_id) && (
                         <Badge variant="tier" className="mx-1.5 align-middle text-[10px]">Practitioner</Badge>
                       )}
                       {" "}<span className="text-muted-foreground">{meta.label}</span>
-                    </p>
+                    </div>
                     {it.summary && <p className="mt-0.5 text-sm text-foreground">{it.summary}</p>}
                     <div className="mt-1 flex items-center gap-2">
                       <Badge variant="tier" className="gap-1"><meta.icon className="h-3 w-3" weight="duotone" /> {it.object_type}</Badge>
@@ -111,9 +112,13 @@ export default function FeedView() {
             );
             // action_url comes from a world-writable table — only follow internal, path-relative targets.
             const safeUrl = typeof it.action_url === "string" && it.action_url.startsWith("/") && !it.action_url.startsWith("//") ? it.action_url : null;
-            return safeUrl ? <Link key={it.id} to={safeUrl} className="block">{Body}</Link> : <div key={it.id}>{Body}</div>;
+            return (
+              <Reveal.Item key={it.id}>
+                {safeUrl ? <Link to={safeUrl} className="block">{Body}</Link> : <div>{Body}</div>}
+              </Reveal.Item>
+            );
           })}
-        </div>
+        </Reveal>
       )}
     </div>
   );

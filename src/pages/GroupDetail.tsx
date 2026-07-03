@@ -15,6 +15,7 @@ import { formatDate } from "@/lib/format";
 import { useSeo } from "@/lib/useSeo";
 import PageBreadcrumbs from "@/components/PageBreadcrumbs";
 import { GradientMesh } from "@/components/ui/GradientMesh";
+import { Reveal } from "@/components/ui/Reveal";
 import ShareButton from "@/components/ShareButton";
 import ReactionButton from "@/components/social/ReactionButton";
 import { loadReactions } from "@/lib/reactions";
@@ -290,11 +291,12 @@ export default function GroupDetail() {
       {posts.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border py-12 text-center text-muted-foreground">No posts yet. {isActiveMember ? "Be the first!" : "Join to start a discussion."}</div>
       ) : (
-        <div className="space-y-3">
+        <Reveal stagger className="space-y-3">
           {posts.map((p) => {
             const open = () => navigate(createPageUrl(`Post?id=${p.id}`));
             return (
-            <Card key={p.id} role="button" tabIndex={0} aria-label={`Open ${p.title}`}
+            <Reveal.Item key={p.id}>
+            <Card role="button" tabIndex={0} aria-label={`Open ${p.title}`}
               className="cursor-pointer hover:shadow-sm transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               onClick={open}
               onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } }}>
@@ -311,9 +313,10 @@ export default function GroupDetail() {
                 </div>
               </CardContent>
             </Card>
+            </Reveal.Item>
             );
           })}
-        </div>
+        </Reveal>
       )}
       </>
       )}

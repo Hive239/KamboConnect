@@ -4,6 +4,7 @@ import { isPaymentsConfigured, startCheckout } from "@/integrations/Payments";
 import { TRACKS, trackById, allLessons, lessonCount, type Track, type Lesson } from "@/data/coursework";
 import { useSeo } from "@/lib/useSeo";
 import { Card, CardContent } from "@/components/ui/card";
+import { Reveal } from "@/components/ui/Reveal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -84,7 +85,7 @@ export default function Coursework() {
           <strong> educational only — not a certification or license to practice</strong>, and make no medical claims.
         </p>
 
-        <div className="mt-8 grid gap-6 md:grid-cols-2">
+        <Reveal stagger className="mt-8 grid gap-6 md:grid-cols-2">
           {TRACKS.map((t) => {
             const enr = enrollmentFor(t.id);
             const total = lessonCount(t);
@@ -92,7 +93,8 @@ export default function Coursework() {
             const pct = total ? Math.round((done / total) * 100) : 0;
             const completed = enr?.completed_at || (total && done === total);
             return (
-              <Card key={t.id} className="flex flex-col overflow-hidden">
+              <Reveal.Item key={t.id}>
+              <Card className="flex flex-col overflow-hidden">
                 <img src={t.image} alt={t.title} className="h-44 w-full object-cover" loading="lazy" />
                 <CardContent className="flex flex-1 flex-col gap-3 p-5">
                   <div className="flex items-start justify-between gap-2">
@@ -119,9 +121,10 @@ export default function Coursework() {
                   )}
                 </CardContent>
               </Card>
+              </Reveal.Item>
             );
           })}
-        </div>
+        </Reveal>
 
         <p className="mt-8 text-center text-xs text-muted-foreground">
           Educational content only. Completing a course does not certify or license anyone to serve Kambo, and is not

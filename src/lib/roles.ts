@@ -26,7 +26,7 @@ export function roleHome(role: Role): string {
  * to their role-home. Pages NOT listed are open to every authenticated role.
  * Anonymous access is governed separately by PUBLIC_PAGES.
  */
-export const PAGE_ACCESS: Record<string, Role[]> = {
+const PAGE_ACCESS: Record<string, Role[]> = {
   // Client discovery + commerce — practitioners are the supply, not the buyers.
   Directory: ['client', 'admin'],
   Matchmaking: ['client', 'admin'],

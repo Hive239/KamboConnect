@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { Package, Loader2, ShoppingCart } from "@/lib/icons";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { Reveal } from "@/components/ui/Reveal";
 import { useSeo } from "@/lib/useSeo";
 import { toast } from "sonner";
 
@@ -66,9 +67,10 @@ export default function Orders() {
           No orders yet.
         </div>
       ) : (
-        <div className="space-y-4">
+        <Reveal stagger className="space-y-4">
           {orders.map((o) => (
-            <Card key={o.id}>
+            <Reveal.Item key={o.id}>
+            <Card>
               <CardContent className="p-4">
                 <div className="mb-2 flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">{o.created_date ? formatDate(o.created_date) : ""}</span>
@@ -90,8 +92,9 @@ export default function Orders() {
                 </div>
               </CardContent>
             </Card>
+            </Reveal.Item>
           ))}
-        </div>
+        </Reveal>
       )}
     </div>
   );

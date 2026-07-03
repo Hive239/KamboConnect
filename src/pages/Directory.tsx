@@ -424,18 +424,19 @@ export default function Directory() {
                         ))}
                     </div>
                   ) : (
-                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                    <Reveal stagger className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                         {recommendedPractitioners.map(practitioner => (
-                        <PractitionerCard 
-                            key={practitioner.id}
+                        <Reveal.Item key={practitioner.id}>
+                        <PractitionerCard
                             practitioner={practitioner}
                             averageRating={getAverageRating(practitioner.id)}
                             reviewCount={getPractitionerReviews(practitioner.id).length}
                             onClick={() => handlePractitionerClick(practitioner)}
                             size="medium"
                         />
+                        </Reveal.Item>
                         ))}
-                    </div>
+                    </Reveal>
                   )}
                 </section>
               )}
@@ -453,18 +454,19 @@ export default function Directory() {
                         ))}
                     </div>
                   ) : (
-                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                    <Reveal stagger className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                         {featuredPractitioners.map(practitioner => (
-                        <PractitionerCard 
-                            key={practitioner.id}
+                        <Reveal.Item key={practitioner.id}>
+                        <PractitionerCard
                             practitioner={practitioner}
                             averageRating={getAverageRating(practitioner.id)}
                             reviewCount={getPractitionerReviews(practitioner.id).length}
                             onClick={() => handlePractitionerClick(practitioner)}
                             size="medium"
                         />
+                        </Reveal.Item>
                         ))}
-                    </div>
+                    </Reveal>
                   )}
                 </section>
               )}
@@ -482,18 +484,19 @@ export default function Directory() {
                         ))}
                     </div>
                   ) : (
-                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                    <Reveal stagger className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                         {vettedPractitioners.map(practitioner => (
-                            <PractitionerCard 
-                            key={practitioner.id}
+                            <Reveal.Item key={practitioner.id}>
+                            <PractitionerCard
                             practitioner={practitioner}
                             averageRating={getAverageRating(practitioner.id)}
                             reviewCount={getPractitionerReviews(practitioner.id).length}
                             onClick={() => handlePractitionerClick(practitioner)}
                             size="medium"
                             />
+                            </Reveal.Item>
                         ))}
-                    </div>
+                    </Reveal>
                   )}
                 </section>
               )}
@@ -511,18 +514,19 @@ export default function Directory() {
                         ))}
                     </div>
                   ) : (
-                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                    <Reveal stagger className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                         {unvettedPractitioners.map(practitioner => (
-                            <PractitionerCard 
-                            key={practitioner.id}
+                            <Reveal.Item key={practitioner.id}>
+                            <PractitionerCard
                             practitioner={practitioner}
                             averageRating={getAverageRating(practitioner.id)}
                             reviewCount={getPractitionerReviews(practitioner.id).length}
                             onClick={() => handlePractitionerClick(practitioner)}
                             size="medium"
                             />
+                            </Reveal.Item>
                         ))}
-                    </div>
+                    </Reveal>
                   )}
                 </section>
               )}
