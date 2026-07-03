@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { CourseworkEnrollment, Payment, User } from "@/entities/all";
+import { isPaymentsConfigured, startCheckout } from "@/integrations/Payments";
 import { TRACKS, trackById, allLessons, lessonCount, type Track, type Lesson } from "@/data/coursework";
 import { useSeo } from "@/lib/useSeo";
 import { Card, CardContent } from "@/components/ui/card";
@@ -7,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { GraduationCap, CheckCircle, Lock, ArrowLeft, ArrowRight, Trophy } from "@/lib/icons";
+import { GraduationCap, CheckCircle, Lock, ArrowLeft, ArrowRight, Trophy, Download } from "@/lib/icons";
+import { downloadCertificate } from "@/lib/certificatePdf";
 import { toast } from "sonner";
 
 export default function Coursework() {
@@ -36,11 +38,20 @@ export default function Coursework() {
     if (!payFor || !uid) return;
     setPaying(true);
     try {
-      // Mock payment (Stripe-ready): record the payment, then create the enrollment.
-      await Payment.create({ user_id: uid, amount: payFor.price, currency: "USD", payment_type: "course", payment_status: "completed", payment_date: new Date().toISOString() } as any);
-      const created = await CourseworkEnrollment.create({ user_id: uid, track: payFor.id, status: "active", price: payFor.price, paid_at: new Date().toISOString(), progress: {} } as any);
+      // Create the enrollment pending, then take payment. Real Stripe redirects and
+      // the webhook activates it; with no keys we finalize inline.
+      const enrollId = "enr_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+      const created = await CourseworkEnrollment.create({ id: enrollId, user_id: uid, track: payFor.id, status: "pending", price: payFor.price, progress: {} } as any);
+      const result = await startCheckout({
+        amount: payFor.price, currency: "USD", description: `${payFor.title} course`,
+        metadata: { kind: "course", enrollment_id: enrollId, user_id: uid },
+        successPath: "/Coursework?paid=1", cancelPath: "/Coursework?canceled=1",
+      });
+      if (result.mode === "redirect") { window.location.href = result.url; return; } // webhook activates
+      await CourseworkEnrollment.update(enrollId, { status: "active", paid_at: new Date().toISOString() });
+      await Payment.create({ user_id: uid, amount: payFor.price, currency: "USD", payment_type: "course", payment_status: "completed", stripe_payment_id: result.charge.id, payment_date: new Date().toISOString() } as any);
       toast.success("Enrolled — enjoy the course!");
-      setEnrollments((prev) => [...prev.filter((e) => e.track !== payFor.id), created]);
+      setEnrollments((prev) => [...prev.filter((e) => e.track !== payFor.id), { ...created, status: "active" }]);
       const t = payFor;
       setPayFor(null);
       setOpenTrack(t);
@@ -123,7 +134,7 @@ export default function Coursework() {
               <span>{payFor?.title}</span>
               <span className="font-semibold">${payFor?.price}.00</span>
             </div>
-            <p className="text-xs text-muted-foreground">Demo checkout (Stripe-ready). No real charge is made.</p>
+            {!isPaymentsConfigured() && <p className="text-xs text-muted-foreground">Demo checkout (Stripe-ready). No real charge is made.</p>}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setPayFor(null)}>Cancel</Button>
@@ -144,6 +155,11 @@ function CoursePlayer({ track, enrollment, onBack }: { track: Track; enrollment:
   });
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [checked, setChecked] = useState(false);
+  const [userName, setUserName] = useState("");
+  useEffect(() => { User.me().then((u) => setUserName(u.full_name || "")).catch(() => {}); }, []);
+
+  const getCertificate = () =>
+    downloadCertificate({ name: userName, courseTitle: track.title, completedAt: enrollment.completed_at || new Date().toISOString() });
 
   const active = lessons.find((l) => l.id === activeId)!;
   const idx = lessons.findIndex((l) => l.id === activeId);
@@ -192,6 +208,7 @@ function CoursePlayer({ track, enrollment, onBack }: { track: Track; enrollment:
             <Progress value={pct} className="h-2 max-w-xs" />
             <span className="text-sm text-muted-foreground">{doneCount}/{lessons.length} · {pct}%</span>
             {allDone && <Badge className="gap-1 bg-emerald-100 text-emerald-800"><Trophy className="h-3 w-3" /> Completed</Badge>}
+            {allDone && <Button size="sm" variant="outline" className="gap-1" onClick={getCertificate}><Download className="h-4 w-4" /> Certificate</Button>}
           </div>
         </div>
 
@@ -240,12 +257,18 @@ function CoursePlayer({ track, enrollment, onBack }: { track: Track; enrollment:
                           const isRight = checked && oi === q.answer;
                           return (
                             <label key={oi} className={`flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm ${isRight ? "border-emerald-400 bg-emerald-50" : isWrong ? "border-red-400 bg-destructive/10" : selected ? "border-primary" : "border-border"}`}>
-                              <input type="radio" name={`q-${active.id}-${qi}`} checked={selected} onChange={() => setAnswers((a) => ({ ...a, [qi]: oi }))} />
+                              <input type="radio" name={`q-${active.id}-${qi}`} checked={selected} onChange={() => setAnswers((a) => ({ ...a, [qi]: oi }))} disabled={progress[active.id]?.completed} />
                               {opt}
                             </label>
                           );
                         })}
                       </div>
+                      {checked && (
+                        <p className={`text-xs ${answers[qi] === q.answer ? "text-emerald-700" : "text-red-700"}`}>
+                          {answers[qi] === q.answer ? "Correct. " : "Not quite. "}
+                          {q.explanation}
+                        </p>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -259,6 +282,11 @@ function CoursePlayer({ track, enrollment, onBack }: { track: Track; enrollment:
                   <Button size="sm" disabled={idx >= lessons.length - 1} onClick={() => goto(lessons[idx + 1].id)}>
                     Next <ArrowRight className="ml-1 h-4 w-4" />
                   </Button>
+                ) : checked && active.quiz?.length ? (
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => { setAnswers({}); setChecked(false); }}>Try again</Button>
+                    <Button size="sm" onClick={completeLesson}>Submit &amp; complete</Button>
+                  </div>
                 ) : (
                   <Button size="sm" onClick={completeLesson}>
                     {active.quiz?.length ? "Submit & complete" : "Mark complete"}

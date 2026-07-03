@@ -47,7 +47,9 @@ export default function NotificationCenter() {
         "-created_date",
         20
       );
-      setNotifications(fetchedNotifications);
+      // Honor expires_at — hide time-limited notifications past their expiry.
+      const now = Date.now();
+      setNotifications(fetchedNotifications.filter((n) => !n.expires_at || new Date(n.expires_at).getTime() > now));
       setIsFailing(false); // Reset failure state on success
     } catch (err) {
       console.warn("Could not fetch notifications. Pausing automatic checks.", err.message);

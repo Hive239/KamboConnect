@@ -14,7 +14,7 @@ import {
 } from "@/entities/all";
 import SafetyGate, { type SafetyData } from "./SafetyGate";
 import { fileScreeningAndWaiver } from "@/lib/fileWaiver";
-import { createCheckout } from "@/integrations/Payments";
+import { startCheckout, isPaymentsConfigured } from "@/integrations/Payments";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -96,23 +96,16 @@ export default function DirectBookingModal({ practitioner, onClose, onBookingCom
       const bookingDateTime = parse(selectedTime, 'HH:mm', selectedDate);
       const sessionPrice = practitioner.pricing_range === '$' ? 150 : practitioner.pricing_range === '$$' ? 200 : 250;
 
-      // Payment via the single Payments seam (Stripe-ready — swaps to real Stripe
-      // Checkout the moment STRIPE_SECRET_KEY is set; mock until then).
-      const checkout = await createCheckout({
-        amount: sessionPrice,
-        description: `Kambo session with ${practitioner.full_name}`,
-        metadata: { user_id: user.id, practitioner_id: practitioner.id, type: 'booking' },
-      });
+      // Create the booking + payment as PENDING first, so a real Stripe redirect can
+      // reconcile them via the webhook; the mock path finalizes immediately below.
       const paymentRecord = await Payment.create({
-        booking_id: null, // will be updated after booking is created
+        booking_id: null, // linked after the booking is created
         user_id: user.id,
         practitioner_id: practitioner.id,
-        amount: checkout.amount,
+        amount: sessionPrice,
         payment_type: 'booking',
-        payment_status: checkout.status === 'completed' ? 'completed' : 'failed',
-        payment_method: checkout.method,
-        stripe_payment_id: checkout.id,
-        payment_date: checkout.created_at,
+        payment_status: 'pending',
+        payment_date: new Date().toISOString(),
       });
 
       const bookingRecord = await Booking.create({
@@ -127,9 +120,9 @@ export default function DirectBookingModal({ practitioner, onClose, onBookingCom
         duration_minutes: 60,
         status: "confirmed", // Direct booking is auto-confirmed
         price: sessionPrice,
-        payment_status: "paid",
+        payment_status: "pending",
         deposit_amount: sessionPrice,
-        deposit_status: "paid",
+        deposit_status: "pending",
         message: `Direct booking made via practitioner profile for ${format(bookingDateTime, 'PPP @ p')}`
       });
 
@@ -176,6 +169,18 @@ export default function DirectBookingModal({ practitioner, onClose, onBookingCom
           priority: 'high',
           action_url: '/PractitionerDashboard'
       });
+
+      // Take payment. Real Stripe redirects to Checkout (the webhook flips the
+      // booking + payment to paid on return); with no keys we finalize inline.
+      const result = await startCheckout({
+        amount: sessionPrice, currency: "USD",
+        description: `Kambo session with ${practitioner.full_name}`,
+        metadata: { kind: "booking", booking_id: bookingRecord.id, payment_id: paymentRecord.id, user_id: user.id, practitioner_id: practitioner.id },
+        successPath: "/Bookings?paid=1", cancelPath: "/Bookings?canceled=1",
+      });
+      if (result.mode === "redirect") { window.location.href = result.url; return; }
+      await Booking.update(bookingRecord.id, { payment_status: "paid", deposit_status: "paid" });
+      await Payment.update(paymentRecord.id, { payment_status: "completed", stripe_payment_id: result.charge.id });
 
       setBookingStep('success');
       onBookingComplete();
@@ -270,12 +275,14 @@ export default function DirectBookingModal({ practitioner, onClose, onBookingCom
                     <Separator/>
                     <p className="font-bold text-lg"><strong>Total:</strong> ${practitioner.pricing_range === '$' ? 150 : practitioner.pricing_range === '$$' ? 200 : 250}</p>
                 </div>
-                 <Alert>
-                    <Shield className="h-4 w-4" />
-                    <AlertDescription>
-                        This is a mock payment step. In a real application, you would enter your credit card details here. Clicking "Confirm & Pay" will simulate a successful payment and book your session.
-                    </AlertDescription>
-                </Alert>
+                 {!isPaymentsConfigured() && (
+                   <Alert>
+                      <Shield className="h-4 w-4" />
+                      <AlertDescription>
+                          This is a mock payment step. In a real application, you would enter your credit card details here. Clicking "Confirm &amp; Pay" will simulate a successful payment and book your session.
+                      </AlertDescription>
+                  </Alert>
+                 )}
             </div>
         )}
 

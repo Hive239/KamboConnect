@@ -176,7 +176,9 @@ export default function ContentModeration() {
     }
   };
 
-  const filteredPosts = posts.filter(post => 
+  const aiFlaggedCount = Object.values(aiScores).filter((s: any) => s?.flagged).length;
+
+  const filteredPosts = posts.filter(post =>
     !searchTerm || 
     post.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     post.content?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -191,23 +193,16 @@ export default function ContentModeration() {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MessageSquare className="w-5 h-5 text-info" />
-            Content Moderation
-          </CardTitle>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-            <Input
-              placeholder="Search content..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-        </CardHeader>
-      </Card>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="rounded-2xl border border-primary/25 bg-card p-4"><p className="text-xs text-muted-foreground">Posts</p><p className="mt-1 font-display text-2xl font-semibold text-primary">{posts.length}</p></div>
+        <div className="rounded-2xl border border-info/25 bg-card p-4"><p className="text-xs text-muted-foreground">Replies</p><p className="mt-1 font-display text-2xl font-semibold text-info">{replies.length}</p></div>
+        <div className="rounded-2xl border border-warning/25 bg-card p-4"><p className="text-xs text-muted-foreground">Flagged</p><p className="mt-1 font-display text-2xl font-semibold text-warning">{flaggedContent.length}</p></div>
+        <div className="rounded-2xl border border-destructive/25 bg-card p-4"><p className="text-xs text-muted-foreground">AI-flagged</p><p className="mt-1 font-display text-2xl font-semibold text-destructive">{aiFlaggedCount}</p></div>
+      </div>
+      <div className="relative">
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input placeholder="Search content…" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="h-10 rounded-full pl-9" />
+      </div>
 
       <Tabs defaultValue="posts">
         <TabsList className="grid w-full grid-cols-3">
@@ -223,7 +218,9 @@ export default function ContentModeration() {
         </TabsList>
 
         <TabsContent value="posts" className="space-y-4">
-          {filteredPosts.map(post => (
+          {filteredPosts.length === 0 ? (
+            <Card><CardContent className="p-8 text-center text-muted-foreground"><MessageSquare className="mx-auto mb-3 h-10 w-10 text-muted-foreground/40" weight="duotone" /><p>No posts found.</p></CardContent></Card>
+          ) : filteredPosts.map(post => (
             <ContentItem
               key={post.id}
               content={post}

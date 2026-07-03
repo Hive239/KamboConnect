@@ -6,15 +6,17 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { 
-  Search, 
-  MoreHorizontal, 
-  Shield, 
-  Ban, 
-  Mail, 
+import {
+  Search,
+  MoreHorizontal,
+  Shield,
+  Ban,
+  Mail,
   Eye,
-  AlertTriangle
+  AlertTriangle,
+  Users
 } from "@/lib/icons";
+import { StatusPill } from "@/components/ui/StatusPill";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
@@ -147,21 +149,41 @@ export default function UserManagement() {
     }
   };
 
+  const roleCounts = {
+    admin: users.filter((u) => u.role === "admin").length,
+    practitioner: users.filter((u) => u.role === "practitioner").length,
+    client: users.filter((u) => !u.role || u.role === "client").length,
+  };
+  const summary = [
+    { label: "Total users", value: users.length, cls: "border-primary/25 text-primary" },
+    { label: "Admins", value: roleCounts.admin, cls: "border-destructive/25 text-destructive" },
+    { label: "Practitioners", value: roleCounts.practitioner, cls: "border-info/25 text-info" },
+    { label: "Clients", value: roleCounts.client, cls: "border-success/25 text-success" },
+  ];
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
+      {/* Role summary */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {summary.map((s) => (
+          <div key={s.label} className={`rounded-2xl border bg-card p-4 ${s.cls}`}>
+            <p className="text-xs text-muted-foreground">{s.label}</p>
+            <p className="mt-1 font-display text-2xl font-semibold">{s.value}</p>
+          </div>
+        ))}
+      </div>
+
       <Card>
         <CardHeader>
-          <CardTitle>User Management</CardTitle>
-          <div className="flex gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input
-                placeholder="Search users by name or email..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+          <CardTitle className="flex items-center gap-2"><Users className="h-5 w-5 text-primary" weight="duotone" /> User Management</CardTitle>
+          <div className="relative mt-2">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Search users by name or email…"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="h-10 rounded-full pl-9"
+            />
           </div>
         </CardHeader>
         <CardContent>
@@ -176,12 +198,20 @@ export default function UserManagement() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredUsers.map(user => (
+              {filteredUsers.length === 0 ? (
+                <TableRow><TableCell colSpan={5} className="py-10 text-center text-muted-foreground">No users match your search.</TableCell></TableRow>
+              ) : filteredUsers.map(user => (
                 <TableRow key={user.id}>
                   <TableCell>
-                    <div>
-                      <div className="font-medium">{user.full_name}</div>
-                      <div className="text-sm text-muted-foreground">{user.email}</div>
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-9 w-9">
+                        <AvatarImage src={user.profile_image_url} />
+                        <AvatarFallback className="bg-gradient-to-br from-primary to-clay text-xs font-semibold text-primary-foreground">{user.full_name?.charAt(0) || "?"}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <div className="font-medium">{user.full_name || "Unnamed"}</div>
+                        <div className="text-sm text-muted-foreground">{user.email}</div>
+                      </div>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -191,9 +221,7 @@ export default function UserManagement() {
                   </TableCell>
                   <TableCell>{format(new Date(user.created_date), 'MMM d, yyyy')}</TableCell>
                   <TableCell>
-                    <Badge variant="outline" className="text-primary">
-                      Active
-                    </Badge>
+                    <StatusPill status={user.status || "active"} />
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>

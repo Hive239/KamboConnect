@@ -13,6 +13,7 @@ import {
   Clock
 } from "@/lib/icons";
 import { format } from "date-fns";
+import { StatusPill } from "@/components/ui/StatusPill";
 
 const DisputeCard = ({ report, onUpdate }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -83,9 +84,7 @@ const DisputeCard = ({ report, onUpdate }) => {
             <Badge className={getPriorityColor(report.priority)}>
               {report.priority || 'low'} priority
             </Badge>
-            <Badge className={getStatusColor(report.status)}>
-              {report.status}
-            </Badge>
+            <StatusPill status={report.status} />
           </div>
         </div>
       </CardHeader>
@@ -196,14 +195,11 @@ export default function DisputeResolution() {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5 text-warning" />
-            Dispute Resolution Center
-          </CardTitle>
-        </CardHeader>
-      </Card>
+      <div className="grid grid-cols-3 gap-3">
+        <div className="rounded-2xl border border-warning/25 bg-card p-4"><p className="text-xs text-muted-foreground">Pending</p><p className="mt-1 font-display text-2xl font-semibold text-warning">{pendingReports.length}</p></div>
+        <div className="rounded-2xl border border-info/25 bg-card p-4"><p className="text-xs text-muted-foreground">Investigating</p><p className="mt-1 font-display text-2xl font-semibold text-info">{activeReports.length}</p></div>
+        <div className="rounded-2xl border border-success/25 bg-card p-4"><p className="text-xs text-muted-foreground">Resolved</p><p className="mt-1 font-display text-2xl font-semibold text-success">{resolvedReports.length}</p></div>
+      </div>
 
       <Tabs defaultValue="pending">
         <TabsList className="grid w-full grid-cols-3">
@@ -227,7 +223,7 @@ export default function DisputeResolution() {
             <Card>
               <CardContent className="p-8 text-center text-muted-foreground">
                 <CheckCircle className="w-12 h-12 mx-auto mb-4" />
-                <p>No pending reports! ✨</p>
+                <p>No pending reports.</p>
               </CardContent>
             </Card>
           )}

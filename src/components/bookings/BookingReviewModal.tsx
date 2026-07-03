@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Review, User, Notification, ModerationCase } from "@/entities/all";
 import { moderateContent } from "@/integrations/Moderation";
+import { persistReputation } from "@/lib/reputation";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -149,6 +150,10 @@ export default function BookingReviewModal({ booking, onClose, onSubmit }) {
         verified_client: true, // Always true when submitted via completed booking
         flagged: mod.flagged,
       });
+
+      // Recompute + persist the practitioner's reputation score (drives the
+      // landing "featured" sort/badge, which otherwise reads an empty field).
+      persistReputation(booking.practitioner_id);
 
       // Route flagged reviews to the Trust & Safety queue
       if (mod.flagged) {

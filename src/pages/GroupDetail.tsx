@@ -14,6 +14,7 @@ import { ArrowLeft, UsersThree, Lock, Loader2, Check, Plus } from "@/lib/icons";
 import { formatDate } from "@/lib/format";
 import { useSeo } from "@/lib/useSeo";
 import PageBreadcrumbs from "@/components/PageBreadcrumbs";
+import { GradientMesh } from "@/components/ui/GradientMesh";
 import ShareButton from "@/components/ShareButton";
 import ReactionButton from "@/components/social/ReactionButton";
 import { loadReactions } from "@/lib/reactions";
@@ -185,7 +186,10 @@ export default function GroupDetail() {
       />
 
       <Card className="mb-6 overflow-hidden">
-        {group.image_url && <div className="h-32 bg-muted"><img loading="lazy" src={group.image_url} alt={group.name} className="h-full w-full object-cover" /></div>}
+        <div className="grain relative h-28 overflow-hidden bg-background">
+          <GradientMesh intensity="vivid" />
+          {group.image_url && <img loading="lazy" src={group.image_url} alt={group.name} className="absolute inset-0 h-full w-full object-cover opacity-80" />}
+        </div>
         <CardContent className="p-4">
           <div className="flex items-start justify-between gap-3">
             <div>
@@ -208,7 +212,7 @@ export default function GroupDetail() {
 
       {/* Pending join requests — owner/moderator only. */}
       {isManager && pendingRequests.length > 0 && (
-        <Card className="mb-6 border-amber-200">
+        <Card className="mb-6 border-warning/20">
           <CardContent className="p-4">
             <h2 className="mb-3 font-semibold">Pending requests ({pendingRequests.length})</h2>
             <div className="space-y-2">

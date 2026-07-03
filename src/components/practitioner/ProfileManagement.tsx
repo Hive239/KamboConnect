@@ -27,6 +27,8 @@ export default function ProfileManagement({ practitioner, user, onUpdate }) {
     pricing_range: practitioner.pricing_range || "$",
     website_url: practitioner.website_url || "",
     is_online: practitioner.is_online || false,
+    video_interview_url: practitioner.video_interview_url || "",
+    modalities: practitioner.modalities || [],
     specializations: practitioner.specializations || [],
     languages: practitioner.languages || ["English"],
     safety_protocols: practitioner.safety_protocols || "",
@@ -388,6 +390,26 @@ export default function ProfileManagement({ practitioner, user, onUpdate }) {
                   onChange={(e) => setProfileData(prev => ({ ...prev, is_online: e.target.checked }))}
                 />
                 <Label htmlFor="is_online">I offer online / remote sessions</Label>
+              </div>
+              <div>
+                <Label htmlFor="modalities">Modalities (comma-separated)</Label>
+                <Input
+                  id="modalities"
+                  value={(profileData.modalities || []).join(", ")}
+                  onChange={(e) => setProfileData(prev => ({ ...prev, modalities: e.target.value.split(",").map(s => s.trim()).filter(Boolean) }))}
+                  placeholder="Kambo, Sananga, Rapé"
+                />
+                <p className="mt-1 text-xs text-muted-foreground">Powers the directory modality filter and matchmaking.</p>
+              </div>
+              <div>
+                <Label htmlFor="video_interview_url">Intro video URL (YouTube/Vimeo)</Label>
+                <Input
+                  id="video_interview_url"
+                  value={profileData.video_interview_url}
+                  onChange={(e) => setProfileData(prev => ({ ...prev, video_interview_url: e.target.value }))}
+                  placeholder="https://youtube.com/watch?v=…"
+                />
+                <p className="mt-1 text-xs text-muted-foreground">Shown on your profile and Featured listing.</p>
               </div>
             </CardContent>
           </Card>

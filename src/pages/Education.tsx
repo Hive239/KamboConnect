@@ -33,10 +33,17 @@ export default function Education() {
                 />
               </a>
               <a href="#contraindications-section">
-                <ArticleCard 
-                  title="Health Contraindications" 
-                  icon={Shield} 
+                <ArticleCard
+                  title="Health Contraindications"
+                  icon={Shield}
                   imageUrl="https://images.unsplash.com/photo-1576091160550-2173dba9996a?q=80&w=800"
+                />
+              </a>
+              <a href="#prepare-section">
+                <ArticleCard
+                  title="Preparing & Aftercare"
+                  icon={Clock}
+                  imageUrl="https://images.unsplash.com/photo-1499209974431-9dddcece7f88?q=80&w=800"
                 />
               </a>
           </div>
@@ -74,6 +81,33 @@ export default function Education() {
                 treatment — and is not intended to diagnose, treat, cure, or prevent any disease or condition. Always
                 consult a qualified healthcare provider.
               </p>
+            </>
+          )}
+        />
+        <InfoSection
+          id="prepare-section"
+          title="Preparing & Aftercare"
+          icon={Clock}
+          imageUrl="https://images.unsplash.com/photo-1499209974431-9dddcece7f88?q=80&w=2070&auto=format&fit=crop"
+          content={() => (
+            <>
+              <p className="font-semibold text-foreground">Before your session</p>
+              <ul className="list-disc list-inside space-y-1">
+                <li>Complete your practitioner's health screening honestly — it exists to keep you safe.</li>
+                <li>Follow their fasting guidance (commonly a light or empty stomach beforehand).</li>
+                <li><strong>Do not over-hydrate.</strong> Drinking far too much water around a ceremony can cause hyponatremia (dangerously low blood sodium), which can be serious. Follow your practitioner's water guidance.</li>
+                <li>No alcohol or recreational drugs beforehand; arrange safe transport home.</li>
+              </ul>
+              <p className="mt-4 font-semibold text-foreground">Aftercare</p>
+              <ul className="list-disc list-inside space-y-1">
+                <li>Rest and take it easy — don't drive or operate machinery if you feel weak or light-headed; stay out of direct sun for ~24 hours.</li>
+                <li>Re-mineralize with electrolytes (e.g. coconut or mineral water) rather than large volumes of plain water.</li>
+                <li>Favor light, easy-to-digest food for ~72 hours; avoid alcohol and drugs for a few days.</li>
+                <li><strong>Wound care:</strong> keep the points clean and dry, don't bandage them, and don't pick at them.</li>
+                <li>Give yourself space to integrate — rest, journaling, gentle movement, and support all help.</li>
+              </ul>
+              <p className="mt-4 text-sm text-destructive font-medium">Seek medical attention promptly for severe headache, confusion, persistent vomiting, fainting, or any symptom that worries you.</p>
+              <p className="mt-2 text-xs text-muted-foreground italic">Educational information only — not medical advice. Always follow your practitioner's and your doctor's guidance.</p>
             </>
           )}
         />
@@ -387,6 +421,26 @@ export default function Education() {
                           <li>• Lithium</li>
                         </ul>
                       </div>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
+                      <span>Medication for <span className="font-semibold">low blood pressure</span></span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
+                      <span>Immunosuppressants following an <span className="font-semibold">organ transplant</span></span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
+                      <span>Recent chemotherapy or radiotherapy (within ~6 weeks)</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
+                      <span>Recent use of Bufo / <span className="font-semibold">5-MeO-DMT</span> (within ~4 weeks)</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
+                      <span>Under 18 years of age</span>
                     </li>
                   </ul>
                 </div>

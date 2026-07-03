@@ -13,6 +13,7 @@ import AddToCalendar from "@/components/AddToCalendar";
 import RegistrationModal from "@/components/events/RegistrationModal";
 import { submitRegistration } from "@/lib/eventRegistration";
 import PageBreadcrumbs from "@/components/PageBreadcrumbs";
+import { GradientMesh } from "@/components/ui/GradientMesh";
 import { EventRegistration, Notification, User } from "@/entities/all";
 
 const TYPE_LABEL: Record<string, string> = {
@@ -121,18 +122,23 @@ export default function EventDetail() {
     <div className="mx-auto max-w-3xl p-4 sm:p-6">
       <PageBreadcrumbs className="mb-4" items={[{ label: "Events", to: createPageUrl("Events") }, { label: event.title }]} />
 
-      {event.image_url && (
-        <img loading="lazy" src={event.image_url} alt={event.title} className="mb-5 h-56 w-full rounded-2xl object-cover" />
-      )}
-
-      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <div className="mb-1 flex items-center gap-2">
+      {/* Editorial hero — title overlaid on image or gradient-mesh */}
+      <div className="grain relative mb-5 overflow-hidden rounded-3xl border border-border">
+        {event.image_url ? (
+          <>
+            <img loading="lazy" src={event.image_url} alt={event.title} className="h-64 w-full object-cover sm:h-72" />
+            <div className="absolute inset-0 bg-gradient-to-t from-card via-card/40 to-transparent" />
+          </>
+        ) : (
+          <div className="relative h-56 w-full bg-background sm:h-64"><GradientMesh intensity="vivid" /></div>
+        )}
+        <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
+          <div className="mb-2 flex flex-wrap items-center gap-2">
             <Badge variant="tier">{TYPE_LABEL[event.event_type] || "Event"}</Badge>
             {event.is_online && <Badge className="gap-1 bg-info/10 text-info"><Globe className="h-3 w-3" /> Online</Badge>}
             {event.status === "cancelled" && <Badge variant="destructive">Cancelled</Badge>}
           </div>
-          <h1 className="font-display text-3xl font-semibold text-foreground">{event.title}</h1>
+          <h1 className="text-balance font-display text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">{event.title}</h1>
           {host && (
             <p className="mt-1 text-muted-foreground">
               Hosted by{" "}
@@ -140,14 +146,15 @@ export default function EventDetail() {
             </p>
           )}
         </div>
-        <div className="flex items-center gap-2">
-          {host && (
-            <Button variant="outline" size="sm" className="gap-1.5" onClick={() => navigate(`${createPageUrl("Messages")}?to=${host.id}&name=${encodeURIComponent(host.full_name || "Host")}`)}>
-              <MessageSquare className="h-4 w-4" /> Message host
-            </Button>
-          )}
-          <Button variant="outline" size="sm" onClick={share} className="gap-1.5"><ShareIcon className="h-4 w-4" /> Share</Button>
-        </div>
+      </div>
+
+      <div className="mb-5 flex items-center gap-2">
+        {host && (
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={() => navigate(`${createPageUrl("Messages")}?to=${host.id}&name=${encodeURIComponent(host.full_name || "Host")}`)}>
+            <MessageSquare className="h-4 w-4" /> Message host
+          </Button>
+        )}
+        <Button variant="outline" size="sm" onClick={share} className="gap-1.5"><ShareIcon className="h-4 w-4" /> Share</Button>
       </div>
 
       <Card className="mb-5">

@@ -5,7 +5,7 @@
  *   3. web-push(best-effort → /api/push-send; no-op without VAPID keys)
  * Every channel is wrapped so a failure in one never blocks the others or the caller.
  */
-import { Notification, PushSubscription } from '@/entities/all';
+import { Notification, PushSubscription, User } from '@/entities/all';
 import { SendEmail } from '@/integrations/Core';
 
 export interface NotifyInput {
@@ -24,6 +24,13 @@ export interface NotifyInput {
 export async function notify(input: NotifyInput): Promise<void> {
   const { userId, userEmail, type = 'system', title, body, priority = 'normal', link, relatedId, email } = input;
 
+  // Respect the recipient's channel preferences (in-app is always delivered; email
+  // and push are the intrusive channels the toggles in AccountSettings control).
+  let prefs: any = null;
+  if (userId) { try { prefs = (await User.get(userId))?.preferences; } catch { /* default to allowed */ } }
+  const emailAllowed = prefs?.email_updates !== false;
+  const pushAllowed = prefs?.notifications !== false;
+
   // 1. In-app
   if (userId) {
     try {
@@ -34,14 +41,14 @@ export async function notify(input: NotifyInput): Promise<void> {
     } catch { /* non-blocking */ }
   }
 
-  // 2. Email — default to high/urgent only
-  const shouldEmail = email ?? (priority === 'high' || priority === 'urgent');
+  // 2. Email — default to high/urgent only, and only if the user allows email.
+  const shouldEmail = (email ?? (priority === 'high' || priority === 'urgent')) && emailAllowed;
   if (shouldEmail && userEmail) {
     try { await SendEmail({ to: userEmail, subject: `KamboGuide: ${title}`, body }); } catch { /* Resend no-ops without key */ }
   }
 
-  // 3. Web push (best-effort)
-  if (userId) {
+  // 3. Web push (best-effort) — only if the user allows push.
+  if (userId && pushAllowed) {
     try {
       const subs = await PushSubscription.filter({ user_id: userId }).catch(() => []);
       if (subs.length) {

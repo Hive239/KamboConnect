@@ -28,6 +28,7 @@ import ProductCard from "@/components/market/ProductCard";
 import PageBreadcrumbs from "@/components/PageBreadcrumbs";
 import { useSeo } from "@/lib/useSeo";
 import { requestConsultation } from "@/lib/consultations";
+import { persistReputation } from "@/lib/reputation";
 import TrustScoreCard from "@/components/directory/TrustScoreCard";
 
 // Helper function to get embed URL for YouTube or Vimeo
@@ -238,7 +239,7 @@ export default function PractitionerProfile() {
   const deleteReview = async (review) => {
     if (!window.confirm("Delete this review? This can't be undone.")) return;
     setReviews((prev) => prev.filter((r) => r.id !== review.id)); // optimistic
-    try { await Review.delete(review.id); } catch (e) { console.error("Failed to delete review:", e); }
+    try { await Review.delete(review.id); await persistReputation(practitionerId); } catch (e) { console.error("Failed to delete review:", e); }
   };
 
   const [requestingConsult, setRequestingConsult] = useState(false);

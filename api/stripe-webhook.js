@@ -64,7 +64,15 @@ async function finalize(md, pay) {
     await insert('notifications', { user_id: md.user_id, title: 'Order confirmed', message: 'Your payment was received and your order is confirmed.', type: 'system', related_id: md.order_id, action_url: '/Orders' });
   } else if (md.kind === 'booking' && md.booking_id) {
     await patch('bookings', `id=eq.${md.booking_id}`, { payment_status: 'paid', deposit_status: 'paid' });
-    await insert('payments', { booking_id: md.booking_id, user_id: md.user_id, practitioner_id: md.practitioner_id, amount: pay.amount, currency: pay.currency, payment_type: 'booking', payment_status: 'completed', stripe_payment_id: pay.paymentId, payment_date: now });
+    if (md.payment_id) {
+      // A pending Payment was pre-created by the client — flip it, don't duplicate.
+      await patch('payments', `id=eq.${md.payment_id}`, { payment_status: 'completed', stripe_payment_id: pay.paymentId, payment_date: now });
+    } else {
+      await insert('payments', { booking_id: md.booking_id, user_id: md.user_id, practitioner_id: md.practitioner_id, amount: pay.amount, currency: pay.currency, payment_type: 'booking', payment_status: 'completed', stripe_payment_id: pay.paymentId, payment_date: now });
+    }
+  } else if (md.kind === 'course' && md.enrollment_id) {
+    await patch('coursework_enrollments', `id=eq.${md.enrollment_id}`, { status: 'active', paid_at: now });
+    await insert('payments', { user_id: md.user_id, amount: pay.amount, currency: pay.currency, payment_type: 'course', payment_status: 'completed', stripe_payment_id: pay.paymentId, payment_date: now });
   } else if (md.kind === 'subscription' && md.practitioner_id) {
     await patch('practitioners', `id=eq.${md.practitioner_id}`, { listing_tier: md.tier });
     await insert('subscriptions', { practitioner_id: md.practitioner_id, tier: md.tier, status: 'active', price: pay.amount, currency: pay.currency, period: 'monthly', current_period_end: new Date(Date.now() + 30 * 86400000).toISOString() });

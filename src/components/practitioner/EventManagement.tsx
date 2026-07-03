@@ -353,6 +353,27 @@ export default function EventManagement({ events, practitioner, onUpdate }) {
                 </div>
               </div>
 
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <Label htmlFor="requirements">Requirements (comma-separated)</Label>
+                  <Input
+                    id="requirements"
+                    value={(eventData.requirements || []).join(", ")}
+                    onChange={(e) => setEventData(prev => ({ ...prev, requirements: e.target.value.split(",").map(s => s.trim()).filter(Boolean) }))}
+                    placeholder="No food 6h before, 18+"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="what_to_bring">What to bring (comma-separated)</Label>
+                  <Input
+                    id="what_to_bring"
+                    value={(eventData.what_to_bring || []).join(", ")}
+                    onChange={(e) => setEventData(prev => ({ ...prev, what_to_bring: e.target.value.split(",").map(s => s.trim()).filter(Boolean) }))}
+                    placeholder="Water, blanket, journal"
+                  />
+                </div>
+              </div>
+
               <div className="flex items-center gap-2">
                 <input
                   type="checkbox"

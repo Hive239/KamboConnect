@@ -10,6 +10,7 @@ export interface QuizQuestion {
   q: string;
   options: string[];
   answer: number; // index of the correct option
+  explanation?: string; // shown after answering to reinforce the point
 }
 export interface Lesson {
   id: string;
@@ -102,8 +103,8 @@ export const TRACKS: Track[] = [
               "Published guidance advises not exceeding roughly two liters of water total during the ceremony, and avoiding forced or excessive drinking. Some facilitators offer electrolyte support. Watch for warning signs such as confusion, severe headache, or unusual drowsiness, and treat them as an emergency.",
             ],
             quiz: [
-              { q: "Drinking far too much water around a ceremony can cause…", options: ["Dehydration only", "Hyponatremia (low blood sodium), which can be dangerous", "No effect"], answer: 1 },
-              { q: "Warning signs like confusion or severe headache should be…", options: ["Ignored — they are normal", "Treated as an emergency", "Fixed with more water"], answer: 1 },
+              { q: "Drinking far too much water around a ceremony can cause…", options: ["Dehydration only", "Hyponatremia (low blood sodium), which can be dangerous", "No effect"], answer: 1, explanation: "Kambo's purging and peptide activity plus over-drinking can dilute blood sodium — hyponatremia has caused severe harm and death." },
+              { q: "Warning signs like confusion or severe headache should be…", options: ["Ignored — they are normal", "Treated as an emergency", "Fixed with more water"], answer: 1, explanation: "These can signal cerebral edema from hyponatremia. More water makes it worse — get emergency help." },
             ],
           },
           {
@@ -194,7 +195,7 @@ export const TRACKS: Track[] = [
               "Come rested, follow any fasting guidance given, arrange safe transport home, and never attend under the influence of alcohol or drugs. Tell your practitioner immediately if you feel severe headache, confusion, or unusual drowsiness.",
             ],
             quiz: [
-              { q: "Regarding water on the day, you should…", options: ["Drink as much as possible", "Avoid drinking excessive water — over-hydration is dangerous", "Not drink anything ever"], answer: 1 },
+              { q: "Regarding water on the day, you should…", options: ["Drink as much as possible", "Avoid drinking excessive water — over-hydration is dangerous", "Not drink anything ever"], answer: 1, explanation: "Follow your practitioner's water guidance. Over-drinking can cause hyponatremia (dangerously low blood sodium)." },
             ],
           },
         ],
@@ -207,11 +208,14 @@ export const TRACKS: Track[] = [
             id: "c-integration-1",
             title: "After your session",
             body: [
-              "Give yourself time to rest and integrate. Rehydrate sensibly with electrolytes rather than large volumes of plain water, eat gently, and avoid strenuous activity for the rest of the day.",
-              "Emotional integration is part of the process — journaling, rest, and support help. Seek medical attention promptly if you experience persistent vomiting, severe headache, confusion, fainting, or any symptom that worries you.",
+              "Give yourself time to rest and integrate. Don't drive or operate machinery if you feel weak or light-headed, and stay out of direct sun for about 24 hours.",
+              "Rehydrate sensibly with electrolytes (like coconut or mineral water) rather than large volumes of plain water. Favor light, easy-to-digest food for around 72 hours, and avoid alcohol and drugs for a few days.",
+              "Wound care: keep the points clean and dry — do not bandage them and do not pick at them. Emotional integration is part of the process; journaling, rest, and support all help.",
+              "Seek medical attention promptly if you experience persistent vomiting, severe headache, confusion, fainting, or any symptom that worries you.",
             ],
             quiz: [
-              { q: "After a session, if you have severe headache or confusion you should…", options: ["Sleep it off", "Seek medical attention promptly", "Drink more water"], answer: 1 },
+              { q: "After a session, if you have severe headache or confusion you should…", options: ["Sleep it off", "Seek medical attention promptly", "Drink more water"], answer: 1, explanation: "Severe headache or confusion can be signs of a serious problem such as hyponatremia — treat them as an emergency." },
+              { q: "How should you care for the points (gates) afterward?", options: ["Bandage them tightly", "Keep them clean and dry; don't bandage or pick", "Scrub them clean immediately"], answer: 1, explanation: "The points heal best left open, clean and dry — covering or picking them raises infection and scarring risk." },
             ],
           },
         ],

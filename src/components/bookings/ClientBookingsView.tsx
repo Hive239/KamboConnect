@@ -369,6 +369,15 @@ const BookingCard = ({ booking, onAction, onReview, hasBeenReviewed }) => {
                     <Calendar className="w-4 h-4 text-muted-foreground" />
                     <span>Requested for: {format(new Date(booking.requested_date), 'PPP')}</span>
                 </div>
+                {(booking.deposit_amount > 0 || booking.price > 0) && (
+                    <div className="flex items-center gap-2 text-sm text-foreground">
+                        <DollarSign className="w-4 h-4 text-muted-foreground" />
+                        <span>${booking.deposit_amount || booking.price}</span>
+                        <Badge variant={booking.deposit_status === "paid" || booking.payment_status === "paid" ? "verified" : "secondary"} className="text-[10px] capitalize">
+                            {booking.deposit_status === "paid" || booking.payment_status === "paid" ? "Paid" : (booking.payment_status || "pending")}
+                        </Badge>
+                    </div>
+                )}
                 <div>
                     <StatusInfo status={booking.status} />
                 </div>

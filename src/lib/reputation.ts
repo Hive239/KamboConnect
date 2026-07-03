@@ -50,3 +50,18 @@ export function computeReputation(reviews: Review[]): Reputation {
     recommendRate: Math.round((recommend / reviews.length) * 100) / 100,
   };
 }
+
+/**
+ * Recompute a practitioner's reputation from their current reviews and persist it
+ * to `practitioner.reputation_score` (used by the landing "featured" sort/badge,
+ * which otherwise reads an always-undefined field). Call after any review change.
+ */
+export async function persistReputation(practitionerId: string): Promise<number> {
+  if (!practitionerId) return 0;
+  const { Review } = await import('@/entities/Review');
+  const { Practitioner } = await import('@/entities/Practitioner');
+  const reviews = await Review.filter({ practitioner_id: practitionerId }).catch(() => []);
+  const { score } = computeReputation(reviews as any);
+  await Practitioner.update(practitionerId, { reputation_score: score }).catch(() => {});
+  return score;
+}
