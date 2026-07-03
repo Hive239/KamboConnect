@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { motion, useReducedMotion } from "framer-motion";
 import { createPageUrl } from "@/utils";
+import ScrollProgress from "@/components/ScrollProgress";
 import { User } from "@/entities/User";
 import { Message } from "@/entities/all";
 import { subscribe } from "@/data/store";
@@ -202,6 +203,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       >
         {t("common.skipToContent")}
       </a>
+
+      <ScrollProgress />
 
       <div className="flex min-h-screen flex-col bg-background text-foreground">
         {/* ---------- Top bar ---------- */}

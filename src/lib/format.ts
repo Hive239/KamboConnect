@@ -21,22 +21,3 @@ export function formatDate(
     return String(date);
   }
 }
-
-export function formatDateTime(date: string | number | Date, timeZone?: string, locale?: string): string {
-  return formatDate(date, { dateStyle: 'medium', timeStyle: 'short', timeZone }, locale);
-}
-
-export function getUserTimeZone(): string {
-  try {
-    return Intl.DateTimeFormat().resolvedOptions().timeZone;
-  } catch {
-    return 'UTC';
-  }
-}
-
-export const SUPPORTED_CURRENCIES = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'BRL', 'MXN'] as const;
-export const SUPPORTED_LOCALES = [
-  { code: 'en-US', label: 'English' },
-  { code: 'es-ES', label: 'Español' },
-  { code: 'pt-BR', label: 'Português' },
-] as const;

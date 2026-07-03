@@ -84,13 +84,3 @@ export const WAIVER_SECTIONS: WaiverSection[] = [
       'By typing my full legal name and signing below, I agree to all terms above and confirm my informed consent.',
   },
 ];
-
-/** Plain-text version (used for the PDF body and any text rendering). */
-export function waiverPlainText(): string {
-  return [
-    WAIVER_TITLE,
-    `Version ${WAIVER_VERSION}`,
-    '',
-    ...WAIVER_SECTIONS.flatMap((s) => [s.heading, s.body, '']),
-  ].join('\n');
-}

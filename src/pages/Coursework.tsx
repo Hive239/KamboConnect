@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CourseworkEnrollment, Payment, User } from "@/entities/all";
 import { isPaymentsConfigured, startCheckout } from "@/integrations/Payments";
 import { TRACKS, trackById, allLessons, lessonCount, type Track, type Lesson } from "@/data/coursework";
@@ -10,11 +10,13 @@ import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { GraduationCap, CheckCircle, Lock, ArrowLeft, ArrowRight, Trophy, Download } from "@/lib/icons";
 import { downloadCertificate } from "@/lib/certificatePdf";
+import { notify } from "@/lib/notify";
 import { toast } from "sonner";
 
 export default function Coursework() {
   useSeo({ title: "Coursework — KamboGuide", description: "Educational Kambo safety courses. Not a certification." });
   const [uid, setUid] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState<string>("");
   const [enrollments, setEnrollments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [openTrack, setOpenTrack] = useState<Track | null>(null);
@@ -26,6 +28,7 @@ export default function Coursework() {
     try {
       const me = await User.me();
       setUid(me.id);
+      setUserEmail(me.email || "");
       setEnrollments((await CourseworkEnrollment.filter({ user_id: me.id })) as any[]);
     } catch { setEnrollments([]); }
     finally { setLoading(false); }
@@ -50,6 +53,7 @@ export default function Coursework() {
       if (result.mode === "redirect") { window.location.href = result.url; return; } // webhook activates
       await CourseworkEnrollment.update(enrollId, { status: "active", paid_at: new Date().toISOString() });
       await Payment.create({ user_id: uid, amount: payFor.price, currency: "USD", payment_type: "course", payment_status: "completed", stripe_payment_id: result.charge.id, payment_date: new Date().toISOString() } as any);
+      notify({ userId: uid, userEmail, type: "system", title: `You're enrolled: ${payFor.title}`, body: `Welcome to ${payFor.title}. You have lifetime access — work through the modules at your own pace. Remember: this is educational only, not a certification or medical advice.`, link: "/Coursework", email: true }).catch(() => {});
       toast.success("Enrolled — enjoy the course!");
       setEnrollments((prev) => [...prev.filter((e) => e.track !== payFor.id), { ...created, status: "active" }]);
       const t = payFor;
@@ -68,8 +72,9 @@ export default function Coursework() {
   return (
     <div className="min-h-screen bg-muted">
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
-        <h1 className="flex items-center gap-2 text-3xl font-bold text-foreground">
-          <GraduationCap className="h-7 w-7 text-primary" /> KamboGuide Coursework
+        <h1 className="flex items-center gap-3 font-display text-3xl font-semibold tracking-tight text-foreground">
+          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 shadow-glow"><GraduationCap className="h-6 w-6 text-primary" weight="duotone" /></span>
+          KamboGuide Coursework
         </h1>
         <p className="mt-1 max-w-2xl text-muted-foreground">
           Self-paced educational courses on Kambo safety, tradition, and preparation. These are
@@ -92,7 +97,7 @@ export default function Coursework() {
                       <h3 className="text-lg font-semibold">{t.title}</h3>
                       <p className="text-xs text-muted-foreground">{t.audience}</p>
                     </div>
-                    {completed && <Badge className="gap-1 bg-emerald-100 text-emerald-800"><Trophy className="h-3 w-3" /> Completed</Badge>}
+                    {completed && <Badge className="gap-1 bg-success/10 text-success"><Trophy className="h-3 w-3" /> Completed</Badge>}
                   </div>
                   <p className="text-sm text-muted-foreground">{t.subtitle}</p>
                   <div className="text-xs text-muted-foreground">{t.modules.length} modules · {total} lessons</div>
@@ -156,7 +161,8 @@ function CoursePlayer({ track, enrollment, onBack }: { track: Track; enrollment:
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [checked, setChecked] = useState(false);
   const [userName, setUserName] = useState("");
-  useEffect(() => { User.me().then((u) => setUserName(u.full_name || "")).catch(() => {}); }, []);
+  const meRef = useRef<{ id?: string; email?: string }>({});
+  useEffect(() => { User.me().then((u) => { setUserName(u.full_name || ""); meRef.current = { id: u.id, email: u.email }; }).catch(() => {}); }, []);
 
   const getCertificate = () =>
     downloadCertificate({ name: userName, courseTitle: track.title, completedAt: enrollment.completed_at || new Date().toISOString() });
@@ -188,7 +194,10 @@ function CoursePlayer({ track, enrollment, onBack }: { track: Track; enrollment:
     const completedAll = lessons.every((l) => next[l.id]?.completed);
     await persist(next, completedAll);
     setAnswers({}); setChecked(false);
-    if (completedAll) { toast.success("Course complete! 🎉"); }
+    if (completedAll) {
+      toast.success("Course complete! 🎉");
+      notify({ userId: meRef.current.id, userEmail: meRef.current.email, type: "system", title: `Completed: ${track.title}`, body: `Congratulations on completing ${track.title}! You can download your Certificate of Completion from the course page. Reminder: this is educational recognition only — not a certification or license to practice.`, link: "/Coursework", email: true }).catch(() => {});
+    }
     else {
       const nextLesson = lessons[idx + 1] || lessons.find((l) => !next[l.id]?.completed);
       if (nextLesson) setActiveId(nextLesson.id);
@@ -203,11 +212,11 @@ function CoursePlayer({ track, enrollment, onBack }: { track: Track; enrollment:
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
         <Button variant="ghost" size="sm" className="mb-4 gap-1" onClick={onBack}><ArrowLeft className="h-4 w-4" /> All courses</Button>
         <div className="mb-4">
-          <h1 className="text-2xl font-bold">{track.title}</h1>
+          <h1 className="font-display text-2xl font-semibold tracking-tight">{track.title}</h1>
           <div className="mt-2 flex items-center gap-3">
             <Progress value={pct} className="h-2 max-w-xs" />
             <span className="text-sm text-muted-foreground">{doneCount}/{lessons.length} · {pct}%</span>
-            {allDone && <Badge className="gap-1 bg-emerald-100 text-emerald-800"><Trophy className="h-3 w-3" /> Completed</Badge>}
+            {allDone && <Badge className="gap-1 bg-success/10 text-success"><Trophy className="h-3 w-3" /> Completed</Badge>}
             {allDone && <Button size="sm" variant="outline" className="gap-1" onClick={getCertificate}><Download className="h-4 w-4" /> Certificate</Button>}
           </div>
         </div>
@@ -226,7 +235,7 @@ function CoursePlayer({ track, enrollment, onBack }: { track: Track; enrollment:
                       className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors ${l.id === activeId ? "bg-primary/10 text-primary" : "hover:bg-accent"}`}
                     >
                       {progress[l.id]?.completed
-                        ? <CheckCircle className="h-4 w-4 shrink-0 text-emerald-600" weight="fill" />
+                        ? <CheckCircle className="h-4 w-4 shrink-0 text-success" weight="fill" />
                         : <span className="h-4 w-4 shrink-0 rounded-full border border-muted-foreground/40" />}
                       <span>{l.title}</span>
                     </button>
@@ -256,7 +265,7 @@ function CoursePlayer({ track, enrollment, onBack }: { track: Track; enrollment:
                           const isWrong = checked && selected && oi !== q.answer;
                           const isRight = checked && oi === q.answer;
                           return (
-                            <label key={oi} className={`flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm ${isRight ? "border-emerald-400 bg-emerald-50" : isWrong ? "border-red-400 bg-destructive/10" : selected ? "border-primary" : "border-border"}`}>
+                            <label key={oi} className={`flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm ${isRight ? "border-success/40 bg-success/10" : isWrong ? "border-destructive/40 bg-destructive/10" : selected ? "border-primary" : "border-border"}`}>
                               <input type="radio" name={`q-${active.id}-${qi}`} checked={selected} onChange={() => setAnswers((a) => ({ ...a, [qi]: oi }))} disabled={progress[active.id]?.completed} />
                               {opt}
                             </label>
@@ -264,7 +273,7 @@ function CoursePlayer({ track, enrollment, onBack }: { track: Track; enrollment:
                         })}
                       </div>
                       {checked && (
-                        <p className={`text-xs ${answers[qi] === q.answer ? "text-emerald-700" : "text-red-700"}`}>
+                        <p className={`text-xs ${answers[qi] === q.answer ? "text-success" : "text-destructive"}`}>
                           {answers[qi] === q.answer ? "Correct. " : "Not quite. "}
                           {q.explanation}
                         </p>

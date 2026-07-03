@@ -11,7 +11,7 @@ import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip as RTooltip, Legend, PieChart, Pie, Cell, CartesianGrid, LineChart, Line,
 } from "recharts";
 import {
-  DollarSign, Users, ShieldCheck, Briefcase, TrendingUp, Star, Globe, Loader2, Storefront, Calendar, Download,
+  DollarSign, Users, ShieldCheck, Briefcase, TrendingUp, Star, Globe, Loader2, Storefront, Calendar, Download, GraduationCap,
 } from "@/lib/icons";
 
 const PIE = ["hsl(var(--primary))", "hsl(var(--clay))", "hsl(var(--info))", "hsl(var(--warning))"];
@@ -321,6 +321,54 @@ export default function PlatformAnalytics() {
             )) : <p className="text-muted-foreground">No data yet.</p>}
           </CardContent>
         </Card>
+      </section>
+
+      {/* Coursework */}
+      <section>
+        <h2 className="mb-3 flex items-center gap-2 font-semibold"><GraduationCap className="h-5 w-5 text-primary" weight="duotone" /> Coursework</h2>
+        <div className="grid gap-4 lg:grid-cols-2">
+          <Card>
+            <CardHeader><CardTitle className="text-base">Enrollment & completion</CardTitle></CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              <div className="grid grid-cols-4 gap-2 text-center">
+                <div><p className="text-2xl font-bold">{a.coursework.enrollments}</p><p className="text-muted-foreground">Enrollments</p></div>
+                <div><p className="text-2xl font-bold">{a.coursework.completed}</p><p className="text-muted-foreground">Completed</p></div>
+                <div><p className="text-2xl font-bold">{a.coursework.completionRate}%</p><p className="text-muted-foreground">Completion</p></div>
+                <div><p className="text-2xl font-bold">{formatCurrency(a.coursework.revenue)}</p><p className="text-muted-foreground">Revenue</p></div>
+              </div>
+              <div className="space-y-2 border-t border-border pt-3">
+                {a.coursework.byTrack.map((t) => (
+                  <div key={t.track} className="flex items-center justify-between">
+                    <span className="truncate pr-2">{t.title}</span>
+                    <span className="text-muted-foreground">{t.enrollments} enrolled · {t.completed} done · {t.completionRate}%</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle className="text-base">Lesson drop-off</CardTitle></CardHeader>
+            <CardContent className="space-y-4 text-xs">
+              {a.coursework.dropoff.map((t) => (
+                <div key={t.track}>
+                  <p className="mb-1 font-medium">{t.track}</p>
+                  {t.steps.map((s, i) => {
+                    const top = t.steps[0]?.reached || 0;
+                    const w = top ? Math.round((s.reached / top) * 100) : 0;
+                    return (
+                      <div key={i} className="mb-1 flex items-center gap-2">
+                        <span className="w-40 shrink-0 truncate text-muted-foreground">{s.lesson}</span>
+                        <div className="h-2 flex-1 rounded bg-muted"><div className="h-2 rounded bg-primary" style={{ width: `${w}%` }} /></div>
+                        <span className="w-6 text-right">{s.reached}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+              {a.coursework.enrollments === 0 && <p className="text-muted-foreground">No enrollments yet.</p>}
+            </CardContent>
+          </Card>
+        </div>
       </section>
 
       {/* Geo */}

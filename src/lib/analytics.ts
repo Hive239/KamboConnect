@@ -1,4 +1,5 @@
-import { User, Practitioner, Booking, Payment, Subscription, Review, Consultation, Event, Order, Message, ConsentRecord, ScreeningResponse, Credential, ActivityEvent } from "@/entities/all";
+import { User, Practitioner, Booking, Payment, Subscription, Review, Consultation, Event, Order, Message, ConsentRecord, ScreeningResponse, Credential, ActivityEvent, CourseworkEnrollment } from "@/entities/all";
+import { TRACKS, allLessons } from "@/data/coursework";
 
 const median = (arr: number[]) => { if (!arr.length) return 0; const s = [...arr].sort((a, b) => a - b); const m = Math.floor(s.length / 2); return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
 const pct = (num: number, den: number) => (den > 0 ? Math.round((num / den) * 100) : 0);
@@ -7,7 +8,6 @@ const DAY = 86400000;
 /** Platform economics. */
 export const PLATFORM_FEE_RATE = 0.05; // platform keeps 5% of each paid session
 export const TIER_PRICES: Record<string, number> = { basic: 0, preferred: 29, featured: 49 };
-export const TIER_ORDER = ["basic", "preferred", "featured"] as const;
 
 const monthKey = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 const monthLabel = (d: Date) => d.toLocaleString("en", { month: "short" });
@@ -45,6 +45,11 @@ export interface PlatformAnalytics {
   retention: { cohort: string; size: number; booked: number; repeat: number }[];
   responsiveness: { medianFirstReplyHrs: number; medianTimeToFirstBookingDays: number };
   payouts: { liability: number; refunds: number };
+  coursework: {
+    enrollments: number; active: number; completed: number; completionRate: number; revenue: number;
+    byTrack: { track: string; title: string; enrollments: number; completed: number; completionRate: number }[];
+    dropoff: { track: string; steps: { lesson: string; reached: number }[] }[];
+  };
 }
 
 /** Loads everything and computes the full platform analytics snapshot. */
@@ -65,6 +70,7 @@ export async function computePlatformAnalytics(): Promise<PlatformAnalytics> {
     Credential.list().catch(() => []),
     ActivityEvent.list("-created_date", 5000).catch(() => []),
   ]);
+  const cwEnrollments = await CourseworkEnrollment.list().catch(() => []);
 
   const now = new Date();
   const thisMonthKey = monthKey(now);
@@ -244,6 +250,32 @@ export async function computePlatformAnalytics(): Promise<PlatformAnalytics> {
   // Payouts & refunds
   const liability = Math.round(bookings.filter((b: any) => isPaid(b) && b.status !== "completed").reduce((s: number, b: any) => s + (b.price || 0) * (1 - PLATFORM_FEE_RATE), 0));
   const refunds = Math.round(payments.filter((p: any) => p.payment_status === "refunded").reduce((s: number, p: any) => s + (p.amount || 0), 0));
+
+  // Coursework — enrollment, completion, per-lesson drop-off
+  const paidEnr = cwEnrollments.filter((e: any) => e.status !== "pending");
+  const cwCompleted = paidEnr.filter((e: any) => !!e.completed_at).length;
+  const cwByTrack = TRACKS.map((t) => {
+    const rows = paidEnr.filter((e: any) => e.track === t.id);
+    const comp = rows.filter((e: any) => !!e.completed_at).length;
+    return { track: t.id, title: t.title, enrollments: rows.length, completed: comp, completionRate: pct(comp, rows.length) };
+  });
+  const cwDropoff = TRACKS.map((t) => {
+    const rows = paidEnr.filter((e: any) => e.track === t.id);
+    const steps = allLessons(t).map((l) => ({
+      lesson: l.title,
+      reached: rows.filter((e: any) => e.progress?.[l.id]?.completed).length,
+    }));
+    return { track: t.title, steps };
+  });
+  const coursework = {
+    enrollments: paidEnr.length,
+    active: paidEnr.filter((e: any) => !e.completed_at).length,
+    completed: cwCompleted,
+    completionRate: pct(cwCompleted, paidEnr.length),
+    revenue: courseRevenue,
+    byTrack: cwByTrack,
+    dropoff: cwDropoff,
+  };
   const payoutsRefunds = { liability, refunds };
 
   return {
@@ -269,5 +301,6 @@ export async function computePlatformAnalytics(): Promise<PlatformAnalytics> {
     retention,
     responsiveness,
     payouts: payoutsRefunds,
+    coursework,
   };
 }

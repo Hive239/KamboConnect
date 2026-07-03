@@ -24,7 +24,14 @@ const DESTINATIONS = [
   { label: 'Messages', page: 'Messages', icon: MessageSquare },
   { label: 'My Favorites', page: 'Favorites', icon: Heart },
   { label: 'My Orders', page: 'Orders', icon: Package },
+  { label: 'Journal', page: 'Journal', icon: BookOpen },
+  { label: 'Coursework', page: 'Coursework', icon: BookOpen },
   { label: 'Profile', page: 'Profile', icon: UserIcon },
+  { label: 'Account Settings', page: 'MyAccount', icon: UserIcon },
+  { label: 'Practitioner Dashboard', page: 'PractitionerDashboard', icon: Briefcase },
+  { label: 'Billing & Growth', page: 'Billing', icon: Briefcase },
+  { label: 'Admin Dashboard', page: 'AdminDashboard', icon: Sparkle },
+  { label: 'Trust & Safety', page: 'TrustSafety', icon: Sparkle },
 ];
 
 /**

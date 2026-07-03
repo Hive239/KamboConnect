@@ -79,8 +79,9 @@ export default function Courses() {
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
         <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h1 className="flex items-center gap-2 text-3xl font-bold text-foreground">
-              <BookMarked className="h-7 w-7 text-primary" /> Practitioner Courses
+            <h1 className="flex items-center gap-3 font-display text-3xl font-semibold tracking-tight text-foreground">
+              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 shadow-glow"><BookMarked className="h-6 w-6 text-primary" weight="duotone" /></span>
+              Practitioner Courses
             </h1>
             <p className="mt-1 max-w-2xl text-muted-foreground">
               Serving Kambo is a sacred responsibility that requires proper training. Explore reputable programs —
@@ -144,7 +145,7 @@ export default function Courses() {
                         <Button variant="ghost" size="sm" className="flex-1 gap-1" onClick={() => togglePublish(c)}>
                           {c.status === "draft" ? <><Eye className="h-3.5 w-3.5" /> Publish</> : <><EyeOff className="h-3.5 w-3.5" /> Unpublish</>}
                         </Button>
-                        <Button variant="ghost" size="sm" className="gap-1 text-red-600" onClick={() => remove(c)}><Trash2 className="h-3.5 w-3.5" /></Button>
+                        <Button variant="ghost" size="sm" className="gap-1 text-destructive" onClick={() => remove(c)}><Trash2 className="h-3.5 w-3.5" /></Button>
                       </div>
                     )}
                   </div>
