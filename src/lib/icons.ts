@@ -11,6 +11,8 @@ export { IconContext } from '@phosphor-icons/react';
 
 // ---- Bespoke custom icons (primary) ----
 export * from '@/components/ui/icons/set';
+// `Store` is an alias used by the nav; point it at the bespoke Storefront.
+export { Storefront as Store } from '@/components/ui/icons/set';
 
 // ---- Phosphor fallback (long-tail, not yet custom-drawn) ----
 export {
@@ -24,7 +26,6 @@ export {
   ChartBar as BarChart3,
   BookBookmark as BookMarked,
   Brain,
-  CalendarDots as CalendarDays,
   Crosshair,
   PencilSimple as Edit,
   ArrowSquareOut as ExternalLink,
@@ -32,7 +33,6 @@ export {
   EyeSlash,
   EyeSlash as EyeOff,
   Globe,
-  TrendUp as TrendingUp,
   UploadSimple as Upload,
   Prohibit as Ban,
   BellRinging as BellPlus,
@@ -79,8 +79,6 @@ export {
   Bookmark,
   Warning as WarningIcon,
   SlidersHorizontal,
-  Storefront as Store,
-  Storefront,
   Trash as Trash2,
   VideoCamera as Video,
 } from '@phosphor-icons/react';
