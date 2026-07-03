@@ -17,12 +17,9 @@ export default function MapPage() {
   useEffect(() => {
     (async () => {
       const list = await Practitioner.list();
-      // Fallback coords so pins render for seed rows without lat/lng (mirrors Events).
-      setPractitioners(list.map((p: any) => ({
-        ...p,
-        latitude: p.latitude ?? (40.7128 + (Math.random() - 0.5) * 2),
-        longitude: p.longitude ?? (-74.006 + (Math.random() - 0.5) * 2),
-      })));
+      // Real coordinates only — a practitioner without a geocoded location is omitted
+      // from the map rather than shown at a fabricated point.
+      setPractitioners(list.filter((p: any) => typeof p.latitude === "number" && typeof p.longitude === "number"));
       setLoading(false);
     })();
   }, []);

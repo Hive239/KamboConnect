@@ -94,7 +94,8 @@ export default function DirectBookingModal({ practitioner, onClose, onBookingCom
 
     try {
       const bookingDateTime = parse(selectedTime, 'HH:mm', selectedDate);
-      const sessionPrice = practitioner.pricing_range === '$' ? 150 : practitioner.pricing_range === '$$' ? 200 : 250;
+      // Real practitioner-set price (0 when unset → shown as "price on request").
+      const sessionPrice = Number(practitioner.session_price) || 0;
 
       // Create the booking + payment as PENDING first, so a real Stripe redirect can
       // reconcile them via the webhook; the mock path finalizes immediately below.
@@ -273,7 +274,7 @@ export default function DirectBookingModal({ practitioner, onClose, onBookingCom
                     <p><strong>Date:</strong> {format(selectedDate, 'PPP')}</p>
                     <p><strong>Time:</strong> {format(parse(selectedTime, 'HH:mm', new Date()), 'p')}</p>
                     <Separator/>
-                    <p className="font-bold text-lg"><strong>Total:</strong> ${practitioner.pricing_range === '$' ? 150 : practitioner.pricing_range === '$$' ? 200 : 250}</p>
+                    <p className="font-bold text-lg"><strong>Total:</strong> {practitioner.session_price ? `$${Number(practitioner.session_price).toFixed(0)}` : "Price on request"}</p>
                 </div>
                  {!isPaymentsConfigured() && (
                    <Alert>

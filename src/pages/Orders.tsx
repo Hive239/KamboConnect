@@ -74,7 +74,7 @@ export default function Orders() {
               <CardContent className="p-4">
                 <div className="mb-2 flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">{o.created_date ? formatDate(o.created_date) : ""}</span>
-                  <Badge variant={STATUS_VARIANT[o.status] || "secondary"} className="capitalize">{o.status || "paid"}</Badge>
+                  <Badge variant={STATUS_VARIANT[o.status] || "secondary"} className="capitalize">{o.status || "pending"}</Badge>
                 </div>
                 <div className="space-y-1">
                   {(o.items || []).map((it: any, i: number) => (

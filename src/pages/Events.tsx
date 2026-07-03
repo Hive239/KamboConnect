@@ -47,12 +47,11 @@ export default function Events() {
         // Public listing excludes host drafts and cancelled events.
         const publicEvents = fetchedEvents.filter((e) => e.status !== "draft" && e.status !== "cancelled");
 
-        // Respect stored values; only fill missing coordinates for the map demo.
+        // Real values only — no fabricated coordinates. Events without a geocoded
+        // location simply won't get a distance badge / map pin.
         const eventsWithDetails = publicEvents.map(e => ({
           ...e,
           current_participants: e.current_participants ?? 0,
-          latitude: e.latitude ?? (40.7128 + (Math.random() - 0.5) * 2),
-          longitude: e.longitude ?? (-74.0060 + (Math.random() - 0.5) * 2),
         }));
 
         setEvents(eventsWithDetails);

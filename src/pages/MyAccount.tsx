@@ -61,15 +61,17 @@ export default function MyAccount() {
 
             <SecuritySettings />
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Developer Tools</CardTitle>
-                <CardDescription>Use these tools for demonstration purposes.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <DemoNotificationGenerator />
-              </CardContent>
-            </Card>
+            {import.meta.env.DEV && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Developer Tools</CardTitle>
+                  <CardDescription>Dev-only: seeds sample notifications. Hidden in production.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <DemoNotificationGenerator />
+                </CardContent>
+              </Card>
+            )}
         </div>
     </div>
   );

@@ -3,6 +3,7 @@ import { ClientRecord, Booking, Consultation, ScreeningResponse, ConsentRecord, 
 import { upsertClientRecord } from "@/lib/fileWaiver";
 import { openDoc } from "@/lib/storage";
 import { Card, CardContent } from "@/components/ui/card";
+import { Reveal } from "@/components/ui/Reveal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -49,9 +50,10 @@ export default function ClientsManagement({ practitioner }: { practitioner: any 
       {clients.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border py-12 text-center text-muted-foreground">No clients yet. They'll appear here after their first consultation or booking.</div>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2">
+        <Reveal stagger className="grid gap-3 sm:grid-cols-2">
           {clients.map((c) => (
-            <Card key={c.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelected(c)}>
+            <Reveal.Item key={c.id}>
+            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelected(c)}>
               <CardContent className="flex items-center gap-3 p-4">
                 <Avatar className="h-10 w-10"><AvatarFallback>{(c.client_name || "?")[0]}</AvatarFallback></Avatar>
                 <div className="min-w-0 flex-1">
@@ -61,8 +63,9 @@ export default function ClientsManagement({ practitioner }: { practitioner: any 
                 {c.last_seen && <span className="text-xs text-muted-foreground">{formatDate(c.last_seen)}</span>}
               </CardContent>
             </Card>
+            </Reveal.Item>
           ))}
-        </div>
+        </Reveal>
       )}
 
       {selected && (

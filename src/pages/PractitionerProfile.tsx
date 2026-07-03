@@ -77,48 +77,20 @@ export default function PractitionerProfile() {
   const [currentUser, setCurrentUser] = useState(null);
   const [isSendingMessage, setIsSendingMessage] = useState(false);
 
-  // This useCallback is kept to provide default/mock data if fetched data is sparse
+  // Normalize a practitioner record for rendering. REAL DATA ONLY — no fabricated
+  // content. Lists default to [] (empty-states handle them); the tier defaults to
+  // 'basic' (the real free tier). Everything else passes through as stored, so an
+  // empty field renders as an honest empty state, not invented data.
   const enrichPractitionerData = useCallback((practitionerData) => {
-    const defaultSpecializations = ["Chronic Pain Management", "Emotional Healing", "Detoxification", "Spiritual Awakening", "Stress Relief"];
-    const defaultCertifications = ["Kambo Practitioner Certified", "CPR/First Aid Certified", "Safety Protocols Training"];
-    const defaultLanguages = ["English"];
-
-    const enrichedData = {
+    return {
       ...practitionerData,
-      is_verified: practitionerData.is_verified !== false,
+      is_verified: practitionerData.is_verified === true,
       listing_tier: practitionerData.listing_tier || 'basic',
-      years_experience: practitionerData.years_experience || 5,
-      pricing_range: practitionerData.pricing_range || '$$',
-      profile_image_url: practitionerData.profile_image_url || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800',
-      phone: practitionerData.phone || "(555) 123-4567",
-      people_served: practitionerData.people_served || 75,
-      specializations: practitionerData.specializations && practitionerData.specializations.length > 0
-        ? practitionerData.specializations
-        : defaultSpecializations,
-      languages: practitionerData.languages && practitionerData.languages.length > 0
-        ? practitionerData.languages
-        : defaultLanguages,
-      certifications: practitionerData.certifications && practitionerData.certifications.length > 0
-        ? practitionerData.certifications
-        : defaultCertifications,
-      training_background: practitionerData.training_background || "Completed comprehensive Kambo training with experienced practitioners. Certified through established Kambo training institutes with ongoing education in safety protocols and plant medicine ethics.",
-      why_practitioner: practitionerData.why_practitioner || "After experiencing profound healing through Kambo, I felt called to share this sacred medicine with others. I'm passionate about creating safe spaces for transformation and honoring the traditional origins of this powerful healing practice.",
-      safety_protocols: practitionerData.safety_protocols || "Comprehensive health screening, sterile application techniques, continuous monitoring during sessions, emergency protocols in place, and CPR certified.",
-      image_urls: practitionerData.image_urls || [
-        'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=800',
-        'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=800',
-        'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=800'
-      ],
-      // For demo, ensure full_name and bio
-      full_name: practitionerData.full_name || 'Kambo Practitioner',
-      location: practitionerData.location || 'Online / Global'
+      specializations: practitionerData.specializations || [],
+      languages: practitionerData.languages || [],
+      certifications: practitionerData.certifications || [],
+      image_urls: practitionerData.image_urls || [],
     };
-
-    if (!enrichedData.bio) {
-      enrichedData.bio = "A dedicated Kambo practitioner committed to providing safe and transformative healing experiences. Specializing in traditional applications with modern safety standards.";
-    }
-
-    return enrichedData;
   }, []);
 
   useEffect(() => {

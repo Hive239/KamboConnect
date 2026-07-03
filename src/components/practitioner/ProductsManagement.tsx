@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Product } from "@/entities/all";
 import { UploadFile } from "@/integrations/Core";
 import { Card, CardContent } from "@/components/ui/card";
+import { Reveal } from "@/components/ui/Reveal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -87,9 +88,10 @@ export default function ProductsManagement({ practitioner }: { practitioner: any
         {items.length === 0 ? (
           <div className="rounded-xl border border-dashed border-border py-10 text-center text-muted-foreground">No products yet.</div>
         ) : (
-          <div className="grid gap-3 sm:grid-cols-2">
+          <Reveal stagger className="grid gap-3 sm:grid-cols-2">
             {items.map((p) => (
-              <Card key={p.id}>
+              <Reveal.Item key={p.id}>
+              <Card>
                 <CardContent className="flex items-center gap-3 p-4">
                   {p.image_urls?.[0]
                     ? <img loading="lazy" src={p.image_urls[0]} alt={p.title} className="h-14 w-14 rounded-lg object-cover" />
@@ -105,8 +107,9 @@ export default function ProductsManagement({ practitioner }: { practitioner: any
                   <button onClick={() => remove(p.id)} aria-label="Delete product"><Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" /></button>
                 </CardContent>
               </Card>
+              </Reveal.Item>
             ))}
-          </div>
+          </Reveal>
         )}
       </div>
     </div>

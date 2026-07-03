@@ -132,7 +132,7 @@ export default function Landing() {
   const [featured, setFeatured] = useState<any[]>([]);
   const [mapPins, setMapPins] = useState<any[]>([]);
   const [stats, setStats] = useState<StatItem[]>([]);
-  const [testimonials, setTestimonials] = useState(FALLBACK_TESTIMONIALS);
+  const [testimonials, setTestimonials] = useState<typeof FALLBACK_TESTIMONIALS>([]);
 
   // All landing data is pulled live from the same entities the app uses.
   useEffect(() => {
@@ -166,7 +166,7 @@ export default function Landing() {
         .filter((r) => (r.review_text || "").trim().length > 24 && (r.overall_rating ?? 0) >= 4 && r.reviewer_name)
         .slice(0, 6)
         .map((r) => ({ quote: r.review_text as string, name: r.reviewer_name as string, role: "Verified client" }));
-      if (real.length >= 3) setTestimonials(real);
+      setTestimonials(real); // real reviews only — section hides when there are none
     })();
     return () => { cancelled = true; };
   }, []);
@@ -238,7 +238,7 @@ export default function Landing() {
                   <div className="flex items-center gap-0.5 text-warning">
                     {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="h-3.5 w-3.5 fill-warning" weight="fill" />)}
                   </div>
-                  <p className="text-xs text-muted-foreground">Loved by <span className="font-semibold text-foreground">12,000+</span> seekers</p>
+                  <p className="text-xs text-muted-foreground">Trusted by a growing community of seekers</p>
                 </div>
               </div>
             </div>
@@ -438,7 +438,8 @@ export default function Landing() {
           </section>
         )}
 
-        {/* ---------- Testimonials marquee ---------- */}
+        {/* ---------- Testimonials marquee (only real reviews) ---------- */}
+        {testimonials.length > 0 && (
         <section className="overflow-hidden py-20">
           <Reveal className="mb-10 text-center">
             <span className="text-sm font-semibold uppercase tracking-widest text-primary">Loved by the community</span>
@@ -463,6 +464,7 @@ export default function Landing() {
             </div>
           </div>
         </section>
+        )}
 
         {/* ---------- Trust & safety band ---------- */}
         <section className="mx-auto max-w-5xl px-5 pb-8">

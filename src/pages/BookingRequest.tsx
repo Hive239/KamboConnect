@@ -135,7 +135,7 @@ export default function BookingRequestPage() {
         practitioner_id: practitioner.id,
         practitioner_name: practitioner.full_name,
         client_id: user?.id,
-        price: 150, // Default price, can be adjusted
+        price: Number(practitioner.session_price) || 0, // real practitioner-set price (0 = arranged directly)
         status: "pending", // REQUIRED — without it the booking is invisible to both parties' filtered views
         payment_status: "unpaid"
       });

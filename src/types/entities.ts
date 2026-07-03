@@ -78,6 +78,7 @@ export interface Practitioner extends BaseRecord {
   profile_image_url?: string;
   image_urls?: string[];
   pricing_range?: PricingRange;
+  session_price?: number;   // practitioner-set price per session (USD)
   languages?: string[];
   availability_notes?: string;
   safety_protocols?: string;

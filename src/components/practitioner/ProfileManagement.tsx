@@ -25,12 +25,13 @@ export default function ProfileManagement({ practitioner, user, onUpdate }) {
     bio: practitioner.bio || "",
     years_experience: practitioner.years_experience || 0,
     pricing_range: practitioner.pricing_range || "$",
+    session_price: practitioner.session_price ?? "",
     website_url: practitioner.website_url || "",
     is_online: practitioner.is_online || false,
     video_interview_url: practitioner.video_interview_url || "",
     modalities: practitioner.modalities || [],
     specializations: practitioner.specializations || [],
-    languages: practitioner.languages || ["English"],
+    languages: practitioner.languages || [],
     safety_protocols: practitioner.safety_protocols || "",
     training_background: practitioner.training_background || "",
     lineage: practitioner.lineage || "",
@@ -187,7 +188,10 @@ export default function ProfileManagement({ practitioner, user, onUpdate }) {
       const geo = (profileData.latitude && profileData.longitude)
         ? { latitude: profileData.latitude, longitude: profileData.longitude }
         : await geocodeToLatLng(profileData.address);
-      await Practitioner.update(practitioner.id, { ...profileData, ...geo });
+      // Coerce the price to a number (empty → null so the numeric column accepts it).
+      const session_price = profileData.session_price === "" || profileData.session_price == null
+        ? null : Number(profileData.session_price);
+      await Practitioner.update(practitioner.id, { ...profileData, session_price, ...geo });
       onUpdate();
     } catch (error) {
       console.error("Failed to save profile:", error);
@@ -248,8 +252,11 @@ export default function ProfileManagement({ practitioner, user, onUpdate }) {
                 </label>
               </div>
               <div className="flex items-center justify-center gap-2">
-                <CheckCircle className="w-4 h-4 text-primary" />
-                <span className="text-sm text-primary">Verified Practitioner</span>
+                {practitioner.is_verified ? (
+                  <><CheckCircle className="w-4 h-4 text-primary" /><span className="text-sm text-primary">Verified Practitioner</span></>
+                ) : (
+                  <span className="text-sm text-muted-foreground">Verification {practitioner.verification_level === "rejected" ? "declined" : "pending"}</span>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -457,6 +464,18 @@ export default function ProfileManagement({ practitioner, user, onUpdate }) {
                       <SelectItem value="$$$$">$$$$ ($350+)</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+                <div>
+                  <Label htmlFor="session_price">Session price (USD)</Label>
+                  <Input
+                    id="session_price"
+                    type="number"
+                    min="0"
+                    value={profileData.session_price}
+                    onChange={(e) => setProfileData(prev => ({ ...prev, session_price: e.target.value }))}
+                    placeholder="e.g. 150 — leave blank for “price on request”"
+                  />
+                  <p className="mt-1 text-xs text-muted-foreground">This is the actual price shown to clients and charged at booking.</p>
                 </div>
               </div>
 

@@ -29,21 +29,9 @@ export default function BookingsPage() {
             Booking.filter({ practitioner_id: currentUser.id }, "-created_date")
           ]);
 
-          // Fallback to mock data for clients if no real data exists
-          if (realClientData.length > 0) {
-              setClientBookings(realClientData);
-          } else {
-              const mockClientData = await Booking.filter({ client_id: "current_user_id" }, "-created_date");
-              setClientBookings(mockClientData);
-          }
-
-          // Fallback to mock data for practitioners if no real data exists
-          if (realPractitionerData.length > 0) {
-              setPractitionerBookings(realPractitionerData);
-          } else {
-              const mockPractitionerData = await Booking.filter({ practitioner_id: "current_user_id" }, "-created_date");
-              setPractitionerBookings(mockPractitionerData);
-          }
+          // Real bookings for this user only — honest empty state when there are none.
+          setClientBookings(realClientData);
+          setPractitionerBookings(realPractitionerData);
         } catch (bookingError) {
           // If booking fetch fails, just set empty arrays
           console.log("No booking data found for user or failed to fetch, using empty state:", bookingError);
