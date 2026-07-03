@@ -1,4 +1,5 @@
 import React from "react";
+import { eventLocationText } from "@/lib/eventLocation";
 import {
   Dialog,
   DialogContent,
@@ -138,7 +139,7 @@ export default function EventModal({ event, practitioner, onClose, onRegister })
                   <>
                     <MapPin className="w-5 h-5 text-primary" />
                     <div>
-                      <p className="font-medium">{event.location}</p>
+                      <p className="font-medium">{eventLocationText(event)}</p>
                       {event.address && (
                         <p className="text-sm text-muted-foreground">{event.address}</p>
                       )}
@@ -180,7 +181,7 @@ export default function EventModal({ event, practitioner, onClose, onRegister })
                 event={{
                   title: event.title,
                   details: event.description,
-                  location: event.is_online ? "Online" : event.location,
+                  location: eventLocationText(event),
                   start: event.start_date,
                   end: event.end_date,
                 }}

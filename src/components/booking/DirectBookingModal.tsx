@@ -31,7 +31,7 @@ import {
   Shield,
   XCircle
 } from "@/lib/icons";
-import { format, parse } from "date-fns";
+import { format, parse, startOfDay } from "date-fns";
 import { getAvailableSlots as computeSlots } from "@/lib/availability";
 
 

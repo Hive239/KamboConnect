@@ -6,6 +6,7 @@ import { createPageUrl } from "@/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { eventLocationText } from "@/lib/eventLocation";
 import { 
   Calendar, MapPin, Users, DollarSign, Clock,
   Globe, Video 
@@ -143,7 +144,7 @@ export default function EventCard({ event, practitioner, onViewDetails, onRegist
               ) : (
                 <>
                   <MapPin className="w-4 h-4" />
-                  <span className="truncate flex-1">{event.location}</span>
+                  <span className="truncate flex-1">{eventLocationText(event)}</span>
                   {event.distance !== null && event.distance !== undefined && (
                     <span className="text-info font-medium ml-auto">
                       {formatDistance(event.distance)}

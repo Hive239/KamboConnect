@@ -11,8 +11,9 @@ import {
   Users, 
   AlertTriangle, 
   MessageSquare, 
-  ShieldCheck, 
+  ShieldCheck,
   BarChart3,
+  CheckCircle,
   Loader2,
   Settings
 } from "@/lib/icons";
@@ -21,6 +22,7 @@ import UserManagement from "../components/admin/UserManagement";
 import DisputeResolution from "../components/admin/DisputeResolution";
 import ContentModeration from "../components/admin/ContentModeration";
 import VerificationManagement from "../components/admin/VerificationManagement";
+import ClientApprovals from "../components/admin/ClientApprovals";
 import PlatformAnalytics from "../components/admin/PlatformAnalytics";
 import AdminSettings from "../components/admin/AdminSettings";
 

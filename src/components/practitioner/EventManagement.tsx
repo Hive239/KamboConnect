@@ -1,4 +1,5 @@
 
+import { eventLocationText } from "@/lib/eventLocation";
 import React, { useState } from 'react';
 import { Event, Favorite, Notification, EventRegistration, User } from "@/entities/all";
 import { emitFeed } from "@/lib/feed";
@@ -90,8 +91,13 @@ export default function EventManagement({ events, practitioner, onUpdate }) {
   const handleSubmit = async (e, status = "upcoming") => {
     e.preventDefault();
     try {
+      // The venue text maps to `location_details` (address is a structured jsonb
+      // object; `location` and lat/lng are not columns) — otherwise the real
+      // Supabase insert 400s with PGRST204 "column not found".
+      const { location, latitude, longitude, ...rest } = eventData;
       const eventPayload = {
-        ...eventData,
+        ...rest,
+        location_details: location,
         status,
         practitioner_id: practitioner.id,
         start_date: new Date(eventData.start_date).toISOString(),
@@ -152,7 +158,7 @@ export default function EventManagement({ events, practitioner, onUpdate }) {
       event_type: event.event_type,
       start_date: new Date(event.start_date).toISOString().slice(0, 16),
       end_date: new Date(event.end_date).toISOString().slice(0, 16),
-      location: event.location,
+      location: event.location_details ?? (typeof event.location === "string" ? event.location : "") ?? "",
       price: event.price,
       max_participants: event.max_participants,
       is_online: event.is_online || false,
@@ -505,7 +511,7 @@ export default function EventManagement({ events, practitioner, onUpdate }) {
                     ) : (
                       <MapPin className="w-4 h-4 text-primary" />
                     )}
-                    <span className="truncate">{event.location}</span>
+                    <span className="truncate">{eventLocationText(event)}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <DollarSign className="w-4 h-4 text-primary" />

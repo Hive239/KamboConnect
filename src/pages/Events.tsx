@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { eventLocationText } from "@/lib/eventLocation";
 import { Event, EventRegistration, Practitioner, User } from "@/entities/all";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -145,7 +146,7 @@ export default function Events() {
   // Sort events based on selected criteria
   const sortedEvents = React.useMemo(() => {
     const filtered = events.filter((e) => {
-      if (query && !`${e.title} ${e.description || ""} ${e.location || ""}`.toLowerCase().includes(query.toLowerCase())) return false;
+      if (query && !`${e.title} ${e.description || ""} ${eventLocationText(e)}`.toLowerCase().includes(query.toLowerCase())) return false;
       if (typeFilter !== "all" && e.event_type !== typeFilter) return false;
       if (modeFilter === "online" && !e.is_online) return false;
       if (modeFilter === "inperson" && e.is_online) return false;
@@ -210,7 +211,7 @@ export default function Events() {
                     </div>
                     <p className="text-sm text-muted-foreground">
                       {r.event.start_date ? format(new Date(r.event.start_date), "EEE, MMM d, yyyy · h:mm a") : ""}
-                      {r.event.is_online ? " · Online" : r.event.location ? ` · ${r.event.location}` : ""}
+                      {eventLocationText(r.event) ? ` · ${eventLocationText(r.event)}` : ""}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -218,7 +219,7 @@ export default function Events() {
                       event={{
                         title: r.event.title,
                         details: r.event.description,
-                        location: r.event.is_online ? "Online" : r.event.location,
+                        location: eventLocationText(r.event),
                         start: r.event.start_date,
                         end: r.event.end_date,
                       }}
@@ -345,7 +346,7 @@ export default function Events() {
                             event.event_type === 'meetup' ? 'bg-warning hover:bg-warning/90' :
                             'bg-clay hover:bg-clay/90'
                           }`}
-                          title={`${event.title} - ${format(new Date(event.start_date), 'p')} in ${event.location}`}
+                          title={`${event.title} - ${format(new Date(event.start_date), 'p')} in ${eventLocationText(event)}`}
                           onClick={() => setSelectedEvent(event)}
                         >
                           {event.title}

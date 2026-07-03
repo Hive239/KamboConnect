@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { eventLocationText } from "@/lib/eventLocation";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { Event, Practitioner } from "@/entities/all";
 import { createPageUrl } from "@/utils";
@@ -78,7 +79,7 @@ export default function EventDetail() {
       eventStatus: event.status === "cancelled" ? "https://schema.org/EventCancelled" : "https://schema.org/EventScheduled",
       location: event.is_online
         ? { "@type": "VirtualLocation", url: typeof window !== "undefined" ? window.location.href : undefined }
-        : event.location ? { "@type": "Place", name: event.location, address: event.location } : undefined,
+        : eventLocationText(event) ? { "@type": "Place", name: eventLocationText(event), address: eventLocationText(event) } : undefined,
       offers: (event.price || event.price === 0) ? {
         "@type": "Offer",
         price: event.price || 0,
@@ -170,7 +171,7 @@ export default function EventDetail() {
                 <p className="font-medium">Online{isRegistered ? "" : " · link after registration"}</p>
               )
             ) : (
-              <p className="font-medium">{event.location || "Location TBA"}</p>
+              <p className="font-medium">{eventLocationText(event) || "Location TBA"}</p>
             )}
           </div>
           <div className="flex items-center gap-3">
@@ -199,7 +200,7 @@ export default function EventDetail() {
       <div className="sticky bottom-4 flex items-center justify-between gap-3 rounded-2xl border border-border bg-card/90 p-4 shadow-lg backdrop-blur">
         <div className="flex items-center gap-1.5 text-2xl font-bold text-primary"><DollarSign className="h-5 w-5" />{event.price || 0}</div>
         <div className="flex items-center gap-2">
-          <AddToCalendar event={{ title: event.title, details: event.description, location: event.is_online ? (event.meeting_link || "Online") : event.location, start: event.start_date, end: event.end_date }} />
+          <AddToCalendar event={{ title: event.title, details: event.description, location: event.is_online ? (event.meeting_link || "Online") : eventLocationText(event), start: event.start_date, end: event.end_date }} />
           <Button disabled={event.status === "cancelled" || isRegistered} onClick={() => setRegistering(true)} className="px-8">
             {event.status === "cancelled" ? "Cancelled" : isRegistered ? "Registered ✓" : isFull ? "Join waitlist" : "Register"}
           </Button>
