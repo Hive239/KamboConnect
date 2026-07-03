@@ -172,7 +172,35 @@ function greeting(): GuideReply {
 }
 
 /** Route a message to the right heuristic. Async: mirrors a future model call. */
-export async function askGuide(message: string, ctx: GuideContext): Promise<GuideReply> {
+/** Calls the real AI endpoint. Returns null when the LLM isn't configured/available. */
+async function callGuideLLM(message: string, history?: { role: string; text: string }[]): Promise<string | null> {
+  try {
+    const r = await fetch("/api/guide", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message, history }),
+    });
+    const j = await r.json().catch(() => ({}));
+    return j?.answer ? String(j.answer) : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Answer a question. Uses the real Claude API when ANTHROPIC_API_KEY is configured
+ * (server-side), and always keeps real practitioner matches / safety triage from the
+ * structured heuristic. Falls back to the heuristic prose when the LLM is unavailable.
+ */
+export async function askGuide(message: string, ctx: GuideContext, history?: { role: string; text: string }[]): Promise<GuideReply> {
+  const base = await routeHeuristic(message, ctx);
+  if (!message.trim() || message.trim().length < 3) return base; // greeting — no LLM needed
+  const llm = await callGuideLLM(message, history);
+  return llm ? { ...base, text: llm } : base;
+}
+
+/** Structured intent routing over real data (practitioner matches, safety triage). */
+async function routeHeuristic(message: string, ctx: GuideContext): Promise<GuideReply> {
   const msg = message.toLowerCase().trim();
 
   if (!msg) return greeting();

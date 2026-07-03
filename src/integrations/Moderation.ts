@@ -18,7 +18,6 @@ const RISK_TERMS: { term: RegExp; reason: string; weight: number }[] = [
 ];
 
 export async function moderateContent(text: string): Promise<ModerationResult> {
-  await new Promise((r) => setTimeout(r, 120));
   const reasons: string[] = [];
   let score = 0;
   const t = text || '';
@@ -31,7 +30,6 @@ export async function moderateContent(text: string): Promise<ModerationResult> {
 
 /** Suggest a priority for an incoming report based on its reason. */
 export async function triageReport(report: Partial<Report>): Promise<{ priority: Report['priority']; rationale: string }> {
-  await new Promise((r) => setTimeout(r, 80));
   const high = ['safety_concern', 'fraud', 'harassment'];
   const reason = report.reason || 'other';
   if (high.includes(reason)) return { priority: 'high', rationale: `"${reason}" reports are auto-escalated` };

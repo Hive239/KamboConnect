@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, Report, Practitioner } from "@/entities/all";
+import { User, Report, Practitioner, ErrorLog } from "@/entities/all";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { StatCard } from "@/components/ui/StatCard";
@@ -34,16 +34,20 @@ export default function AdminDashboard() {
     pendingVerifications: 0,
     activeDisputes: 0
   });
+  const [errors24h, setErrors24h] = useState(0);
 
   const loadStats = async () => {
      try {
-        const [users, reports, practitioners, allReports] = await Promise.all([
+        const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+        const [users, reports, practitioners, allReports, recentErrors] = await Promise.all([
           User.list(),
           Report.filter({ status: 'pending' }),
           Practitioner.filter({ verification_level: 'pending' }),
-          Report.filter({ status: 'investigating' }) // Use investigating for active disputes
+          Report.filter({ status: 'investigating' }), // Use investigating for active disputes
+          ErrorLog.list('-created_date', 200).catch(() => [])
         ]);
 
+        setErrors24h((recentErrors || []).filter((e) => e.created_date && e.created_date >= since).length);
         setStats({
           totalUsers: users.length,
           pendingReports: reports.length,
@@ -103,10 +107,17 @@ export default function AdminDashboard() {
                 <p className="text-muted-foreground">Platform management &amp; oversight</p>
               </div>
             </div>
-            <span className="inline-flex items-center gap-2 self-start rounded-full border border-success/30 bg-success/10 px-3 py-1.5 text-sm font-medium text-success sm:self-auto">
-              <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" /><span className="relative inline-flex h-2 w-2 rounded-full bg-success" /></span>
-              All systems operational
-            </span>
+            {errors24h === 0 ? (
+              <span className="inline-flex items-center gap-2 self-start rounded-full border border-success/30 bg-success/10 px-3 py-1.5 text-sm font-medium text-success sm:self-auto">
+                <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" /><span className="relative inline-flex h-2 w-2 rounded-full bg-success" /></span>
+                All systems operational
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-2 self-start rounded-full border border-warning/40 bg-warning/10 px-3 py-1.5 text-sm font-medium text-warning sm:self-auto">
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-warning" />
+                {errors24h} error{errors24h === 1 ? "" : "s"} in last 24h
+              </span>
+            )}
           </div>
         </div>
 

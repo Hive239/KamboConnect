@@ -11,8 +11,6 @@ export async function scoreMatches(
   practitioners: Practitioner[],
   ratingOf: (p: Practitioner) => number = () => 0,
 ): Promise<MatchResult[]> {
-  // Simulate a brief "thinking" latency for realism.
-  await new Promise((r) => setTimeout(r, 350));
   return practitioners
     .map((p) => scorePractitioner(p, prefs, ratingOf(p)))
     .sort((a, b) => b.score - a.score);
