@@ -28,7 +28,7 @@ export function roleHome(role: Role): string {
  */
 const PAGE_ACCESS: Record<string, Role[]> = {
   // Client discovery + commerce — practitioners are the supply, not the buyers.
-  Directory: ['client', 'admin'],
+  Directory: ['client', 'practitioner', 'admin'],
   Matchmaking: ['client', 'admin'],
   ForYou: ['client', 'admin'],
   Journal: ['client', 'admin'], // client integration journal (matches nav gating)
@@ -38,7 +38,7 @@ const PAGE_ACCESS: Record<string, Role[]> = {
   Guide: ['client', 'practitioner', 'admin'],
   Market: ['client', 'practitioner', 'admin'],
   Orders: ['client', 'practitioner', 'admin'],
-  Favorites: ['client', 'admin'],
+  Favorites: ['client', 'practitioner', 'admin'],
   Bookings: ['client', 'admin'],
   BookingRequest: ['client', 'admin'],
   PractitionerApplication: ['client', 'admin'],

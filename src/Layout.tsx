@@ -37,7 +37,7 @@ const mainNavItems = [
   // Client discovery + commerce.
   { title: "For You", tKey: "nav.forYou", url: createPageUrl("ForYou"), icon: Home, isPublic: false, roles: ["client"] },
   { title: "Ask the Guide", tKey: "nav.guide", url: createPageUrl("Guide"), icon: Sparkle, isPublic: false, roles: ["client", "practitioner"] },
-  { title: "Directory", tKey: "nav.directory", url: createPageUrl("Directory"), icon: Search, isPublic: false, roles: ["client"] },
+  { title: "Directory", tKey: "nav.directory", url: createPageUrl("Directory"), icon: Search, isPublic: false, roles: ["client", "practitioner"] },
   { title: "Map", tKey: "nav.map", url: createPageUrl("Map"), icon: MapPin, isPublic: false, roles: ["client", "practitioner"] },
   { title: "Find Your Match", tKey: "nav.matchmaking", url: createPageUrl("Matchmaking"), icon: Crosshair, isPublic: false, roles: ["client"] },
   // Shared community (all roles).
@@ -47,7 +47,7 @@ const mainNavItems = [
   { title: "My Bookings", tKey: "nav.bookings", url: createPageUrl("Bookings"), icon: Briefcase, isPublic: false, roles: ["client"] },
   { title: "Journal", tKey: "nav.journal", url: createPageUrl("Journal"), icon: Book, isPublic: false, roles: ["client"] },
   { title: "Messages", tKey: "nav.messages", url: createPageUrl("Messages"), icon: MessageSquare, isPublic: false },
-  { title: "My Favorites", tKey: "nav.favorites", url: createPageUrl("Favorites"), icon: Heart, isPublic: false, roles: ["client"] },
+  { title: "My Favorites", tKey: "nav.favorites", url: createPageUrl("Favorites"), icon: Heart, isPublic: false, roles: ["client", "practitioner"] },
   { title: "Market", tKey: "nav.market", url: createPageUrl("Market"), icon: Store, isPublic: false, roles: ["client", "practitioner"] },
   { title: "Learn", tKey: "nav.learn", url: createPageUrl("Education"), icon: BookOpen, isPublic: false },
   { title: "Courses", tKey: "nav.courses", url: createPageUrl("Courses"), icon: Book, isPublic: false },
