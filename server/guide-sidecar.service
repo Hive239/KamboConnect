@@ -1,0 +1,22 @@
+# systemd unit for the guide sidecar (alternative to pm2).
+# Install:
+#   sudo cp server/guide-sidecar.service /etc/systemd/system/
+#   sudo sed -i "s|__SECRET__|$(openssl rand -hex 24)|; s|__DIR__|$(pwd)|; s|__USER__|$USER|" /etc/systemd/system/guide-sidecar.service
+#   sudo systemctl daemon-reload && sudo systemctl enable --now guide-sidecar
+#   systemctl status guide-sidecar
+[Unit]
+Description=KamboGuide CLI guide sidecar
+After=network.target
+
+[Service]
+Type=simple
+User=__USER__
+WorkingDirectory=__DIR__
+Environment=PORT=8787
+Environment=GUIDE_SHARED_SECRET=__SECRET__
+ExecStart=/usr/bin/node __DIR__/server/guide-cli-server.mjs
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
