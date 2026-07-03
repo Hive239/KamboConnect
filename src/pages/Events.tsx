@@ -187,7 +187,7 @@ export default function Events() {
   }, [events, sortBy, userLocation, query, typeFilter, modeFilter, priceFilter]);
 
   return (
-    <div className="bg-muted min-h-screen">
+    <div className="bg-muted min-h-[100dvh]">
       <div className="grain relative flex h-64 flex-col items-center justify-center overflow-hidden bg-background p-6 text-center sm:h-72">
         <GradientMesh intensity="vivid" />
         <h1 className="relative z-10 font-display text-display font-semibold tracking-tight">Events &amp; Circles</h1>

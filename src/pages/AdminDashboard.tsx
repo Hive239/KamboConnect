@@ -82,7 +82,7 @@ export default function AdminDashboard() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-[100dvh]">
         <Loader2 className="w-10 h-10 animate-spin text-primary" />
       </div>
     );
@@ -131,10 +131,14 @@ export default function AdminDashboard() {
 
         {/* Admin Tools */}
         <Tabs defaultValue="analytics" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 gap-1 h-auto bg-muted p-1 rounded-xl">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-7 gap-1 h-auto bg-muted p-1 rounded-xl">
             <TabsTrigger value="analytics">
               <BarChart3 className="w-4 h-4 sm:mr-2" />
               <span className="hidden sm:inline">Analytics</span>
+            </TabsTrigger>
+            <TabsTrigger value="approvals">
+              <CheckCircle className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Approvals</span>
             </TabsTrigger>
             <TabsTrigger value="users">
               <Users className="w-4 h-4 sm:mr-2" />
@@ -157,6 +161,10 @@ export default function AdminDashboard() {
               <span className="hidden sm:inline">Settings</span>
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="approvals" className="py-6">
+            <ClientApprovals />
+          </TabsContent>
 
           <TabsContent value="users" className="py-6">
             <UserManagement />

@@ -7,7 +7,7 @@ import NavigationTracker from '@/lib/NavigationTracker'
 import { pagesConfig } from './pages.config'
 import Landing from './pages/Landing'
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import { getRole, roleHome, canAccess, PUBLIC_PAGES } from '@/lib/roles';
+import { getRole, roleHome, canAccess, PUBLIC_PAGES, isApproved, UNAPPROVED_PAGES } from '@/lib/roles';
 import { createPageUrl } from '@/utils';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
@@ -30,8 +30,8 @@ const LayoutWrapper = ({ children, currentPageName }) => {
   return Layout ? <Layout currentPageName={currentPageName}>{inner}</Layout> : inner;
 };
 
-// Routes that render standalone (no app sidebar): marketing + auth.
-const BARE_ROUTES = new Set(['Auth', 'Landing', 'ResetPassword']);
+// Routes that render standalone (no app sidebar): marketing + auth + approval-pending.
+const BARE_ROUTES = new Set(['Auth', 'Landing', 'ResetPassword', 'Pending']);
 
 const Spinner = () => (
   <div className="fixed inset-0 flex items-center justify-center">
@@ -46,7 +46,7 @@ const IndexRoute = () => {
   useEffect(() => {
     let active = true;
     User.me()
-      .then((u) => { if (active) setHome(roleHome(getRole(u))); })
+      .then((u) => { if (active) setHome(isApproved(u) ? roleHome(getRole(u)) : createPageUrl('Pending')); })
       .catch(() => { if (active) setState('landing'); });
     return () => { active = false; };
   }, []);
@@ -68,6 +68,9 @@ const RequireRole = ({ page, children }: { page: string; children: ReactNode }) 
     User.me()
       .then((u) => {
         if (!active) return;
+        // Unapproved (pending/rejected/suspended/banned) users are held on /Pending —
+        // except pages they're allowed to reach while unapproved (Pending, application, legal).
+        if (!isApproved(u) && !UNAPPROVED_PAGES.has(page)) { setDest(createPageUrl('Pending')); setStatus('redirect'); return; }
         if (canAccess(page, getRole(u))) setStatus('ok');
         else { setDest(roleHome(getRole(u))); setStatus('redirect'); }
       })

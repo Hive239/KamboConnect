@@ -118,7 +118,7 @@ export default function PractitionerDashboard() {
   // 1. Central Loading State
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-150px)]">
+      <div className="flex items-center justify-center min-h-[calc(100dvh-150px)]">
         <Loader2 className="w-10 h-10 text-muted-foreground animate-spin" />
       </div>
     );
@@ -127,7 +127,7 @@ export default function PractitionerDashboard() {
   // 2. Not Logged In
   if (!user) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-150px)] text-center p-6 bg-muted">
+      <div className="flex flex-col items-center justify-center min-h-[calc(100dvh-150px)] text-center p-6 bg-muted">
         <UserIcon className="w-16 h-16 text-muted-foreground/40 mb-4" />
         <h1 className="text-2xl font-bold text-foreground mb-2">Please Log In</h1>
         <p className="text-muted-foreground max-w-md mb-6">

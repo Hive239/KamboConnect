@@ -10,10 +10,10 @@ import {
   CheckCircle, Clock, Users, BookMarked
 } from "@/lib/icons";
 
-export default function Education() {
+export default function Education({ embedded = false }: { embedded?: boolean } = {}) {
   return (
-    <div className="bg-muted" style={{ scrollBehavior: 'smooth' }}>
-      <PageHeader icon={BookOpen} kicker="Learn" title="Learn more about Kambo" subtitle="Origins, safety, contraindications, and integration." />
+    <div className={embedded ? "" : "bg-muted"} style={{ scrollBehavior: 'smooth' }}>
+      {!embedded && <PageHeader icon={BookOpen} kicker="Learn" title="Learn more about Kambo" subtitle="Origins, safety, contraindications, and integration." />}
 
       <div className="p-4 sm:p-6">
           <h2 className="text-xl font-bold text-foreground mb-4">For Clients</h2>
@@ -157,10 +157,10 @@ export default function Education() {
                   <li><strong>Ethical Conduct:</strong> Strong focus on practitioner ethics, scope of practice, and creating a safe ceremonial space.</li>
                 </ul>
                 <div className="mt-4 flex flex-wrap gap-3">
-                  <a href={createPageUrl("Coursework")} className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
+                  <a href="/Learn?tab=courses" className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
                     Take our Safety Foundations course
                   </a>
-                  <a href={createPageUrl("Courses")} className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium hover:bg-accent">
+                  <a href="/Learn?tab=programs" className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium hover:bg-accent">
                     Browse external training programs
                   </a>
                 </div>

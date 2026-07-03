@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { Link } from "react-router-dom";
 import {
   Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator,
@@ -15,19 +16,21 @@ export default function PageBreadcrumbs({ items, className }: { items: Crumb[]; 
       <BreadcrumbList>
         {items.map((c, i) => {
           const isLast = i === items.length - 1;
+          // Separator must be a SIBLING of BreadcrumbItem (both <li>), never nested
+          // inside it — an <li> inside an <li> is invalid DOM.
           return (
-            <BreadcrumbItem key={`${c.label}-${i}`}>
-              {isLast || !c.to ? (
-                <BreadcrumbPage className="truncate max-w-[40vw]">{c.label}</BreadcrumbPage>
-              ) : (
-                <>
+            <Fragment key={`${c.label}-${i}`}>
+              <BreadcrumbItem>
+                {isLast || !c.to ? (
+                  <BreadcrumbPage className="truncate max-w-[40vw]">{c.label}</BreadcrumbPage>
+                ) : (
                   <BreadcrumbLink asChild>
                     <Link to={c.to}>{c.label}</Link>
                   </BreadcrumbLink>
-                  <BreadcrumbSeparator />
-                </>
-              )}
-            </BreadcrumbItem>
+                )}
+              </BreadcrumbItem>
+              {!isLast && c.to && <BreadcrumbSeparator />}
+            </Fragment>
           );
         })}
       </BreadcrumbList>

@@ -211,12 +211,12 @@ export default function VerificationPage() {
   };
 
   if (isLoading) {
-    return <div className="flex items-center justify-center h-screen"><Loader2 className="w-10 h-10 text-muted-foreground animate-spin" /></div>;
+    return <div className="flex items-center justify-center h-[100dvh]"><Loader2 className="w-10 h-10 text-muted-foreground animate-spin" /></div>;
   }
 
   if (!user) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen text-center p-6 bg-destructive/10 text-destructive">
+      <div className="flex flex-col items-center justify-center h-[100dvh] text-center p-6 bg-destructive/10 text-destructive">
         <AlertCircle className="w-16 h-16 mb-4" />
         <h1 className="text-3xl font-bold">Access Denied</h1>
         <p>You must be an administrator to view this page.</p>

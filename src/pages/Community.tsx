@@ -16,7 +16,7 @@ export default function Community() {
   const [searchParams, setSearchParams] = useSearchParams();
   const tab = searchParams.get("tab") || "feed";
   return (
-    <div className="bg-muted min-h-screen">
+    <div className="bg-muted min-h-[100dvh]">
       <PageHeader icon={UsersThree} kicker="Community" title="Community Hub" subtitle="Connect, share, and learn with others." />
 
       <div className="px-4 sm:px-6 pb-8">

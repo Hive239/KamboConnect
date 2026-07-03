@@ -33,7 +33,7 @@ export default function MyAccount() {
   };
 
   if (isLoading) {
-    return <div className="flex items-center justify-center h-screen"><Loader2 className="w-8 h-8 animate-spin text-muted-foreground"/></div>;
+    return <div className="flex items-center justify-center h-[100dvh]"><Loader2 className="w-8 h-8 animate-spin text-muted-foreground"/></div>;
   }
 
   if (!user) {
@@ -41,7 +41,7 @@ export default function MyAccount() {
   }
 
   return (
-    <div className="bg-muted min-h-screen">
+    <div className="bg-muted min-h-[100dvh]">
         <PageHeader icon={Settings} kicker="Account" title="My Account" subtitle="Manage your profile, settings, and notifications." />
 
         <div className="p-4 sm:p-6 space-y-6">

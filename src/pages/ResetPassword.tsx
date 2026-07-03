@@ -41,7 +41,7 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center p-6">
+    <div className="mx-auto flex min-h-[100dvh] max-w-md flex-col justify-center p-6">
       <div className="mb-6 text-center">
         <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 shadow-glow"><Leaf className="h-7 w-7 text-primary" weight="duotone" /></div>
         <h1 className="font-display text-3xl font-semibold tracking-tight">Set a new password</h1>

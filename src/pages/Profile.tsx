@@ -90,7 +90,7 @@ export default function Profile() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-150px)]">
+      <div className="flex items-center justify-center min-h-[calc(100dvh-150px)]">
         <Loader2 className="w-10 h-10 text-muted-foreground animate-spin" />
       </div>
     );
@@ -98,7 +98,7 @@ export default function Profile() {
 
   if (!user) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-150px)] text-center p-6 bg-muted">
+      <div className="flex flex-col items-center justify-center min-h-[calc(100dvh-150px)] text-center p-6 bg-muted">
         <UserIcon className="w-16 h-16 text-muted-foreground/40 mb-4" />
         <h1 className="text-2xl font-bold text-foreground mb-2">Access Your Profile</h1>
         <p className="text-muted-foreground max-w-md mb-6">
@@ -113,7 +113,7 @@ export default function Profile() {
   }
 
   return (
-    <div className="bg-muted min-h-screen p-4 sm:p-6">
+    <div className="bg-muted min-h-[100dvh] p-4 sm:p-6">
       <div className="max-w-5xl mx-auto">
         
         {/* Profile Header */}

@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 
 export default function Disclaimer() {
   return (
-    <div className="bg-card min-h-screen">
+    <div className="bg-card min-h-[100dvh]">
       <PageHeader icon={Shield} kicker="Legal" title="Legal Disclaimer" subtitle="Important legal information and limitations of liability." />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">

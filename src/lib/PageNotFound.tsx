@@ -21,7 +21,7 @@ export default function PageNotFound({}) {
     });
 
     return (
-        <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background p-6 grain">
+        <div className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden bg-background p-6 grain">
             <GradientMesh intensity="soft" />
             <div className="relative z-10 w-full max-w-md text-center">
                 <span className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 shadow-glow">

@@ -287,7 +287,7 @@ export default function Directory() {
   const cityCount = new Set(practitioners.map((p) => p.address?.city).filter(Boolean)).size;
 
   return (
-    <div className="bg-muted min-h-screen">
+    <div className="bg-muted min-h-[100dvh]">
       {/* Hero Section */}
       <div className="grain relative overflow-hidden border-b border-border bg-background">
         <GradientMesh intensity="vivid" />

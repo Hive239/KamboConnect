@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { VitePWA } from 'vite-plugin-pwa'
 import { fileURLToPath, URL } from 'node:url'
 
 // Standalone config — the Base44 vite plugin (which generated the @/entities/*
@@ -7,7 +8,27 @@ import { fileURLToPath, URL } from 'node:url'
 // exist as real files under src/, resolved via the @ alias below.
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    // Installable, offline-capable PWA. injectManifest keeps our custom service
+    // worker (src/sw.ts — web push + Workbox precache/runtime caching) and
+    // auto-registers it on load. The static public/manifest.webmanifest is kept
+    // (manifest: false), so linking stays in index.html.
+    VitePWA({
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.ts',
+      registerType: 'autoUpdate',
+      injectRegister: 'auto',
+      manifest: false,
+      injectManifest: {
+        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
+        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
+      },
+      // Don't run the SW in `vite dev` (avoids stale-cache confusion while coding).
+      devOptions: { enabled: false },
+    }),
+  ],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

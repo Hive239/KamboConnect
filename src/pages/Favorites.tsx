@@ -223,7 +223,7 @@ export default function Favorites() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-150px)]">
+      <div className="flex items-center justify-center min-h-[calc(100dvh-150px)]">
         <Loader2 className="w-10 h-10 text-muted-foreground animate-spin" />
       </div>
     );
@@ -231,7 +231,7 @@ export default function Favorites() {
 
   if (!user) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-150px)] text-center p-6 bg-muted">
+      <div className="flex flex-col items-center justify-center min-h-[calc(100dvh-150px)] text-center p-6 bg-muted">
         <Heart className="w-16 h-16 text-muted-foreground/40 mb-4" />
         <h1 className="text-2xl font-bold text-foreground mb-2">Save Your Favorites</h1>
         <p className="text-muted-foreground max-w-md mb-6">
@@ -245,7 +245,7 @@ export default function Favorites() {
   }
 
   return (
-    <div className="bg-muted min-h-screen">
+    <div className="bg-muted min-h-[100dvh]">
       <div className="p-4 sm:p-6">
         <div className="max-w-4xl mx-auto">
           <PageHeader icon={Heart} kicker="Saved" title="My Favorites" subtitle="Your saved practitioners, events, and posts" className="-mx-4 -mt-4 mb-6 sm:-mx-6 sm:-mt-6" />

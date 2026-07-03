@@ -19,7 +19,7 @@ export interface SafetyData {
 }
 
 /**
- * Pre-session safety gate: a health-screening questionnaire (driven by the
+ * Pre-session safety gate: a health-[100dvh]ing questionnaire (driven by the
  * shared contraindications data) followed by the real informed-consent waiver.
  * An ABSOLUTE contraindication hard-blocks; relative/temporary items flag for review.
  */

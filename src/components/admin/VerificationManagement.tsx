@@ -301,9 +301,16 @@ export default function VerificationManagement() {
         await Practitioner.update(applicationId, {
           is_verified: true,
           verification_level: 'basic'
+          // listing_tier stays 'basic' — the chosen desired_tier is charged in Billing
+          // after approval (no free Preferred/Featured placement).
         });
-        // Grant the practitioner role on the owner's profile (unified id = applicationId).
-        try { await makeEntity('User').update(applicationId, { role: 'practitioner' }); } catch { /* legacy rows may not map 1:1 */ }
+        // Grant the practitioner role AND approve the account (unified id = applicationId).
+        try { await makeEntity('User').update(applicationId, { role: 'practitioner', status: 'active' }); } catch { /* legacy rows may not map 1:1 */ }
+        try {
+          await notify({ userId: applicationId, type: 'system', title: "You're approved as a practitioner 🎉",
+            body: "Your application was approved. Head to Billing & Growth to activate your chosen plan and go live.",
+            link: '/Billing', email: true });
+        } catch { /* non-blocking */ }
       } else if (action === 'reject') {
         const reason = prompt('Please provide a reason for rejection:');
         if (reason) {
@@ -311,6 +318,12 @@ export default function VerificationManagement() {
             verification_level: 'rejected',
             rejection_reason: reason
           });
+          // Mark the account rejected so they see the honest status (not stuck pending).
+          try { await makeEntity('User').update(applicationId, { status: 'rejected' }); } catch { /* non-blocking */ }
+          try {
+            await notify({ userId: applicationId, type: 'system', title: "Your practitioner application wasn't approved",
+              body: `Reason: ${reason}. You are welcome to address the feedback and re-apply.`, email: true });
+          } catch { /* non-blocking */ }
         }
       }
       refreshData(); // Refresh current tab

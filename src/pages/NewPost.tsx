@@ -80,7 +80,7 @@ export default function NewPost() {
   };
 
   return (
-    <div className="bg-card min-h-screen p-4 sm:p-6">
+    <div className="bg-card min-h-[100dvh] p-4 sm:p-6">
       <div className="max-w-4xl mx-auto">
         <div className="mb-6">
           <Link to={createPageUrl("Community")} className="flex items-center gap-2 text-muted-foreground hover:text-foreground">

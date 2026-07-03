@@ -5,7 +5,7 @@ import { Shield } from "@/lib/icons";
 const UPDATED = "July 2026";
 
 export default function Privacy() {
-  useSeo({ title: "Privacy Policy — KamboGuide", description: "How KamboGuide collects, uses, and protects your data, including health-screening and consent information." });
+  useSeo({ title: "Privacy Policy — KamboGuide", description: "How KamboGuide collects, uses, and protects your data, including health-[100dvh]ing and consent information." });
   return (
     <div className="mx-auto max-w-3xl p-6 sm:p-10">
       <PageHeader icon={Shield} kicker="Legal" title="Privacy Policy" subtitle={`Last updated: ${UPDATED}`} className="-mx-6 -mt-6 mb-8 sm:-mx-10 sm:-mt-10" />
@@ -20,7 +20,7 @@ export default function Privacy() {
           <ul className="list-disc pl-5 text-muted-foreground">
             <li><strong>Account data:</strong> name, email, role (client/practitioner/admin), profile details and photo.</li>
             <li><strong>Practitioner data:</strong> bio, location, credentials, availability, and listing tier.</li>
-            <li><strong>Sensitive health data:</strong> health-screening questionnaire answers and signed informed-consent waivers you complete before a session. We treat these as confidential.</li>
+            <li><strong>Sensitive health data:</strong> health-[100dvh]ing questionnaire answers and signed informed-consent waivers you complete before a session. We treat these as confidential.</li>
             <li><strong>Transactional data:</strong> consultations, bookings, messages, orders, and payment records.</li>
             <li><strong>Technical data:</strong> device/browser information and basic usage analytics.</li>
           </ul>
@@ -31,7 +31,7 @@ export default function Privacy() {
         </section>
         <section>
           <h2 className="text-lg font-semibold">4. Health data & who can see it</h2>
-          <p className="text-muted-foreground">Your health-screening answers and signed waiver are shared only with the specific practitioner delivering your session and, where necessary, platform administrators for safety and compliance. Access is restricted by role-based security. You may request a copy or deletion of these records (subject to legal retention requirements for signed waivers).</p>
+          <p className="text-muted-foreground">Your health-[100dvh]ing answers and signed waiver are shared only with the specific practitioner delivering your session and, where necessary, platform administrators for safety and compliance. Access is restricted by role-based security. You may request a copy or deletion of these records (subject to legal retention requirements for signed waivers).</p>
         </section>
         <section>
           <h2 className="text-lg font-semibold">5. Storage & security</h2>

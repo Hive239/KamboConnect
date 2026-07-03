@@ -14,5 +14,13 @@ const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 export const isSupabaseConfigured = Boolean(url && anonKey);
 
 export const supabase = isSupabaseConfigured
-  ? createClient(url!, anonKey!, { auth: { persistSession: true, autoRefreshToken: true } })
+  ? createClient(url!, anonKey!, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        // PKCE so native OAuth can complete via exchangeCodeForSession (see native.ts).
+        flowType: 'pkce',
+      },
+    })
   : null;

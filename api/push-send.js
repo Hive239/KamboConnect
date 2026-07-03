@@ -28,7 +28,8 @@ export default async function handler(req, res) {
 
   let sent = 0;
   await Promise.all(
-    subscriptions.map(async (s) => {
+    // Skip native (FCM/APNs) tokens — those go to /api/native-push-send.
+    subscriptions.filter((s) => !s?.keys?.platform).map(async (s) => {
       try {
         await webpush.sendNotification({ endpoint: s.endpoint, keys: s.keys }, payload);
         sent += 1;

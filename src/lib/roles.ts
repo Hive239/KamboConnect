@@ -64,3 +64,15 @@ export function canAccess(page: string, role: Role): boolean {
   const allowed = PAGE_ACCESS[page];
   return !allowed || allowed.includes(role);
 }
+
+/** A logged-in user is "approved" (may use the app) unless their status is pending/
+ *  rejected/suspended/banned. Null/undefined/'active' = approved (grandfathers existing
+ *  accounts created before the approval flow). Admins are always approved. */
+export function isApproved(user: any): boolean {
+  if (getRole(user) === 'admin') return true;
+  const s = user?.status;
+  return !s || s === 'active';
+}
+
+/** Pages an unapproved (pending/rejected/etc.) but signed-in user may still reach. */
+export const UNAPPROVED_PAGES = new Set<string>(['Pending', 'PractitionerApplication', 'Disclaimer', 'Privacy', 'Terms']);

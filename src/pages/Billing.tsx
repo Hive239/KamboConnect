@@ -100,6 +100,18 @@ export default function Billing() {
     <div className="mx-auto max-w-5xl p-4 sm:p-8">
       <PageHeader icon={Trophy} kicker="Growth" title="Billing & Growth" subtitle="Your plan, performance, and growth tools." className="-mx-4 -mt-4 mb-6 sm:-mx-8 sm:-mt-8" />
 
+      {/* Post-approval: activate the tier chosen at signup (charged now). */}
+      {prac.desired_tier && prac.desired_tier !== "basic" && prac.listing_tier === "basic" && (
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/30 bg-primary/5 p-4">
+          <p className="text-sm">
+            🎉 You're approved! Activate your chosen <span className="font-semibold capitalize">{prac.desired_tier}</span> plan to go live with premium placement.
+          </p>
+          <Button size="sm" disabled={!!upgrading} onClick={() => upgrade(TIERS.find((t: any) => t.id === prac.desired_tier))}>
+            {upgrading ? "Processing…" : `Activate ${prac.desired_tier}`}
+          </Button>
+        </div>
+      )}
+
       {/* Analytics */}
       <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
         {statCards.map((s, i) => (

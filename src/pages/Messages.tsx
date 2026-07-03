@@ -317,7 +317,7 @@ export default function Messages() {
 
   if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div className="flex h-[100dvh] items-center justify-center">
         <Loader2 className="w-10 h-10 animate-spin text-primary" />
       </div>
     );
@@ -325,7 +325,7 @@ export default function Messages() {
 
   if (!user) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen text-center p-6 bg-muted">
+      <div className="flex flex-col items-center justify-center h-[100dvh] text-center p-6 bg-muted">
         <UserIcon className="w-16 h-16 text-muted-foreground/40 mb-4" />
         <h1 className="text-2xl font-bold text-foreground mb-2">Please Log In</h1>
         <p className="text-muted-foreground max-w-md mb-6">
@@ -349,7 +349,7 @@ export default function Messages() {
         practitioners={practitioners}
         onSelect={startNewConversation}
       />
-      <div className="flex h-[calc(100vh-4rem)] bg-muted/30">
+      <div className="flex h-[calc(100dvh-4rem)] bg-muted/30">
         <h1 className="sr-only">Messages</h1>
         {/* Sidebar */}
         {showConversationList && (

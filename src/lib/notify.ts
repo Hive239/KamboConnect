@@ -47,17 +47,21 @@ export async function notify(input: NotifyInput): Promise<void> {
     try { await SendEmail({ to: userEmail, subject: `KamboGuide: ${title}`, body }); } catch { /* Resend no-ops without key */ }
   }
 
-  // 3. Web push (best-effort) — only if the user allows push.
+  // 3. Push (best-effort) — web-push for browsers, FCM for native tokens.
   if (userId && pushAllowed) {
     try {
       const subs = await PushSubscription.filter({ user_id: userId }).catch(() => []);
-      if (subs.length) {
-        await fetch('/api/push-send', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ subscriptions: subs, title, body, url: link }),
-        }).catch(() => {});
-      }
+      const web = subs.filter((s: any) => !s?.keys?.platform);
+      const native = subs.filter((s: any) => s?.keys?.platform);
+      const post = (endpoint: string, list: any[]) =>
+        list.length
+          ? fetch(endpoint, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ subscriptions: list, title, body, url: link }),
+            }).catch(() => {})
+          : Promise.resolve();
+      await Promise.all([post('/api/push-send', web), post('/api/native-push-send', native)]);
     } catch { /* ignore */ }
   }
 }

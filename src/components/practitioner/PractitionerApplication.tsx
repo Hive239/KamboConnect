@@ -179,11 +179,14 @@ export default function PractitionerApplicationForm({ onSuccess }) {
 
         // Unified identity: the practitioner listing id === the owner's user id.
         const owner = await User.me().catch(() => null);
+        // Tier chosen at signup (carried via ?desired_tier=). Applied on admin approval.
+        const desiredTier = new URLSearchParams(window.location.search).get("desired_tier");
         const applicationData = {
           ...formData,
           ...(owner ? { id: owner.id, user_id: owner.id } : {}),
           is_verified: false,
           verification_level: 'pending',
+          desired_tier: desiredTier && ["basic", "preferred", "featured"].includes(desiredTier) ? desiredTier : "basic",
           latitude: location?.lat || null,
           longitude: location?.lng || null,
           // Coerce screening fields to their column types.

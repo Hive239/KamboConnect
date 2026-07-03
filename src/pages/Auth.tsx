@@ -25,6 +25,8 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [agreed, setAgreed] = useState(false);
+  const [signupRole, setSignupRole] = useState<"client" | "practitioner">("client");
+  const [desiredTier, setDesiredTier] = useState<"basic" | "preferred" | "featured">("basic");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -37,7 +39,9 @@ export default function Auth() {
     if (!email) { setError("Enter your email above first, then click reset."); return; }
     setBusy(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/ResetPassword` });
+      const { Capacitor } = await import("@capacitor/core");
+      const redirectTo = Capacitor.isNativePlatform() ? "com.kamboguide.app://reset" : `${window.location.origin}/ResetPassword`;
+      const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
       if (error) throw error;
       setNotice("Password reset email sent — check your inbox.");
     } catch (err: any) {
@@ -50,11 +54,20 @@ export default function Auth() {
     if (!supabase) { setError("Supabase is not configured."); return; }
     setBusy(true);
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { Capacitor } = await import("@capacitor/core");
+      const native = Capacitor.isNativePlatform();
+      // Native: redirect to our custom scheme + open the provider in the system
+      // browser; the deep link back is completed in src/lib/native.ts.
+      const redirectTo = native ? "com.kamboguide.app://oauth" : `${window.location.origin}/Directory`;
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
-        options: { redirectTo: `${window.location.origin}/Directory` },
+        options: { redirectTo, skipBrowserRedirect: native },
       });
       if (error) throw error;
+      if (native && data?.url) {
+        const { Browser } = await import("@capacitor/browser");
+        await Browser.open({ url: data.url });
+      }
     } catch (err: any) {
       setError(err?.message || `Could not sign in with ${provider}.`);
       setBusy(false);
@@ -82,10 +95,19 @@ export default function Auth() {
         const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { full_name: fullName } } });
         if (error) throw error;
         if (data.session) {
-          try { await User.create({ id: data.user!.id, email, full_name: fullName || email.split("@")[0], role: "client", acquisition: getAcquisition() } as any); } catch { /* ensured on load too */ }
-          window.location.assign("/Welcome");
+          // New accounts start PENDING and need admin approval before app access.
+          // Role stays 'client' — the practitioner role is granted on approval.
+          try {
+            await User.create({ id: data.user!.id, email, full_name: fullName || email.split("@")[0], role: "client", status: "pending", acquisition: getAcquisition() } as any);
+          } catch { /* ensured on load too */ }
+          if (signupRole === "practitioner") {
+            // Carry the chosen tier into the practitioner application.
+            window.location.assign(`/PractitionerApplication?desired_tier=${desiredTier}`);
+          } else {
+            window.location.assign("/Pending");
+          }
         } else {
-          setNotice("Account created. Check your email to confirm, then sign in.");
+          setNotice("Account created. Check your email to confirm — an admin will review your account, then you can sign in.");
           setMode("signin");
         }
       }
@@ -98,7 +120,7 @@ export default function Auth() {
 
   return (
     <ThemeProvider attribute="class" forcedTheme="light">
-      <div className="relative flex min-h-screen w-full flex-col overflow-hidden bg-[#0b3a2a] text-white grain">
+      <div className="relative flex min-h-[100dvh] w-full flex-col overflow-hidden bg-[#0b3a2a] text-white grain">
         {/* ---------- Vibrant animated background ---------- */}
         <div aria-hidden className="pointer-events-none absolute inset-0 -z-0">
           <div className="absolute inset-0 bg-gradient-to-br from-[#0f4a33] via-[#0b3a2a] to-[#07271d]" />
@@ -206,6 +228,37 @@ export default function Auth() {
                       <Label htmlFor="fullName">Full name</Label>
                       <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Your name" className="mt-1" />
                     </div>
+                    <div>
+                      <Label>I am…</Label>
+                      <div className="mt-1 grid grid-cols-2 gap-2">
+                        <button type="button" onClick={() => setSignupRole("client")}
+                          className={`rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors ${signupRole === "client" ? "border-white bg-white/15 text-white" : "border-white/25 text-white/70 hover:bg-white/10"}`}>
+                          Seeking Kambo<span className="block text-xs font-normal opacity-70">Client</span>
+                        </button>
+                        <button type="button" onClick={() => setSignupRole("practitioner")}
+                          className={`rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors ${signupRole === "practitioner" ? "border-white bg-white/15 text-white" : "border-white/25 text-white/70 hover:bg-white/10"}`}>
+                          A practitioner<span className="block text-xs font-normal opacity-70">Offer sessions</span>
+                        </button>
+                      </div>
+                    </div>
+                    {signupRole === "practitioner" && (
+                      <div>
+                        <Label>Choose your plan (charged after approval)</Label>
+                        <div className="mt-1 grid grid-cols-3 gap-2">
+                          {[
+                            { id: "basic", name: "Basic", price: "$0" },
+                            { id: "preferred", name: "Preferred", price: "$29/mo" },
+                            { id: "featured", name: "Featured", price: "$49/mo" },
+                          ].map((t) => (
+                            <button key={t.id} type="button" onClick={() => setDesiredTier(t.id as any)}
+                              className={`rounded-lg border px-2 py-2 text-center text-xs font-medium transition-colors ${desiredTier === t.id ? "border-white bg-white/15 text-white" : "border-white/25 text-white/70 hover:bg-white/10"}`}>
+                              {t.name}<span className="block font-normal opacity-70">{t.price}</span>
+                            </button>
+                          ))}
+                        </div>
+                        <p className="mt-1 text-xs text-white/60">You'll complete a short application next. An admin reviews it before you go live.</p>
+                      </div>
+                    )}
                   </TabsContent>
                   <div>
                     <Label htmlFor="email">Email</Label>

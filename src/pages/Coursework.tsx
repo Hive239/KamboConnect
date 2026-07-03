@@ -15,7 +15,7 @@ import { notify } from "@/lib/notify";
 import { track } from "@/lib/activity";
 import { toast } from "sonner";
 
-export default function Coursework() {
+export default function Coursework({ embedded = false }: { embedded?: boolean } = {}) {
   useSeo({ title: "Coursework — KamboGuide", description: "Educational Kambo safety courses. Not a certification." });
   const [uid, setUid] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string>("");
@@ -51,13 +51,13 @@ export default function Coursework() {
       const result = await startCheckout({
         amount: payFor.price, currency: "USD", description: `${payFor.title} course`,
         metadata: { kind: "course", enrollment_id: enrollId, user_id: uid },
-        successPath: "/Coursework?paid=1", cancelPath: "/Coursework?canceled=1",
+        successPath: "/Learn?tab=courses&paid=1", cancelPath: "/Learn?tab=courses&canceled=1",
       });
       if (result.mode === "redirect") { window.location.href = result.url; return; } // webhook activates
       await CourseworkEnrollment.update(enrollId, { status: "active", paid_at: new Date().toISOString() });
       await Payment.create({ user_id: uid, amount: payFor.price, currency: "USD", payment_type: "course", payment_status: "completed", stripe_payment_id: result.charge.id, payment_date: new Date().toISOString() } as any);
       track("checkout_completed", { entityId: payFor.id, meta: { kind: "course", price: payFor.price } });
-      notify({ userId: uid, userEmail, type: "system", title: `You're enrolled: ${payFor.title}`, body: `Welcome to ${payFor.title}. You have lifetime access — work through the modules at your own pace. Remember: this is educational only, not a certification or medical advice.`, link: "/Coursework", email: true }).catch(() => {});
+      notify({ userId: uid, userEmail, type: "system", title: `You're enrolled: ${payFor.title}`, body: `Welcome to ${payFor.title}. You have lifetime access — work through the modules at your own pace. Remember: this is educational only, not a certification or medical advice.`, link: "/Learn?tab=courses", email: true }).catch(() => {});
       toast.success("Enrolled — enjoy the course!");
       setEnrollments((prev) => [...prev.filter((e) => e.track !== payFor.id), { ...created, status: "active" }]);
       const t = payFor;
@@ -74,16 +74,20 @@ export default function Coursework() {
   }
 
   return (
-    <div className="min-h-screen bg-muted">
-      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
-        <h1 className="flex items-center gap-3 font-display text-3xl font-semibold tracking-tight text-foreground">
-          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 shadow-glow"><GraduationCap className="h-6 w-6 text-primary" weight="duotone" /></span>
-          KamboGuide Coursework
-        </h1>
-        <p className="mt-1 max-w-2xl text-muted-foreground">
-          Self-paced educational courses on Kambo safety, tradition, and preparation. These are
-          <strong> educational only — not a certification or license to practice</strong>, and make no medical claims.
-        </p>
+    <div className={embedded ? "" : "min-h-[100dvh] bg-muted"}>
+      <div className={embedded ? "" : "mx-auto max-w-5xl px-4 py-8 sm:px-6"}>
+        {!embedded && (
+          <>
+            <h1 className="flex items-center gap-3 font-display text-3xl font-semibold tracking-tight text-foreground">
+              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 shadow-glow"><GraduationCap className="h-6 w-6 text-primary" weight="duotone" /></span>
+              KamboGuide Coursework
+            </h1>
+            <p className="mt-1 max-w-2xl text-muted-foreground">
+              Self-paced educational courses on Kambo safety, tradition, and preparation. These are
+              <strong> educational only — not a certification or license to practice</strong>, and make no medical claims.
+            </p>
+          </>
+        )}
 
         <Reveal stagger className="mt-8 grid gap-6 md:grid-cols-2">
           {TRACKS.map((t) => {
@@ -202,7 +206,7 @@ function CoursePlayer({ track, enrollment, onBack }: { track: Track; enrollment:
     setAnswers({}); setChecked(false);
     if (completedAll) {
       toast.success("Course complete! 🎉");
-      notify({ userId: meRef.current.id, userEmail: meRef.current.email, type: "system", title: `Completed: ${track.title}`, body: `Congratulations on completing ${track.title}! You can download your Certificate of Completion from the course page. Reminder: this is educational recognition only — not a certification or license to practice.`, link: "/Coursework", email: true }).catch(() => {});
+      notify({ userId: meRef.current.id, userEmail: meRef.current.email, type: "system", title: `Completed: ${track.title}`, body: `Congratulations on completing ${track.title}! You can download your Certificate of Completion from the course page. Reminder: this is educational recognition only — not a certification or license to practice.`, link: "/Learn?tab=courses", email: true }).catch(() => {});
     }
     else {
       const nextLesson = lessons[idx + 1] || lessons.find((l) => !next[l.id]?.completed);
@@ -214,7 +218,7 @@ function CoursePlayer({ track, enrollment, onBack }: { track: Track; enrollment:
   const allDone = doneCount === lessons.length;
 
   return (
-    <div className="min-h-screen bg-muted">
+    <div className="min-h-[100dvh] bg-muted">
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
         <Button variant="ghost" size="sm" className="mb-4 gap-1" onClick={onBack}><ArrowLeft className="h-4 w-4" /> All courses</Button>
         <div className="mb-4">

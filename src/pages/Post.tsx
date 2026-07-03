@@ -197,7 +197,7 @@ export default function PostPage() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-[calc(100vh-150px)]">
+      <div className="flex justify-center items-center min-h-[calc(100dvh-150px)]">
         <Loader2 className="w-10 h-10 text-muted-foreground animate-spin" />
       </div>
     );
@@ -290,7 +290,7 @@ export default function PostPage() {
   };
 
   return (
-    <div className="p-4 sm:p-6 bg-muted min-h-screen">
+    <div className="p-4 sm:p-6 bg-muted min-h-[100dvh]">
       <div className="max-w-4xl mx-auto">
         <PageBreadcrumbs
           className="mb-4"

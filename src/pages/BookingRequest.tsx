@@ -178,7 +178,7 @@ export default function BookingRequestPage() {
   };
 
   if (isLoading) {
-    return <div className="flex justify-center items-center h-screen"><Loader2 className="w-10 h-10 animate-spin"/></div>;
+    return <div className="flex justify-center items-center h-[100dvh]"><Loader2 className="w-10 h-10 animate-spin"/></div>;
   }
 
   if (!practitioner) {
@@ -186,7 +186,7 @@ export default function BookingRequestPage() {
   }
 
   return (
-    <div className="bg-muted min-h-screen p-4 sm:p-6">
+    <div className="bg-muted min-h-[100dvh] p-4 sm:p-6">
       <div className="max-w-3xl mx-auto">
         <PageBreadcrumbs
           className="mb-6"

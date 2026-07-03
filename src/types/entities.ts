@@ -51,7 +51,7 @@ export interface User extends BaseRecord {
   acquisition?: Record<string, any>;
   profile_image_url?: string;
   preferences?: Record<string, unknown>;
-  status?: 'active' | 'suspended' | 'banned';
+  status?: 'pending' | 'active' | 'suspended' | 'banned' | 'rejected';
   locale?: string;
   currency?: string;
 }
@@ -79,6 +79,7 @@ export interface Practitioner extends BaseRecord {
   image_urls?: string[];
   pricing_range?: PricingRange;
   session_price?: number;   // practitioner-set price per session (USD)
+  desired_tier?: ListingTier; // tier chosen at signup, applied on admin approval
   languages?: string[];
   availability_notes?: string;
   safety_protocols?: string;

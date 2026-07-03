@@ -185,7 +185,7 @@ export default function Guide() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] flex-col bg-muted">
+    <div className="flex h-[calc(100dvh-4rem)] flex-col bg-muted">
       {/* Header */}
       <div className="relative overflow-hidden border-b border-border bg-card grain">
         <GradientMesh intensity="soft" />

@@ -1,13 +1,20 @@
 {
   "name": "KamboGuide",
   "short_name": "KamboGuide",
+  "id": "/",
   "description": "Find trusted Kambo practitioners, connect with the community, and learn.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone"],
+  "orientation": "portrait",
+  "categories": ["health", "lifestyle", "education"],
   "background_color": "#faf8f4",
   "theme_color": "#2f5e46",
   "icons": [
-    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+    { "src": "/pwa-64x64.png", "sizes": "64x64", "type": "image/png" },
+    { "src": "/pwa-192x192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/pwa-512x512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/maskable-icon-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }

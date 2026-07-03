@@ -289,7 +289,7 @@ export default function PractitionerProfile() {
 
   if (isLoading) {
     return (
-      <div className="p-6 bg-muted min-h-screen">
+      <div className="p-6 bg-muted min-h-[100dvh]">
         <div className="max-w-6xl mx-auto space-y-6">
           <div className="h-48 rounded-2xl shimmer"></div>
           <div className="flex flex-col md:flex-row gap-6 mt-8">
@@ -312,7 +312,7 @@ export default function PractitionerProfile() {
     // The useEffect already navigates away in these cases, so this block might be less reachable,
     // but kept as a fallback for unexpected states.
     return (
-      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-150px)] text-center p-6 bg-muted">
+      <div className="flex flex-col items-center justify-center min-h-[calc(100dvh-150px)] text-center p-6 bg-muted">
         <Users className="w-16 h-16 text-muted-foreground mb-4" />
         <h1 className="text-2xl font-bold text-foreground mb-2">Practitioner Not Found</h1>
         <p className="text-muted-foreground max-w-md mb-6">
@@ -331,7 +331,7 @@ export default function PractitionerProfile() {
   const canShowGallery = practitioner.image_urls && practitioner.image_urls.length > 0;
 
   return (
-    <div className="bg-muted min-h-screen">
+    <div className="bg-muted min-h-[100dvh]">
       <div className="w-full h-48 md:h-72 bg-background relative overflow-hidden grain">
         <GradientMesh intensity="vivid" />
         {practitioner.image_urls?.[0] && (

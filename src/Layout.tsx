@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { motion, useReducedMotion } from "framer-motion";
 import { createPageUrl } from "@/utils";
 import ScrollProgress from "@/components/ScrollProgress";
+import InstallPrompt from "@/components/InstallPrompt";
 import { User } from "@/entities/User";
 import { Message } from "@/entities/all";
 import { subscribe } from "@/data/store";
@@ -49,9 +50,7 @@ const mainNavItems = [
   { title: "Messages", tKey: "nav.messages", url: createPageUrl("Messages"), icon: MessageSquare, isPublic: false },
   { title: "My Favorites", tKey: "nav.favorites", url: createPageUrl("Favorites"), icon: Heart, isPublic: false, roles: ["client", "practitioner"] },
   { title: "Market", tKey: "nav.market", url: createPageUrl("Market"), icon: Store, isPublic: false, roles: ["client", "practitioner"] },
-  { title: "Learn", tKey: "nav.learn", url: createPageUrl("Education"), icon: BookOpen, isPublic: false },
-  { title: "Courses", tKey: "nav.courses", url: createPageUrl("Courses"), icon: Book, isPublic: false },
-  { title: "Coursework", tKey: "nav.coursework", url: createPageUrl("Coursework"), icon: GraduationCap, isPublic: false },
+  { title: "Learn", tKey: "nav.learn", url: createPageUrl("Learn"), icon: BookOpen, isPublic: false },
 ];
 
 // User/account items — surfaced in the top-right ProfileMenu (and mobile sheet)
@@ -208,8 +207,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </a>
 
       <ScrollProgress />
+      <InstallPrompt />
 
-      <div className="flex min-h-screen flex-col bg-background text-foreground">
+      <div className="flex min-h-[100dvh] flex-col bg-background text-foreground">
         {/* ---------- Top bar ---------- */}
         <header className="sticky top-0 z-40 flex h-16 items-center gap-3 border-b border-border bg-card/95 px-3 backdrop-blur-sm sm:px-4">
           {/* Mobile: hamburger opens sheet */}
@@ -314,7 +314,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             initial={false}
             animate={{ width: collapsed ? 72 : 198 }}
             transition={reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 400, damping: 36 }}
-            className="sticky top-16 hidden h-[calc(100vh-4rem)] shrink-0 flex-col border-r border-sidebar-border bg-sidebar md:flex"
+            className="sticky top-16 hidden h-[calc(100dvh-4rem)] shrink-0 flex-col border-r border-sidebar-border bg-sidebar md:flex"
           >
             <nav className="flex-1 space-y-1 overflow-y-auto p-3">
               {visibleMainNav.map((item) => (

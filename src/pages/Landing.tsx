@@ -35,7 +35,7 @@ const FAQS = [
   { q: "How do I find the right practitioner?", a: "Browse the directory and map, or let the Guide match you based on location, modality, language, and budget. Every verified practitioner has reviewed credentials." },
   { q: "What does a session cost?", a: "Pricing varies by practitioner and region. Most offer a free initial consultation so you can find the right fit before booking a paid session." },
   { q: "Do I have to pay to join?", a: "No — creating an account is free for seekers. Practitioners can list a basic profile free and upgrade for more visibility." },
-  { q: "Is my information private?", a: "Yes. Health-screening answers are shared only with the practitioner you book, and you control what's on your public profile." },
+  { q: "Is my information private?", a: "Yes. Health-[100dvh]ing answers are shared only with the practitioner you book, and you control what's on your public profile." },
 ];
 
 const ROTATING = ["trusted", "verified", "caring", "local"];
@@ -175,7 +175,7 @@ export default function Landing() {
 
   return (
     <ThemeProvider attribute="class" forcedTheme="light">
-      <div className="min-h-screen bg-background text-foreground">
+      <div className="min-h-[100dvh] bg-background text-foreground">
         {/* ---------- Top bar ---------- */}
         <header className="sticky top-0 z-50 border-b border-border/60 bg-background/70 backdrop-blur-md">
           <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3.5">
@@ -542,7 +542,7 @@ export default function Landing() {
               <Link to={createPageUrl("Directory")} className="hover:text-foreground">Directory</Link>
               <Link to={createPageUrl("Events")} className="hover:text-foreground">Events</Link>
               <Link to={createPageUrl("Community")} className="hover:text-foreground">Community</Link>
-              <Link to={createPageUrl("Education")} className="hover:text-foreground">Learn</Link>
+              <Link to={createPageUrl("Learn")} className="hover:text-foreground">Learn</Link>
               <Link to={createPageUrl("Disclaimer")} className="hover:text-foreground">Legal</Link>
               <Link to={createPageUrl("Privacy")} className="hover:text-foreground">Privacy</Link>
               <Link to={createPageUrl("Terms")} className="hover:text-foreground">Terms</Link>

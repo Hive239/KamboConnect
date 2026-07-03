@@ -23,7 +23,7 @@ const FORMATS = [
 const FORMAT_LABEL: Record<string, string> = { online: "Online", in_person: "In person", hybrid: "Hybrid" };
 const EMPTY = { title: "", provider: "", description: "", url: "", location: "", format: "in_person", duration: "", price: "", lineage: "", image_url: "", is_featured: false };
 
-export default function Courses() {
+export default function Courses({ embedded = false }: { embedded?: boolean } = {}) {
   useSeo({ title: "Practitioner Courses — KamboGuide", description: "Find reputable Kambo practitioner training programs." });
   const [courses, setCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -76,9 +76,10 @@ export default function Courses() {
   };
 
   return (
-    <div className="min-h-screen bg-muted">
-      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+    <div className={embedded ? "" : "min-h-[100dvh] bg-muted"}>
+      <div className={embedded ? "" : "mx-auto max-w-6xl px-4 py-8 sm:px-6"}>
         <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+          {!embedded && (
           <div>
             <h1 className="flex items-center gap-3 font-display text-3xl font-semibold tracking-tight text-foreground">
               <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 shadow-glow"><BookMarked className="h-6 w-6 text-primary" weight="duotone" /></span>
@@ -89,6 +90,7 @@ export default function Courses() {
               look for lineage, safety, hands-on supervision, and ethics.
             </p>
           </div>
+          )}
           <div className="flex items-center gap-2">
             <Select value={filter} onValueChange={setFilter}>
               <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>

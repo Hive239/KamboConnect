@@ -32,7 +32,8 @@ export async function enablePush(): Promise<{ ok: boolean; reason?: string }> {
   if (perm !== 'granted') return { ok: false, reason: 'Notification permission was declined.' };
 
   try {
-    const reg = await navigator.serviceWorker.register('/sw.js');
+    // vite-plugin-pwa auto-registers the SW on load; just wait for it.
+    const reg = await navigator.serviceWorker.ready;
     const sub = await reg.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC),
