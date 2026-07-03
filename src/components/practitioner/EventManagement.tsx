@@ -567,7 +567,7 @@ export default function EventManagement({ events, practitioner, onUpdate }) {
                   <div className="min-w-0">
                     <p className="font-medium text-foreground">{r.participant_name}</p>
                     <p className="truncate text-sm text-muted-foreground">{r.participant_email}{r.participant_phone ? ` · ${r.participant_phone}` : ""}</p>
-                    {r.medical_conditions && <p className="mt-1 text-xs text-amber-700">Medical: {r.medical_conditions}</p>}
+                    {r.medical_conditions && <p className="mt-1 text-xs text-warning">Medical: {r.medical_conditions}</p>}
                   </div>
                   <div className="flex shrink-0 flex-col items-end gap-1">
                     <Badge variant={r.registration_status === "waitlist" ? "secondary" : "outline"} className="capitalize">{r.registration_status || "confirmed"}</Badge>

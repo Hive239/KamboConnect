@@ -5,10 +5,31 @@
  * no hard dependency, and a complete no-op when the DSN is absent.
  */
 
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+
 const RING_KEY = "kc_error_log";
 const RING_MAX = 25;
 
 let sentryPromise: Promise<any> | null = null;
+let dbInserts = 0;
+const DB_INSERT_CAP = 20; // per session — avoid error storms flooding the table
+
+/** Best-effort persist to error_logs for the admin reliability panel. Never throws. */
+function persistErrorLog(entry: { message: string; stack?: string; context?: any }) {
+  if (dbInserts >= DB_INSERT_CAP) return;
+  dbInserts += 1;
+  try {
+    if (!isSupabaseConfigured || !supabase) return;
+    Promise.resolve(
+      supabase.from("error_logs").insert({
+        message: entry.message?.slice(0, 500),
+        stack: entry.stack?.slice(0, 2000),
+        context: entry.context || {},
+        path: typeof location !== "undefined" ? location.pathname : null,
+      }),
+    ).catch(() => {});
+  } catch { /* never throw */ }
+}
 
 function getSentry(): Promise<any> | null {
   const dsn = import.meta.env.VITE_SENTRY_DSN as string | undefined;
@@ -47,6 +68,7 @@ export function reportError(error: unknown, context?: Record<string, any>): void
     context,
     at: new Date().toISOString(),
   });
+  persistErrorLog({ message: err.message, stack: err.stack, context });
   const s = getSentry();
   if (s) s.then((Sentry) => Sentry?.captureException(err, { extra: context }));
 }

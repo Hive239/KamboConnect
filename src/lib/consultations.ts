@@ -1,6 +1,7 @@
 import { Consultation, Booking, Notification, Conversation } from "@/entities/all";
 import { upsertClientRecord } from "@/lib/fileWaiver";
 import { SendEmail } from "@/integrations/Core";
+import { track } from "@/lib/activity";
 
 /** Client requests a (free) consultation with a practitioner. */
 export async function requestConsultation(practitioner: any, user: any, message = "") {
@@ -13,6 +14,7 @@ export async function requestConsultation(practitioner: any, user: any, message 
     status: "requested",
     message,
   });
+  track("booking_submitted", { entityId: practitioner.id, meta: { kind: "consultation" } });
   await Notification.create({
     user_id: practitioner.id,
     title: "New consultation request",

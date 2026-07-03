@@ -24,12 +24,14 @@ import {
   ShieldCheck,
   Storefront,
   Users as UsersIcon,
-  LogIn
+  LogIn,
+  TrendingUp
 } from "@/lib/icons";
 
 import { resolvePractitionerForUser } from "@/lib/practitionerForUser";
 import ProfileManagement from "../components/practitioner/ProfileManagement";
 import ReviewsManagement from "../components/practitioner/ReviewsManagement";
+import PractitionerAnalytics from "../components/practitioner/PractitionerAnalytics";
 import CredentialManagement from "../components/practitioner/CredentialManagement";
 import ClientsManagement from "../components/practitioner/ClientsManagement";
 import ConsultationsManager from "../components/practitioner/ConsultationsManager";
@@ -176,10 +178,14 @@ export default function PractitionerDashboard() {
         <PageHeader icon={Storefront} kicker="Your practice" title="Practitioner Dashboard" subtitle="Manage your practice and connect with clients." className="-mx-4 -mt-4 mb-6 sm:-mx-6 sm:-mt-6" />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-10 gap-1 h-auto bg-muted p-1 rounded-xl">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-11 gap-1 h-auto bg-muted p-1 rounded-xl">
             <TabsTrigger value="overview" className="flex flex-col sm:flex-row items-center gap-1 p-2 text-xs sm:text-sm">
               <Home className="w-4 h-4" />
               <span className="hidden sm:inline">Overview</span>
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex flex-col sm:flex-row items-center gap-1 p-2 text-xs sm:text-sm">
+              <TrendingUp className="w-4 h-4" />
+              <span className="hidden sm:inline">Analytics</span>
             </TabsTrigger>
             <TabsTrigger value="profile" className="flex flex-col sm:flex-row items-center gap-1 p-2 text-xs sm:text-sm">
               <UserIcon className="w-4 h-4" />
@@ -231,6 +237,10 @@ export default function PractitionerDashboard() {
               <StatCard icon={MessageSquare} label="Unread Messages" value={unreadMessages} color="info" onClick={() => setActiveTab("messages")} sub={unreadMessages > 0 ? "Click to view →" : undefined} />
               <StatCard icon={CalendarDays} label="Upcoming Events" value={upcomingEvents} color="warning" onClick={() => setActiveTab("events")} sub={upcomingEvents > 0 ? "Click to manage →" : undefined} />
             </div>
+          </TabsContent>
+
+          <TabsContent value="analytics" className="py-6">
+            {practitionerProfile?.id && <PractitionerAnalytics practitionerId={practitionerProfile.id} />}
           </TabsContent>
 
           <TabsContent value="profile" className="py-6">

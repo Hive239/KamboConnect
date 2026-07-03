@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ArrowUpRight, Book, Video, Link as LinkIcon, FileText, Shield, Users, Heart, BookOpen, Search, Plus, Trash2 } from "@/lib/icons";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
+import { useSpotlight } from "@/lib/useSpotlight";
+import { Spotlight } from "@/components/ui/Spotlight";
 import { toast } from "sonner";
 // Small local groupBy (replaces the lodash dependency)
 function groupBy<T>(items: T[], key: keyof T | string): Record<string, T[]> {
@@ -21,6 +23,7 @@ function groupBy<T>(items: T[], key: keyof T | string): Record<string, T[]> {
 }
 
 const ResourceCard = ({ resource, me, onDelete }) => {
+  const { onMouseMove } = useSpotlight();
   const canDelete = me && (resource.created_by === me.id || me.role === "admin");
   const typeIcons = {
     Article: <FileText className="w-4 h-4" />,
@@ -53,7 +56,8 @@ const ResourceCard = ({ resource, me, onDelete }) => {
 
   return (
     <Wrapper>
-      <Card className="shadow-sm border-border hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+      <Card className="relative shadow-sm border-border hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden" onMouseMove={onMouseMove}>
+        <Spotlight className="z-10" />
         <div className={`h-32 bg-gradient-to-br ${categoryColors[resource.category]} relative overflow-hidden`}>
           {categoryImages[resource.category] && (
             <img loading="lazy" 

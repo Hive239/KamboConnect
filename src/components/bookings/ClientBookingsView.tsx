@@ -295,16 +295,16 @@ const ClientBookingsView = ({ bookings, onUpdate }) => {
         isDestructive={true}
       >
         {confirmState.action === 'cancel' && confirmState.booking?.status === 'confirmed' && (
-             <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                <h4 className="font-semibold text-amber-900 flex items-center gap-2"><DollarSign className="w-5 h-5"/>Cancellation Fee</h4>
-                <p className="text-sm text-amber-800 mt-2">
+             <div className="mt-4 p-4 bg-warning/10 border border-warning/40 rounded-lg">
+                <h4 className="font-semibold text-warning flex items-center gap-2"><DollarSign className="w-5 h-5"/>Cancellation Fee</h4>
+                <p className="text-sm text-warning mt-2">
                     Cancelling a confirmed session incurs a 20% fee to compensate the practitioner. This does not include standard credit card processing fees.
                 </p>
-                <div className="mt-3 font-medium text-amber-900">
+                <div className="mt-3 font-medium text-warning">
                     Session Price: ${confirmState.booking?.price?.toFixed(2) || 'N/A'}<br/>
                     Cancellation Fee (20%): ${cancellationFee}
                 </div>
-                 <p className="text-xs text-amber-700 mt-2">By confirming, you agree to be charged this amount.</p>
+                 <p className="text-xs text-warning mt-2">By confirming, you agree to be charged this amount.</p>
             </div>
         )}
       </ConfirmationDialog>

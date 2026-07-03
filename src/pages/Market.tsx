@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { GradientMesh } from "@/components/ui/GradientMesh";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
+import { Reveal } from "@/components/ui/Reveal";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import ProductCard from "@/components/market/ProductCard";
@@ -120,9 +121,13 @@ export default function Market() {
         ) : shown.length === 0 ? (
           <div className="py-16 text-center text-muted-foreground"><Package className="mx-auto mb-2 h-10 w-10 text-muted-foreground/40" weight="duotone" />No products in this category yet.</div>
         ) : (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {shown.map((p) => <ProductCard key={p.id} product={p} onAdd={() => { cart.add(p); setCartOpen(true); }} onOpen={() => setDetail(p)} />)}
-          </div>
+          <Reveal stagger className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {shown.map((p) => (
+              <Reveal.Item key={p.id}>
+                <ProductCard product={p} onAdd={() => { cart.add(p); setCartOpen(true); }} onOpen={() => setDetail(p)} />
+              </Reveal.Item>
+            ))}
+          </Reveal>
         )}
       </div>
 

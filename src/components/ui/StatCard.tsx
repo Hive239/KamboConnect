@@ -7,15 +7,17 @@ import * as React from "react";
 import { useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Sparkline } from "@/components/ui/charts";
+import { useSpotlight } from "@/lib/useSpotlight";
+import { Spotlight } from "@/components/ui/Spotlight";
 
 export type StatColor = "primary" | "clay" | "success" | "warning" | "info";
 
-const COLOR: Record<StatColor, { border: string; ring: string; chip: string; spark: string }> = {
-  primary: { border: "border-primary/25", ring: "hover:ring-primary/40", chip: "bg-primary/10 text-primary", spark: "hsl(var(--primary))" },
-  clay: { border: "border-clay/25", ring: "hover:ring-clay/40", chip: "bg-clay/10 text-clay", spark: "hsl(var(--clay))" },
-  success: { border: "border-success/25", ring: "hover:ring-success/40", chip: "bg-success/10 text-success", spark: "hsl(var(--success))" },
-  warning: { border: "border-warning/25", ring: "hover:ring-warning/40", chip: "bg-warning/10 text-warning", spark: "hsl(var(--warning))" },
-  info: { border: "border-info/25", ring: "hover:ring-info/40", chip: "bg-info/10 text-info", spark: "hsl(var(--info))" },
+const COLOR: Record<StatColor, { border: string; ring: string; chip: string; spark: string; glow: string }> = {
+  primary: { border: "border-primary/25", ring: "hover:ring-primary/40", chip: "bg-primary/10 text-primary", spark: "hsl(var(--primary))", glow: "hsl(var(--primary) / 0.15)" },
+  clay: { border: "border-clay/25", ring: "hover:ring-clay/40", chip: "bg-clay/10 text-clay", spark: "hsl(var(--clay))", glow: "hsl(var(--clay) / 0.15)" },
+  success: { border: "border-success/25", ring: "hover:ring-success/40", chip: "bg-success/10 text-success", spark: "hsl(var(--success))", glow: "hsl(var(--success) / 0.15)" },
+  warning: { border: "border-warning/25", ring: "hover:ring-warning/40", chip: "bg-warning/10 text-warning", spark: "hsl(var(--warning))", glow: "hsl(var(--warning) / 0.15)" },
+  info: { border: "border-info/25", ring: "hover:ring-info/40", chip: "bg-info/10 text-info", spark: "hsl(var(--info))", glow: "hsl(var(--info) / 0.15)" },
 };
 
 function useCountUp(target: number, decimals = 0, duration = 1100) {
@@ -62,14 +64,18 @@ export function StatCard({
   const counted = useCountUp(typeof value === "number" ? value : 0, decimals);
   const shown = typeof value === "number" ? counted : value;
 
+  const { onMouseMove } = useSpotlight();
+
   return (
     <div
       onClick={onClick}
+      onMouseMove={onMouseMove}
       className={cn(
         "group relative overflow-hidden rounded-2xl border bg-card p-4 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:ring-2",
         c.border, c.ring, onClick && "cursor-pointer", className,
       )}
     >
+      <Spotlight glow={c.glow} />
       <div className="relative z-10 flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="truncate text-sm text-muted-foreground">{label}</p>

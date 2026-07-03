@@ -5,6 +5,9 @@ import { Practitioner } from "@/entities/all";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Star, MapPin, ArrowRight, Trophy as Crown } from "@/lib/icons";
+import { useSpotlight } from "@/lib/useSpotlight";
+import { Spotlight } from "@/components/ui/Spotlight";
+import { TiltCard } from "@/components/ui/TiltCard";
 
 /**
  * "Practitioner of the Month" spotlight. Picks from verified, featured-tier
@@ -32,6 +35,7 @@ export default function FeaturedPractitioner() {
     return () => { cancelled = true; };
   }, []);
 
+  const { onMouseMove } = useSpotlight();
   if (!p) return null;
   const city = p.address?.city || p.address?.country || "Amazon lineage";
 
@@ -42,7 +46,9 @@ export default function FeaturedPractitioner() {
           <Crown className="h-4 w-4" weight="fill" /> Practitioner of the Month
         </span>
       </div>
-      <div className="grid items-center gap-8 rounded-3xl border border-border bg-card p-6 shadow-lg md:grid-cols-[220px_1fr] md:p-8">
+      <TiltCard max={4} className="gradient-border shadow-glow">
+      <div className="group relative grid items-center gap-8 overflow-hidden rounded-[1rem] border border-border bg-card p-6 shadow-lg md:grid-cols-[220px_1fr] md:p-8" onMouseMove={onMouseMove}>
+        <Spotlight />
         <div className="mx-auto">
           {p.profile_image_url ? (
             <img src={p.profile_image_url} alt={p.full_name} className="h-48 w-48 rounded-2xl object-cover shadow-md" loading="lazy" />
@@ -55,13 +61,13 @@ export default function FeaturedPractitioner() {
         <div className="space-y-4">
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="font-display text-2xl font-semibold">{p.full_name}</h3>
-            <Badge className="bg-amber-100 text-amber-800">Featured</Badge>
+            <Badge className="bg-warning/10 text-warning">Featured</Badge>
           </div>
           <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
             <span className="inline-flex items-center gap-1"><MapPin className="h-4 w-4" /> {city}</span>
             {p.years_experience ? <span>{p.years_experience} yrs experience</span> : null}
             {p.reputation_score ? (
-              <span className="inline-flex items-center gap-1"><Star className="h-4 w-4 text-amber-500" weight="fill" /> {Number(p.reputation_score).toFixed(1)}</span>
+              <span className="inline-flex items-center gap-1"><Star className="h-4 w-4 text-warning" weight="fill" /> {Number(p.reputation_score).toFixed(1)}</span>
             ) : null}
           </div>
           {p.bio && <p className="line-clamp-3 text-muted-foreground">{p.bio}</p>}
@@ -77,6 +83,7 @@ export default function FeaturedPractitioner() {
           </Button>
         </div>
       </div>
+      </TiltCard>
     </section>
   );
 }

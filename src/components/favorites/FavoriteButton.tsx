@@ -1,3 +1,4 @@
+import { track } from "@/lib/activity";
 import React, { useState } from 'react';
 import { Heart } from '@/lib/icons';
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,7 @@ export default function FavoriteButton({
         await Favorite.delete(existing.id);
       } else {
         await Favorite.create({ user_id: user.id, item_id: itemId, item_type: itemType, item_title: itemTitle, metadata });
+        track("favorite_added", { entityId: itemId, meta: { itemType } });
       }
       invalidate('favorites');
     } catch (error) {

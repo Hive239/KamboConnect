@@ -10,6 +10,7 @@ import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterv
 import { GradientMesh } from "@/components/ui/GradientMesh";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { Input } from "@/components/ui/input";
+import { Reveal } from "@/components/ui/Reveal";
 
 import EventCard from "../components/events/EventCard";
 import EventModal from "../components/events/EventModal";
@@ -202,12 +203,12 @@ export default function Events() {
               {myRegistrations.map((r) => (
                 <div key={r.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-muted/60 px-4 py-3">
                   <div>
-                    <p className="flex items-center gap-2 font-medium text-foreground">
+                    <div className="flex items-center gap-2 font-medium text-foreground">
                       {r.event.title}
                       {r.registration_status === "waitlist"
                         ? <Badge variant="secondary" className="text-[10px]">Waitlist</Badge>
                         : <Badge variant="verified" className="text-[10px]">Confirmed</Badge>}
-                    </p>
+                    </div>
                     <p className="text-sm text-muted-foreground">
                       {r.event.start_date ? format(new Date(r.event.start_date), "EEE, MMM d, yyyy · h:mm a") : ""}
                       {r.event.is_online ? " · Online" : r.event.location ? ` · ${r.event.location}` : ""}
@@ -265,17 +266,18 @@ export default function Events() {
             <Loader2 className="w-8 h-8 text-muted-foreground animate-spin" />
           </div>
         ) : viewMode === 'list' ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <Reveal stagger className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {sortedEvents.map((event) => (
-              <EventCard
-                key={event.id}
-                event={event}
-                practitioner={practitionerMap[event.practitioner_id]}
-                onViewDetails={() => setSelectedEvent(event)}
-                onRegister={() => setRegisteringEvent(event)}
-              />
+              <Reveal.Item key={event.id}>
+                <EventCard
+                  event={event}
+                  practitioner={practitionerMap[event.practitioner_id]}
+                  onViewDetails={() => setSelectedEvent(event)}
+                  onRegister={() => setRegisteringEvent(event)}
+                />
+              </Reveal.Item>
             ))}
-          </div>
+          </Reveal>
         ) : (
           <div className="bg-card rounded-2xl border border-border p-6 shadow-sm">
             {/* Calendar Header */}

@@ -90,8 +90,8 @@ const ApplicationCard = ({ application, onAction, onUpgrade }) => {
               </div>
 
               {/* Vetting standard — certifier, volume, condition experience, references */}
-              <div className="rounded border border-amber-200 bg-amber-50 p-3 space-y-3">
-                <h4 className="font-medium text-amber-900">Screening & Vetting</h4>
+              <div className="rounded border border-warning/40 bg-warning/10 p-3 space-y-3">
+                <h4 className="font-medium text-warning">Screening & Vetting</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                   <div>
                     <span className="font-medium">Certified by:</span>{" "}

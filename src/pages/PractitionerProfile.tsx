@@ -27,6 +27,7 @@ import EventCard from "@/components/events/EventCard";
 import ProductCard from "@/components/market/ProductCard";
 import PageBreadcrumbs from "@/components/PageBreadcrumbs";
 import { useSeo } from "@/lib/useSeo";
+import { track } from "@/lib/activity";
 import { requestConsultation } from "@/lib/consultations";
 import { persistReputation } from "@/lib/reputation";
 import TrustScoreCard from "@/components/directory/TrustScoreCard";
@@ -150,6 +151,7 @@ export default function PractitionerProfile() {
         const practitionerWithId = { ...practitionerRecord, id: practitionerId };
         const enrichedPractitioner = enrichPractitionerData(practitionerWithId);
         setPractitioner(enrichedPractitioner);
+        track("profile_viewed", { entityId: practitionerId, meta: { source: "profile_page", tier: practitionerRecord?.listing_tier } });
 
         // Fetch all reviews and filter by practitioner_id
         const allReviews = await Review.list();

@@ -9,6 +9,7 @@ import { Message } from "@/entities/all";
 import { subscribe } from "@/data/store";
 import { useCart } from "@/lib/cart";
 import { getRole } from "@/lib/roles";
+import { track } from "@/lib/activity";
 import {
   Search, Users, Calendar, Store, BookOpen, Menu, Heart, User as UserIcon,
   LogOut, Shield, Briefcase, Settings, LogIn, MessageSquare, ShieldCheck,
@@ -120,6 +121,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   const onSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (search.trim()) track("search_performed", { meta: { query: search.trim(), source: "global" } });
     navigate(`${createPageUrl("Directory")}${search ? `?q=${encodeURIComponent(search)}` : ""}`);
   };
 

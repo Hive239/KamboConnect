@@ -19,7 +19,7 @@ const PostListItem = ({ post, practitionerIds, reactionCount, reactionLiked }) =
   const categoryColors = {
     "General Discussion": "bg-info/10 text-info border-info/20",
     "Experience Sharing": "bg-primary/10 text-primary border-primary/20",
-    "Q&A": "bg-warning/10 text-warning border-amber-200",
+    "Q&A": "bg-warning/10 text-warning border-warning/40",
     "Integration": "bg-clay/10 text-clay border-clay/20",
   };
 

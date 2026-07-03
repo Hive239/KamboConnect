@@ -1,3 +1,4 @@
+import { track } from "@/lib/activity";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useLocation } from "react-router-dom";
@@ -211,6 +212,7 @@ export default function Messages() {
         file_url: messageData.url,
         is_read: false,
       });
+      track("message_sent", { entityId: otherId, meta: { conversationId: selectedConversation.id } });
 
       // 2. Add the persisted message to the UI
       setMessages(prev => [...prev, newMessage]);

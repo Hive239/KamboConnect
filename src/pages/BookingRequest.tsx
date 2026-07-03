@@ -22,6 +22,7 @@ import { Calendar as CalendarIcon, Send, ArrowLeft, UserCircle, Loader2, Clock }
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import PageBreadcrumbs from "@/components/PageBreadcrumbs";
 
+import { track } from "@/lib/activity";
 export default function BookingRequestPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -62,6 +63,7 @@ export default function BookingRequestPage() {
           return;
         }
         setPractitioner(practitionerData);
+        track("booking_started", { entityId: practitionerData.id, meta: { kind: "booking_request" } });
 
         const currentUser = await User.me();
         setUser(currentUser);
@@ -138,6 +140,7 @@ export default function BookingRequestPage() {
         payment_status: "unpaid"
       });
 
+      track("booking_submitted", { entityId: practitioner.id, meta: { kind: "booking_request", bookingId: newBooking.id } });
       const clientId = user?.id || newBooking.client_id;
       await fileScreeningAndWaiver({
         bookingId: newBooking.id, clientId, clientName: formData.client_name,

@@ -19,3 +19,26 @@ export async function logActivity(path: string): Promise<void> {
     /* analytics logging must never break the app */
   }
 }
+
+/**
+ * Records a typed product event (search, profile view, booking started, etc.) —
+ * NOT throttled (these drive conversion funnels). Best-effort; never throws.
+ * Works for logged-out visitors too (user_id is left null).
+ */
+export async function track(
+  type: string,
+  opts: { path?: string; entityId?: string; meta?: Record<string, any> } = {},
+): Promise<void> {
+  try {
+    const me = await User.me().catch(() => null);
+    await ActivityEvent.create({
+      user_id: me?.id,
+      type,
+      path: opts.path ?? (typeof location !== "undefined" ? location.pathname : undefined),
+      entity_id: opts.entityId,
+      meta: opts.meta || {},
+    } as any);
+  } catch {
+    /* analytics logging must never break the app */
+  }
+}

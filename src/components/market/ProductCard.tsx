@@ -7,12 +7,16 @@ import { Button } from "@/components/ui/button";
 import { Star, Plus, Package } from "@/lib/icons";
 import { formatCurrency } from "@/lib/format";
 import type { Product } from "@/types/entities";
+import { useSpotlight } from "@/lib/useSpotlight";
+import { Spotlight } from "@/components/ui/Spotlight";
 
 export default function ProductCard({ product, onAdd, onOpen }: { product: Product; onAdd: () => void; onOpen: () => void }) {
   const soldOut = product.status === "sold_out" || product.stock === 0;
+  const { onMouseMove } = useSpotlight();
   return (
-    <motion.div whileHover={{ y: -4 }} className="group">
-      <Card className="overflow-hidden border-border shadow-sm transition-shadow hover:shadow-lg">
+    <motion.div whileHover={{ y: -4 }} className="group" onMouseMove={onMouseMove}>
+      <Card className="relative overflow-hidden border-border shadow-sm transition-shadow hover:shadow-lg">
+        <Spotlight className="z-10" />
         <button onClick={onOpen} className="block w-full text-left" aria-label={product.title}>
           <div className="relative aspect-square w-full bg-muted">
             {product.image_urls?.[0] ? (

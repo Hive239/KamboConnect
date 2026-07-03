@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { GraduationCap, CheckCircle, Lock, ArrowLeft, ArrowRight, Trophy, Download } from "@/lib/icons";
 import { downloadCertificate } from "@/lib/certificatePdf";
 import { notify } from "@/lib/notify";
+import { track } from "@/lib/activity";
 import { toast } from "sonner";
 
 export default function Coursework() {
@@ -45,6 +46,7 @@ export default function Coursework() {
       // the webhook activates it; with no keys we finalize inline.
       const enrollId = "enr_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
       const created = await CourseworkEnrollment.create({ id: enrollId, user_id: uid, track: payFor.id, status: "pending", price: payFor.price, progress: {} } as any);
+      track("checkout_started", { entityId: payFor.id, meta: { kind: "course", price: payFor.price } });
       const result = await startCheckout({
         amount: payFor.price, currency: "USD", description: `${payFor.title} course`,
         metadata: { kind: "course", enrollment_id: enrollId, user_id: uid },
@@ -53,6 +55,7 @@ export default function Coursework() {
       if (result.mode === "redirect") { window.location.href = result.url; return; } // webhook activates
       await CourseworkEnrollment.update(enrollId, { status: "active", paid_at: new Date().toISOString() });
       await Payment.create({ user_id: uid, amount: payFor.price, currency: "USD", payment_type: "course", payment_status: "completed", stripe_payment_id: result.charge.id, payment_date: new Date().toISOString() } as any);
+      track("checkout_completed", { entityId: payFor.id, meta: { kind: "course", price: payFor.price } });
       notify({ userId: uid, userEmail, type: "system", title: `You're enrolled: ${payFor.title}`, body: `Welcome to ${payFor.title}. You have lifetime access — work through the modules at your own pace. Remember: this is educational only, not a certification or medical advice.`, link: "/Coursework", email: true }).catch(() => {});
       toast.success("Enrolled — enjoy the course!");
       setEnrollments((prev) => [...prev.filter((e) => e.track !== payFor.id), { ...created, status: "active" }]);

@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Star, UserCircle, MapPin, Video, CheckCircle } from "@/lib/icons";
 import { formatDistance } from "../utils/locationUtils";
 import FavoriteButton from "../favorites/FavoriteButton";
+import { useSpotlight } from "@/lib/useSpotlight";
+import { Spotlight } from "@/components/ui/Spotlight";
 
 /**
  * Fluid, grid-friendly practitioner card. Fills its container (parent controls
@@ -28,15 +30,18 @@ export default function PractitionerCard({
   const modalities = (practitioner.modalities || practitioner.specializations || []).slice(0, 2);
   const hasDistance = practitioner.distance !== null && practitioner.distance !== undefined;
   const topRated = Number(averageRating) >= 4.5 && reviewCount >= 3;
+  const { onMouseMove } = useSpotlight();
 
   return (
     <motion.div
       whileHover={{ y: -4 }}
       transition={{ type: "spring", stiffness: 400, damping: 28 }}
-      className="group relative h-full w-full cursor-pointer"
+      className={`group relative h-full w-full cursor-pointer ${practitioner.listing_tier === "featured" ? "gradient-border shadow-glow" : ""}`}
       onClick={onClick}
+      onMouseMove={onMouseMove}
     >
-      <Card className="flex h-full flex-col overflow-hidden border-border transition-shadow duration-300 hover:shadow-lg">
+      <Card className="relative flex h-full flex-col overflow-hidden border-border transition-shadow duration-300 hover:shadow-lg">
+        <Spotlight className="z-10" />
         {/* Media */}
         <div className={`relative w-full ${imageH} overflow-hidden bg-muted`}>
           {practitioner.profile_image_url ? (

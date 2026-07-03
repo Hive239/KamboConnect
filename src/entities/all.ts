@@ -36,6 +36,8 @@ export { ClientDocument } from './ClientDocument';
 export { ActivityEvent } from './ActivityEvent';
 export { Course } from './Course';
 export { CourseworkEnrollment } from './CourseworkEnrollment';
+export { ErrorLog } from './ErrorLog';
+export { EmailEvent } from './EmailEvent';
 export { Reaction } from './Reaction';
 export { JournalEntry } from './JournalEntry';
 export { PushSubscription } from './PushSubscription';

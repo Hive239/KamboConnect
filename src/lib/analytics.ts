@@ -1,5 +1,11 @@
-import { User, Practitioner, Booking, Payment, Subscription, Review, Consultation, Event, Order, Message, ConsentRecord, ScreeningResponse, Credential, ActivityEvent, CourseworkEnrollment } from "@/entities/all";
+import { User, Practitioner, Booking, Payment, Subscription, Review, Consultation, Event, Order, Message, ConsentRecord, ScreeningResponse, Credential, ActivityEvent, CourseworkEnrollment, ErrorLog, EmailEvent } from "@/entities/all";
 import { TRACKS, allLessons } from "@/data/coursework";
+import { callAnalyticsRpc } from "@/lib/analyticsRpc";
+
+export interface Delta { value: number; prevValue: number; pct: number | null }
+const delta = (value: number, prevValue: number): Delta => ({
+  value, prevValue, pct: prevValue > 0 ? Math.round(((value - prevValue) / prevValue) * 100) : (value > 0 ? 100 : 0),
+});
 
 const median = (arr: number[]) => { if (!arr.length) return 0; const s = [...arr].sort((a, b) => a - b); const m = Math.floor(s.length / 2); return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
 const pct = (num: number, den: number) => (den > 0 ? Math.round((num / den) * 100) : 0);
@@ -50,10 +56,18 @@ export interface PlatformAnalytics {
     byTrack: { track: string; title: string; enrollments: number; completed: number; completionRate: number }[];
     dropoff: { track: string; steps: { lesson: string; reached: number }[] }[];
   };
+  eventFunnel: { step: string; count: number; rate: number }[];
+  topSearches: { query: string; count: number }[];
+  topViewed: { name: string; views: number }[];
+  reliability: { errors7d: number; topErrors: { message: string; count: number }[] };
+  email: { sent: number; failed: number; opened: number; clicked: number; openRate: number; clickRate: number };
+  deltas: { rangeDays: number | null; revenue: Delta; bookingsPaid: Delta; usersNew: Delta; gmv: Delta; enrollments: Delta } | null;
 }
 
-/** Loads everything and computes the full platform analytics snapshot. */
-export async function computePlatformAnalytics(): Promise<PlatformAnalytics> {
+/** Loads everything and computes the full platform analytics snapshot.
+ *  `opts.sinceDays` scopes the period-over-period deltas (default 30; null = all-time, no deltas). */
+export async function computePlatformAnalytics(opts?: { sinceDays?: number | null }): Promise<PlatformAnalytics> {
+  const rangeDays = opts?.sinceDays === undefined ? 30 : opts.sinceDays;
   const [profiles, pracs, bookings, payments, subs, reviews, consults, events, orders, messages, consents, screenings, credentials, activity] = await Promise.all([
     User.list().catch(() => []),
     Practitioner.list().catch(() => []),
@@ -71,6 +85,10 @@ export async function computePlatformAnalytics(): Promise<PlatformAnalytics> {
     ActivityEvent.list("-created_date", 5000).catch(() => []),
   ]);
   const cwEnrollments = await CourseworkEnrollment.list().catch(() => []);
+  const [errorLogs, emailEvents] = await Promise.all([
+    ErrorLog.list("-created_date", 2000).catch(() => []),
+    EmailEvent.list("-created_date", 5000).catch(() => []),
+  ]);
 
   const now = new Date();
   const thisMonthKey = monthKey(now);
@@ -278,6 +296,80 @@ export async function computePlatformAnalytics(): Promise<PlatformAnalytics> {
   };
   const payoutsRefunds = { liability, refunds };
 
+  // Event funnel (from typed activity events) — search → view → booking started → submitted → completed
+  const evCount = (t: string) => activity.filter((e: any) => e.type === t).length;
+  const fSearch = evCount("search_performed");
+  const fView = evCount("profile_viewed");
+  const fStart = evCount("booking_started");
+  const fSubmit = evCount("booking_submitted");
+  const fComplete = bk.completed;
+  const funnelBase = fSearch || fView || fStart || 1;
+  const eventFunnel = [
+    { step: "Searches", count: fSearch },
+    { step: "Profile views", count: fView },
+    { step: "Booking started", count: fStart },
+    { step: "Booking submitted", count: fSubmit },
+    { step: "Completed", count: fComplete },
+  ].map((s) => ({ ...s, rate: pct(s.count, funnelBase) }));
+
+  // Top searches + most-viewed practitioners (from event meta / entity_id)
+  const searchCounts = new Map<string, number>();
+  activity.filter((e: any) => e.type === "search_performed" && e.meta?.query).forEach((e: any) => {
+    const q = String(e.meta.query).toLowerCase().trim();
+    searchCounts.set(q, (searchCounts.get(q) || 0) + 1);
+  });
+  const topSearches = [...searchCounts.entries()].map(([query, count]) => ({ query, count })).sort((a, b) => b.count - a.count).slice(0, 8);
+  const viewCounts = new Map<string, number>();
+  activity.filter((e: any) => e.type === "profile_viewed" && e.entity_id).forEach((e: any) => viewCounts.set(e.entity_id, (viewCounts.get(e.entity_id) || 0) + 1));
+  const pracName = new Map<string, string>(pracs.map((p: any) => [p.id, p.full_name]));
+  const topViewed = [...viewCounts.entries()].map(([id, views]) => ({ name: pracName.get(id) || "Unknown", views })).sort((a, b) => b.views - a.views).slice(0, 8);
+
+  // Reliability (errors) + email engagement
+  const wk = now.getTime() - 7 * DAY;
+  const errors7d = errorLogs.filter((e: any) => e.created_date && new Date(e.created_date).getTime() >= wk).length;
+  const errMsg = new Map<string, number>();
+  errorLogs.forEach((e: any) => { const m = (e.message || "unknown").slice(0, 80); errMsg.set(m, (errMsg.get(m) || 0) + 1); });
+  const topErrors = [...errMsg.entries()].map(([message, count]) => ({ message, count })).sort((a, b) => b.count - a.count).slice(0, 6);
+  const emailBy = (t: string) => emailEvents.filter((e: any) => e.type === t).length;
+  const emSent = emailBy("sent"), emFailed = emailBy("failed"), emOpened = emailBy("opened"), emClicked = emailBy("clicked");
+  const email = { sent: emSent, failed: emFailed, opened: emOpened, clicked: emClicked, openRate: pct(emOpened, emSent), clickRate: pct(emClicked, emSent) };
+
+  // Period-over-period deltas — prefer server RPC; fall back to client compute.
+  let deltas: PlatformAnalytics["deltas"] = null;
+  if (rangeDays) {
+    const until = now;
+    const since = new Date(now.getTime() - rangeDays * DAY);
+    const prevSince = new Date(now.getTime() - 2 * rangeDays * DAY);
+    const inWin = (d: any, a: Date, b: Date) => d && new Date(d).getTime() >= a.getTime() && new Date(d).getTime() < b.getTime();
+    const [cur, prev] = await Promise.all([callAnalyticsRpc(since, until), callAnalyticsRpc(prevSince, since)]);
+    if (cur && prev) {
+      deltas = {
+        rangeDays,
+        revenue: delta(cur.gmv * PLATFORM_FEE_RATE + cur.courseRevenue, prev.gmv * PLATFORM_FEE_RATE + prev.courseRevenue),
+        bookingsPaid: delta(cur.bookingsPaid, prev.bookingsPaid),
+        usersNew: delta(cur.usersNew, prev.usersNew),
+        gmv: delta(cur.gmv, prev.gmv),
+        enrollments: delta(cur.enrollments, prev.enrollments),
+      };
+    } else {
+      // Client fallback
+      const paidIn = (a: Date, b: Date) => paidBookings.filter((x: any) => inWin(x.created_date, a, b));
+      const enrIn = (a: Date, b: Date) => paidEnr.filter((x: any) => inWin(x.created_date, a, b)).length;
+      const usersIn = (a: Date, b: Date) => profiles.filter((x: any) => inWin(x.created_date, a, b)).length;
+      const courseIn = (a: Date, b: Date) => payments.filter((p: any) => p.payment_type === "course" && p.payment_status !== "refunded" && inWin(p.created_date, a, b)).reduce((s: number, p: any) => s + (p.amount || 0), 0);
+      const gmvCur = paidIn(since, until).reduce((s: number, x: any) => s + (x.price || 0), 0);
+      const gmvPrev = paidIn(prevSince, since).reduce((s: number, x: any) => s + (x.price || 0), 0);
+      deltas = {
+        rangeDays,
+        revenue: delta(Math.round(gmvCur * PLATFORM_FEE_RATE + courseIn(since, until)), Math.round(gmvPrev * PLATFORM_FEE_RATE + courseIn(prevSince, since))),
+        bookingsPaid: delta(paidIn(since, until).length, paidIn(prevSince, since).length),
+        usersNew: delta(usersIn(since, until), usersIn(prevSince, since)),
+        gmv: delta(Math.round(gmvCur), Math.round(gmvPrev)),
+        enrollments: delta(enrIn(since, until), enrIn(prevSince, since)),
+      };
+    }
+  }
+
   return {
     users: { total: profiles.length, clients, practitioners: practitionerUsers || pracs.length, admins, newThisMonth: profiles.filter(inThisMonth).length },
     practitioners: { total: pracs.length, verified, pending, rejected, tiers, tierRevenue },
@@ -302,5 +394,9 @@ export async function computePlatformAnalytics(): Promise<PlatformAnalytics> {
     responsiveness,
     payouts: payoutsRefunds,
     coursework,
+    eventFunnel, topSearches, topViewed,
+    reliability: { errors7d, topErrors },
+    email,
+    deltas,
   };
 }

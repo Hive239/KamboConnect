@@ -13,6 +13,8 @@ import {
 import { format } from "date-fns";
 import FavoriteButton from "../favorites/FavoriteButton";
 import { formatDistance } from "../utils/locationUtils"; // Changed path
+import { useSpotlight } from "@/lib/useSpotlight";
+import { Spotlight } from "@/components/ui/Spotlight";
 
 export default function EventCard({ event, practitioner, onViewDetails, onRegister }) {
   const getEventTypeBadge = (type) => {
@@ -35,13 +37,16 @@ export default function EventCard({ event, practitioner, onViewDetails, onRegist
   const spotsLeft = hasCap ? cap - taken : null;
 
   const badge = getEventTypeBadge(event.event_type);
+  const { onMouseMove } = useSpotlight();
 
   return (
     <motion.div
       whileHover={{ y: -2 }}
       className="cursor-pointer relative group"
+      onMouseMove={onMouseMove}
     >
-      <Card className="overflow-hidden border-border shadow-sm hover:shadow-md transition-all">
+      <Card className="relative overflow-hidden border-border shadow-sm hover:shadow-md transition-all">
+        <Spotlight className="z-10" />
         {/* Event Image */}
         <div className="w-full h-48 bg-gradient-to-br from-primary/10 to-clay/30 relative overflow-hidden">
           {event.image_url ? (

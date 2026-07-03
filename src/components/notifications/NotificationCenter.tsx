@@ -146,7 +146,7 @@ export default function NotificationCenter() {
   
   const getNotificationBorder = (type) => {
       const borders = {
-          booking: 'border-l-emerald-500',
+          booking: 'border-l-success',
           message: 'border-l-blue-500',
           event: 'border-l-purple-500',
           review: 'border-l-yellow-500',

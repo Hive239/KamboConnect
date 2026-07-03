@@ -523,6 +523,24 @@ export interface ActivityEvent extends BaseRecord {
   user_id?: string;
   type?: string;
   path?: string;
+  entity_id?: string;
+  meta?: Record<string, any>;
+}
+
+export interface ErrorLog extends BaseRecord {
+  message?: string;
+  stack?: string;
+  context?: Record<string, any>;
+  path?: string;
+  user_id?: string;
+}
+
+export interface EmailEvent extends BaseRecord {
+  to_email?: string;
+  subject?: string;
+  type?: 'sent' | 'failed' | 'skipped' | 'delivered' | 'opened' | 'clicked';
+  provider_id?: string;
+  meta?: Record<string, any>;
 }
 
 export interface Reaction extends BaseRecord {
@@ -593,6 +611,8 @@ export interface EntityTypeMap {
   PushSubscription: PushSubscription;
   Course: Course;
   CourseworkEnrollment: CourseworkEnrollment;
+  ErrorLog: ErrorLog;
+  EmailEvent: EmailEvent;
 }
 
 /** A user's paid enrollment + progress in a built-in coursework track. */

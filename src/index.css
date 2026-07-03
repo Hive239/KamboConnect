@@ -249,3 +249,27 @@
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
+
+/* Animated conic-gradient ring for featured / hero tiles. Usage:
+   <div class="gradient-border"><Card class="rounded-2xl overflow-hidden">…</Card></div>
+   The global prefers-reduced-motion block freezes the spin to a static ring. */
+@property --border-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+@keyframes border-spin { to { --border-angle: 360deg; } }
+.gradient-border {
+  position: relative;
+  border-radius: 1.15rem;
+  padding: 1.5px;
+  background: conic-gradient(
+    from var(--border-angle),
+    hsl(var(--primary)),
+    hsl(var(--clay)),
+    hsl(var(--primary) / 0.35),
+    hsl(var(--primary))
+  );
+  animation: border-spin 6s linear infinite;
+}
+.gradient-border > * { border-radius: 1rem; }

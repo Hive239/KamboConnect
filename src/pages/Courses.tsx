@@ -118,8 +118,8 @@ export default function Courses() {
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="font-semibold leading-tight">{c.title}</h3>
                     <div className="flex shrink-0 gap-1">
-                      {c.status === "draft" && <Badge variant="outline" className="border-amber-400 text-amber-700">Draft</Badge>}
-                      {c.is_featured && <Badge className="gap-1 bg-amber-100 text-amber-800"><Trophy className="h-3 w-3" /> Featured</Badge>}
+                      {c.status === "draft" && <Badge variant="outline" className="border-warning/40 text-warning">Draft</Badge>}
+                      {c.is_featured && <Badge className="gap-1 bg-warning/10 text-warning"><Trophy className="h-3 w-3" /> Featured</Badge>}
                     </div>
                   </div>
                   {c.provider && <p className="text-sm text-muted-foreground">{c.provider}</p>}

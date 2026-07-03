@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { track } from "@/lib/activity";
 import {
   Dialog,
   DialogContent,
@@ -48,6 +49,7 @@ export default function PractitionerModal({
   const [showDirectBooking, setShowDirectBooking] = useState(false);
   const [requestingConsult, setRequestingConsult] = useState(false);
   const { data: currentUser } = useCurrentUser();
+  useEffect(() => { if (practitioner?.id) track("profile_viewed", { entityId: practitioner.id, meta: { source: "modal", tier: practitioner.listing_tier } }); }, [practitioner?.id]);
   const handleRequestConsultation = async () => {
     if (!currentUser) { await User.login(); return; }
     setRequestingConsult(true);

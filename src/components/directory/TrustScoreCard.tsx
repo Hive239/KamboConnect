@@ -1,12 +1,16 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useSpotlight } from "@/lib/useSpotlight";
+import { Spotlight } from "@/components/ui/Spotlight";
 import { ShieldCheck } from "@/lib/icons";
 import { computeTrustScore, trustBandColor } from "@/lib/trustScore";
 
 /** Composite trust score display for a practitioner profile. */
 export default function TrustScoreCard({ practitioner, reviews = [], credentials = [] }: { practitioner: any; reviews?: any[]; credentials?: any[] }) {
   const t = computeTrustScore(practitioner, reviews, credentials);
+  const { onMouseMove } = useSpotlight();
   return (
-    <Card>
+    <Card className="group relative overflow-hidden" onMouseMove={onMouseMove}>
+      <Spotlight />
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
           <ShieldCheck className="h-5 w-5 text-primary" weight="duotone" /> Trust Score

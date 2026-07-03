@@ -47,6 +47,8 @@ export const TABLE: Record<EntityName, string> = {
   ActivityEvent: 'activity_events',
   Course: 'courses',
   CourseworkEnrollment: 'coursework_enrollments',
+  ErrorLog: 'error_logs',
+  EmailEvent: 'email_events',
   JournalEntry: 'journal_entries',
   PushSubscription: 'push_subscriptions',
 };

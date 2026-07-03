@@ -209,15 +209,15 @@ export default function Education() {
 
       <div className="p-4 sm:p-6" id="contraindications-section">
         {/* Safety Warning */}
-        <Alert className="mb-8 border-amber-300 bg-amber-50 text-amber-800">
-          <AlertTriangle className="h-5 w-5 text-amber-500" />
+        <Alert className="mb-8 border-warning/40 bg-warning/10 text-warning">
+          <AlertTriangle className="h-5 w-5 text-warning" />
           <AlertDescription>
             <strong>Important:</strong> Kambo should only be administered by trained and experienced practitioners.
             This information is for educational purposes only and does not replace professional medical advice.
           </AlertDescription>
         </Alert>
 
-        <div className="mb-8 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+        <div className="mb-8 rounded-lg border border-warning/40 bg-warning/10 p-4 text-sm text-warning">
           <strong>Educational & cultural information only.</strong> Kambo is a traditional Amazonian practice — not a medical
           treatment. Nothing here has been evaluated by the FDA and none of it is intended to diagnose, treat, cure, or prevent
           any disease. It is not a substitute for professional medical advice. Always consult a qualified healthcare provider

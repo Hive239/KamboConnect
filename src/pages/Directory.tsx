@@ -5,11 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, SlidersHorizontal, UserCircle, MapPin, RefreshCw, Loader2, Sparkle, CheckCircle, Crosshair } from "@/lib/icons";
 import { GradientMesh } from "@/components/ui/GradientMesh";
+import { Reveal } from "@/components/ui/Reveal";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { getCurrentLocation, sortByDistance, filterByRadius } from "../components/utils/locationUtils";
 import { useSeo } from "@/lib/useSeo";
+import { track } from "@/lib/activity";
 
 import PractitionerCard from "../components/directory/PractitionerCard";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -83,6 +85,15 @@ export default function Directory() {
 
     getUserLocation();
   }, [filters.sortBy, filters.radius]);
+
+  // Track searches (debounced) with result count → conversion funnel.
+  useEffect(() => {
+    if (!searchTerm.trim()) return;
+    const id = setTimeout(() => {
+      track("search_performed", { meta: { query: searchTerm.trim(), resultCount: filteredPractitioners.length, source: "directory" } });
+    }, 900);
+    return () => clearTimeout(id);
+  }, [searchTerm, filteredPractitioners.length]);
 
   const getPractitionerReviews = useCallback((practitionerId) => {
     return reviews.filter(review => review.practitioner_id === practitionerId);
@@ -384,18 +395,19 @@ export default function Directory() {
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
+                  <Reveal stagger className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
                       {spotlightedPractitioners.map(practitioner => (
-                        <PractitionerCard 
-                          key={practitioner.id}
+                        <Reveal.Item key={practitioner.id}>
+                        <PractitionerCard
                           practitioner={practitioner}
                           averageRating={getAverageRating(practitioner.id)}
                           reviewCount={getPractitionerReviews(practitioner.id).length}
                           onClick={() => handlePractitionerClick(practitioner)}
                           size="large"
                         />
+                        </Reveal.Item>
                       ))}
-                  </div>
+                  </Reveal>
                 </section>
               )}
 

@@ -25,10 +25,25 @@ function Kpi({ icon, label, value, sub, accent }: any) {
   return <StatCard icon={icon} label={label} value={value} sub={sub} color={color} />;
 }
 
+const RANGES: { label: string; days: number | null }[] = [
+  { label: "7d", days: 7 }, { label: "30d", days: 30 }, { label: "90d", days: 90 }, { label: "All", days: null },
+];
+
+function DeltaBadge({ d }: { d?: { pct: number | null } | null }) {
+  if (!d || d.pct === null) return null;
+  const up = d.pct >= 0;
+  return <span className={`ml-2 text-xs font-medium ${up ? "text-success" : "text-destructive"}`}>{up ? "▲" : "▼"} {Math.abs(d.pct)}%</span>;
+}
+
 export default function PlatformAnalytics() {
   const [a, setA] = useState<PA | null>(null);
+  const [rangeDays, setRangeDays] = useState<number | null>(30);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => { computePlatformAnalytics().then(setA).catch(() => setA(null)); }, []);
+  useEffect(() => {
+    setLoading(true);
+    computePlatformAnalytics({ sinceDays: rangeDays }).then(setA).catch(() => setA(null)).finally(() => setLoading(false));
+  }, [rangeDays]);
 
   if (!a) return <div className="flex h-64 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
 
@@ -62,10 +77,45 @@ export default function PlatformAnalytics() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">Platform metrics, updated live.</p>
-        <Button variant="outline" size="sm" onClick={exportCsv} className="gap-2"><Download className="h-4 w-4" /> Export CSV</Button>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-muted-foreground">
+          Platform metrics, updated live. {loading && <Loader2 className="ml-1 inline h-3 w-3 animate-spin" />}
+          {rangeDays && <span className="ml-1">Deltas compare the last {rangeDays}d vs the prior {rangeDays}d.</span>}
+        </p>
+        <div className="flex items-center gap-2">
+          <div className="flex overflow-hidden rounded-lg border border-border">
+            {RANGES.map((r) => (
+              <button key={r.label} onClick={() => setRangeDays(r.days)}
+                className={`px-3 py-1.5 text-xs font-medium ${rangeDays === r.days ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}>
+                {r.label}
+              </button>
+            ))}
+          </div>
+          <Button variant="outline" size="sm" onClick={exportCsv} className="gap-2"><Download className="h-4 w-4" /> Export CSV</Button>
+        </div>
       </div>
+      {/* Period-over-period trends */}
+      {a.deltas && (
+        <section className="rounded-xl border border-border bg-card p-4">
+          <h2 className="mb-3 text-sm font-semibold text-muted-foreground">Last {a.deltas.rangeDays}d vs prior {a.deltas.rangeDays}d</h2>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
+            {[
+              { label: "Revenue", d: a.deltas.revenue, fmt: (v: number) => formatCurrency(v) },
+              { label: "GMV", d: a.deltas.gmv, fmt: (v: number) => formatCurrency(v) },
+              { label: "Paid bookings", d: a.deltas.bookingsPaid, fmt: (v: number) => String(v) },
+              { label: "New users", d: a.deltas.usersNew, fmt: (v: number) => String(v) },
+              { label: "Enrollments", d: a.deltas.enrollments, fmt: (v: number) => String(v) },
+            ].map((x) => (
+              <div key={x.label}>
+                <p className="text-xs text-muted-foreground">{x.label}</p>
+                <p className="text-lg font-bold">{x.fmt(x.d.value)}<DeltaBadge d={x.d} /></p>
+                <p className="text-[11px] text-muted-foreground">was {x.fmt(x.d.prevValue)}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Revenue KPIs */}
       <section>
         <h2 className="mb-3 flex items-center gap-2 font-semibold"><DollarSign className="h-5 w-5 text-primary" weight="duotone" /> Revenue</h2>
@@ -366,6 +416,69 @@ export default function PlatformAnalytics() {
                 </div>
               ))}
               {a.coursework.enrollments === 0 && <p className="text-muted-foreground">No enrollments yet.</p>}
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* Activity funnel + discovery */}
+      <section>
+        <h2 className="mb-3 flex items-center gap-2 font-semibold"><TrendingUp className="h-5 w-5 text-primary" weight="duotone" /> Activity funnel (from tracked events)</h2>
+        <div className="grid gap-4 lg:grid-cols-3">
+          <Card className="lg:col-span-1">
+            <CardHeader><CardTitle className="text-base">Conversion funnel</CardTitle></CardHeader>
+            <CardContent className="space-y-2 text-sm">
+              {a.eventFunnel.map((s) => (
+                <div key={s.step}>
+                  <div className="mb-1 flex justify-between"><span>{s.step}</span><span className="text-muted-foreground">{s.count} · {s.rate}%</span></div>
+                  <div className="h-2 rounded bg-muted"><div className="h-2 rounded bg-primary" style={{ width: `${Math.min(100, s.rate)}%` }} /></div>
+                </div>
+              ))}
+              <p className="pt-1 text-[11px] text-muted-foreground">Rates relative to top-of-funnel. Populate by using search/profile/booking flows.</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle className="text-base">Top searches</CardTitle></CardHeader>
+            <CardContent className="space-y-1.5 text-sm">
+              {a.topSearches.length ? a.topSearches.map((s) => (
+                <div key={s.query} className="flex justify-between"><span className="truncate pr-2">{s.query}</span><span className="text-muted-foreground">{s.count}</span></div>
+              )) : <p className="text-muted-foreground">No searches tracked yet.</p>}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle className="text-base">Most-viewed practitioners</CardTitle></CardHeader>
+            <CardContent className="space-y-1.5 text-sm">
+              {a.topViewed.length ? a.topViewed.map((s) => (
+                <div key={s.name} className="flex justify-between"><span className="truncate pr-2">{s.name}</span><span className="text-muted-foreground">{s.views} views</span></div>
+              )) : <p className="text-muted-foreground">No profile views tracked yet.</p>}
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* Reliability & comms */}
+      <section>
+        <h2 className="mb-3 flex items-center gap-2 font-semibold"><ShieldCheck className="h-5 w-5 text-primary" weight="duotone" /> Reliability & comms</h2>
+        <div className="grid gap-4 lg:grid-cols-2">
+          <Card>
+            <CardHeader><CardTitle className="text-base">Errors (last 7 days)</CardTitle></CardHeader>
+            <CardContent className="space-y-2 text-sm">
+              <p className="text-3xl font-bold">{a.reliability.errors7d}</p>
+              {a.reliability.topErrors.length ? a.reliability.topErrors.map((e, i) => (
+                <div key={i} className="flex justify-between gap-2"><span className="truncate pr-2 text-muted-foreground">{e.message}</span><span>{e.count}</span></div>
+              )) : <p className="text-muted-foreground">No errors logged.</p>}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle className="text-base">Email engagement</CardTitle></CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-3 text-center text-sm sm:grid-cols-4">
+                <div><p className="text-2xl font-bold">{a.email.sent}</p><p className="text-muted-foreground">Sent</p></div>
+                <div><p className="text-2xl font-bold">{a.email.failed}</p><p className="text-muted-foreground">Failed</p></div>
+                <div><p className="text-2xl font-bold">{a.email.openRate}%</p><p className="text-muted-foreground">Open rate</p></div>
+                <div><p className="text-2xl font-bold">{a.email.clickRate}%</p><p className="text-muted-foreground">Click rate</p></div>
+              </div>
+              <p className="mt-3 text-[11px] text-muted-foreground">Opens/clicks require the Resend webhook configured.</p>
             </CardContent>
           </Card>
         </div>
