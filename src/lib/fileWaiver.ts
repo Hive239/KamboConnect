@@ -1,5 +1,6 @@
 import { ScreeningResponse, ConsentRecord, ClientDocument, ClientRecord, Booking } from "@/entities/all";
 import { generateAndFileWaiverPdf } from "@/lib/waiverPdf";
+import { supabase } from "@/lib/supabase";
 import type { SafetyData } from "@/components/booking/SafetyGate";
 
 interface FileArgs {
@@ -29,13 +30,26 @@ export async function fileScreeningAndWaiver(a: FileArgs): Promise<string> {
     emergency_contact: safety.emergencyContact,
   });
 
-  const documentUrl = await generateAndFileWaiverPdf({
+  const userAgent = typeof navigator !== "undefined" ? navigator.userAgent : undefined;
+  const { url: documentUrl, hash: docHash, auditId } = await generateAndFileWaiverPdf({
     signerName: safety.consent.signature_name,
     clientEmail,
     practitionerName,
     agreedAt: safety.consent.agreed_at,
     screeningSummary: safety.screeningSummary,
+    signatureImage: safety.consent.signature_image,
+    userAgent,
   });
+
+  // Tamper-evident e-signature audit record (ESIGN/UETA).
+  try {
+    await supabase?.from("signature_audits").insert({
+      audit_id: auditId, booking_id: bookingId, user_id: clientId,
+      signer_name: safety.consent.signature_name, doc_hash: docHash,
+      document_url: documentUrl, document_version: safety.consent.document_version,
+      user_agent: userAgent, signed_at: safety.consent.agreed_at,
+    });
+  } catch { /* audit is best-effort; the signed PDF + consent record are the primary artifacts */ }
 
   await ConsentRecord.create({
     booking_id: bookingId, user_id: clientId, practitioner_id: practitionerId,

@@ -3,6 +3,7 @@ import { screeningQuestions } from "@/data/contraindications";
 import { WAIVER_TITLE, WAIVER_VERSION, WAIVER_SECTIONS } from "@/data/waiver";
 import { MEDICATIONS, checkInteractions, hasAbsoluteInteraction } from "@/data/medications";
 import type { InteractionFlag, EmergencyContact } from "@/types/entities";
+import SignaturePad from "@/components/booking/SignaturePad";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -15,7 +16,7 @@ export interface SafetyData {
   medications?: string[];
   interactionFlags?: InteractionFlag[];
   emergencyContact?: EmergencyContact;
-  consent: { agreed: boolean; signature_name: string; document_version: string; agreed_at: string };
+  consent: { agreed: boolean; signature_name: string; signature_image?: string; document_version: string; agreed_at: string };
 }
 
 /**
@@ -28,6 +29,7 @@ export default function SafetyGate({ onComplete, onBack, userName = "" }: { onCo
   const [phase, setPhase] = useState<"screening" | "consent">("screening");
   const [answers, setAnswers] = useState<Record<string, boolean>>({});
   const [signature, setSignature] = useState(userName);
+  const [signatureImage, setSignatureImage] = useState("");
   const [agreed, setAgreed] = useState(false);
   const [meds, setMeds] = useState<string[]>([]);
   const [emergency, setEmergency] = useState<EmergencyContact>({ name: "", phone: "", relationship: "" });
@@ -52,7 +54,7 @@ export default function SafetyGate({ onComplete, onBack, userName = "" }: { onCo
       medications: meds,
       interactionFlags,
       emergencyContact: emergency,
-      consent: { agreed, signature_name: signature, document_version: WAIVER_VERSION, agreed_at: new Date().toISOString() },
+      consent: { agreed, signature_name: signature, signature_image: signatureImage || undefined, document_version: WAIVER_VERSION, agreed_at: new Date().toISOString() },
     });
   };
 
@@ -181,14 +183,19 @@ export default function SafetyGate({ onComplete, onBack, userName = "" }: { onCo
           <span className="text-sm">I have read and agree to the informed-consent statement above.</span>
         </label>
         <div>
-          <label className="mb-1 block text-sm font-medium">Type your full name to sign</label>
+          <label className="mb-1 block text-sm font-medium">Type your full legal name to sign</label>
           <input value={signature} onChange={(e) => setSignature(e.target.value)} placeholder="Your full name"
             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
         </div>
+        <div>
+          <label className="mb-1 block text-sm font-medium">Draw your signature</label>
+          <SignaturePad onChange={setSignatureImage} />
+        </div>
+        <p className="text-xs text-muted-foreground">By signing you agree this electronic signature is legally binding (ESIGN/UETA). A timestamped, tamper-evident copy is filed to your records.</p>
       </div>
       <div className="mt-6 flex justify-between border-t pt-4">
         <Button variant="outline" onClick={() => setPhase("screening")} className="gap-2"><ArrowLeft className="h-4 w-4" /> Back</Button>
-        <Button onClick={submit} disabled={!agreed || !signature.trim()} className="gap-2">Agree & continue <ArrowRight className="h-4 w-4" /></Button>
+        <Button onClick={submit} disabled={!agreed || !signature.trim() || !signatureImage} className="gap-2">Agree & continue <ArrowRight className="h-4 w-4" /></Button>
       </div>
     </div>
   );
