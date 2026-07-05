@@ -15,6 +15,7 @@ export const PAGES = {
     "Coursework": lazy(() => import('./pages/redirects').then((m) => ({ default: m.CourseworkRedirect }))),
     "Learn": lazy(() => import('./pages/Learn')),
     "Pending": lazy(() => import('./pages/Pending')),
+    "Session": lazy(() => import('./pages/Session')),
     "Verification": lazy(() => import('./pages/Verification')),
     "Community": lazy(() => import('./pages/Community')),
     "Events": lazy(() => import('./pages/Events')),

@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Booking, Practitioner, Message, User, Payment, Review, Conversation } from "@/entities/all";
 import { createPageUrl } from "@/utils";
 import { format } from 'date-fns';
-import { Calendar, Check, X, Hourglass, CalendarCheck2, AlertTriangle, MessageSquare, Loader2, RefreshCw, DollarSign, Star, CheckCircle, Book } from '@/lib/icons';
+import { Calendar, Check, X, Hourglass, CalendarCheck2, AlertTriangle, MessageSquare, Loader2, RefreshCw, DollarSign, Star, CheckCircle, Book, Video } from '@/lib/icons';
 import { NotificationService } from '../notifications/NotificationService';
 import BookingReviewModal from './BookingReviewModal';
 import AddToCalendar from "@/components/AddToCalendar";
@@ -391,6 +391,9 @@ const BookingCard = ({ booking, onAction, onReview, hasBeenReviewed }) => {
                 )}
                 {booking.status === 'confirmed' && (
                     <>
+                        <Link to={createPageUrl(`Session?booking=${booking.id}`)}>
+                          <Button size="sm" className="gap-2"><Video className="w-4 h-4" /> Join video session</Button>
+                        </Link>
                         <AddToCalendar
                           event={{
                             title: `Kambo Session with ${booking.practitioner_name}`,

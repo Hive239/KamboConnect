@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { format } from 'date-fns';
-import { Check, X, Mail, Phone, MoreHorizontal, Briefcase, FileText, ShieldCheck, AlertCircle, Loader2 } from "@/lib/icons";
+import { Check, X, Mail, Phone, MoreHorizontal, Briefcase, FileText, ShieldCheck, AlertCircle, Loader2, Video } from "@/lib/icons";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Booking } from '@/entities/Booking';
 import { ScreeningResponse, ConsentRecord } from '@/entities/all';
@@ -181,6 +181,11 @@ const PractitionerBookingsView = ({ bookings, onUpdate }) => {
             <Button variant="ghost" size="icon" aria-label={`Actions for booking with ${booking.client_name}`}><MoreHorizontal className="w-4 h-4"/></Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
+             {booking.status === 'confirmed' && (
+               <DropdownMenuItem asChild>
+                  <a href={createPageUrl(`Session?booking=${booking.id}`)} className="w-full"><Video className="w-4 h-4 mr-2"/>Join video session</a>
+               </DropdownMenuItem>
+             )}
              <DropdownMenuItem onClick={() => setIntakeBooking(booking)}>
                 <FileText className="w-4 h-4 mr-2"/>View Intake
              </DropdownMenuItem>

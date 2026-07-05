@@ -30,8 +30,8 @@ const LayoutWrapper = ({ children, currentPageName }) => {
   return Layout ? <Layout currentPageName={currentPageName}>{inner}</Layout> : inner;
 };
 
-// Routes that render standalone (no app sidebar): marketing + auth + approval-pending.
-const BARE_ROUTES = new Set(['Auth', 'Landing', 'ResetPassword', 'Pending']);
+// Routes that render standalone (no app sidebar): marketing + auth + approval-pending + video.
+const BARE_ROUTES = new Set(['Auth', 'Landing', 'ResetPassword', 'Pending', 'Session']);
 
 const Spinner = () => (
   <div className="fixed inset-0 flex items-center justify-center">

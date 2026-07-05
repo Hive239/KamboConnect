@@ -170,8 +170,19 @@ export default function BookingRequestPage() {
 
       setSubmitted(true);
       navigate(createPageUrl("Bookings"));
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to submit booking:", error);
+      // A unique-violation means the slot was booked concurrently between the time
+      // we showed it as free and this write (the DB guard that prevents double-booking).
+      const code = error?.code || '';
+      const msg = String(error?.message || error?.details || error || '');
+      if (code === '23505' || /uq_booking_active_slot|duplicate key|already exists/i.test(msg)) {
+        toast.error("Sorry — that time slot was just booked by someone else. Please choose another time.");
+        setSelectedTime("");
+        setStep("form");
+      } else {
+        toast.error("Couldn't submit your request. Please try again.");
+      }
     } finally {
       setIsSubmitting(false);
     }
