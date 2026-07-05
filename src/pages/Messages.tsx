@@ -19,6 +19,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { NotificationService } from "../components/notifications/NotificationService";
+import { notify } from "@/lib/notify";
+import { createPageUrl } from "@/utils";
 
 const NewConversationModal = ({ open, onOpenChange, practitioners, onSelect }) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -232,10 +234,18 @@ export default function Messages() {
             : selectedConversation.participant_1_id;
         
         if (otherParticipantId) {
-          NotificationService.createMessageNotification(otherParticipantId, {
-            sender_name: user.full_name,
-            content: messageData.content,
-            conversation_id: selectedConversation.id
+          // Route through notify() so opted-in recipients also get web-push (in-app
+          // is always delivered). Email stays off for per-message (would be spammy);
+          // notify() only emails high/urgent by default.
+          const preview = messageData.content.substring(0, 100) + (messageData.content.length > 100 ? '...' : '');
+          notify({
+            userId: otherParticipantId,
+            type: 'message',
+            title: `New message from ${user.full_name}`,
+            body: preview,
+            priority: 'normal',
+            link: `${createPageUrl('Messages')}?conversation_id=${selectedConversation.id}`,
+            relatedId: selectedConversation.id,
           });
         }
       }, 200);
