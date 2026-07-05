@@ -12,6 +12,7 @@ import { createPageUrl } from "@/utils";
 import { getCurrentLocation, sortByDistance, filterByRadius } from "../components/utils/locationUtils";
 import { useSeo } from "@/lib/useSeo";
 import { track } from "@/lib/activity";
+import { searchPractitioners } from "@/lib/searchRpc";
 
 import PractitionerCard from "../components/directory/PractitionerCard";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -36,6 +37,8 @@ export default function Directory() {
     jsonLd: { "@context": "https://schema.org", "@type": "WebSite", name: "KamboGuide", url: "https://kamboguide.app" },
   });
   const [practitioners, setPractitioners] = useState([]);
+  // Server-side (Postgres FTS + fuzzy) match ids for the current query; null = use client substring fallback.
+  const [searchIds, setSearchIds] = useState<Set<string> | null>(null);
   const [reviews, setReviews] = useState([]);
   const [filteredPractitioners, setFilteredPractitioners] = useState([]);
   // Seed the search from a ?q= param so the global top-bar search and Landing
@@ -137,14 +140,21 @@ export default function Directory() {
     let filtered = practitioners.filter(practitioner => {
       // Text search
       const lowerCaseSearchTerm = searchTerm.toLowerCase();
-      const matchesSearch = !searchTerm ||
-        practitioner.full_name?.toLowerCase().includes(lowerCaseSearchTerm) ||
-        practitioner.address?.city?.toLowerCase().includes(lowerCaseSearchTerm) ||
-        practitioner.address?.state_province?.toLowerCase().includes(lowerCaseSearchTerm) ||
-        practitioner.address?.country?.toLowerCase().includes(lowerCaseSearchTerm) ||
-        (practitioner.specializations || []).some((s) => s.toLowerCase().includes(lowerCaseSearchTerm)) ||
-        (practitioner.languages || []).some((l) => l.toLowerCase().includes(lowerCaseSearchTerm)) ||
-        practitioner.bio?.toLowerCase().includes(lowerCaseSearchTerm);
+      // Prefer the Postgres FTS/fuzzy result set; fall back to client substring match
+      // when the RPC is unavailable (searchIds === null).
+      const matchesSearch = !searchTerm || (
+        searchIds !== null
+          ? searchIds.has(practitioner.id)
+          : (
+            practitioner.full_name?.toLowerCase().includes(lowerCaseSearchTerm) ||
+            practitioner.address?.city?.toLowerCase().includes(lowerCaseSearchTerm) ||
+            practitioner.address?.state_province?.toLowerCase().includes(lowerCaseSearchTerm) ||
+            practitioner.address?.country?.toLowerCase().includes(lowerCaseSearchTerm) ||
+            (practitioner.specializations || []).some((s) => s.toLowerCase().includes(lowerCaseSearchTerm)) ||
+            (practitioner.languages || []).some((l) => l.toLowerCase().includes(lowerCaseSearchTerm)) ||
+            practitioner.bio?.toLowerCase().includes(lowerCaseSearchTerm)
+          )
+      );
 
       // Rating filter
       const practitionerRating = getAverageRating(practitioner.id);
@@ -210,12 +220,25 @@ export default function Directory() {
     }
 
     setFilteredPractitioners(filtered);
-  }, [searchTerm, practitioners, filters, getAverageRating, userLocation]);
+  }, [searchTerm, practitioners, filters, getAverageRating, userLocation, searchIds]);
   // (filters object covers modalities/languages/onlineOnly/radius)
 
   useEffect(() => {
     loadData();
   }, []);
+
+  // Debounced Postgres search (FTS + typo-tolerant). Sets the match-id set the
+  // filter uses; null when empty or the RPC is unavailable (→ client substring fallback).
+  useEffect(() => {
+    const q = searchTerm.trim();
+    if (!q) { setSearchIds(null); return; }
+    let active = true;
+    const h = setTimeout(async () => {
+      const rows = await searchPractitioners(q);
+      if (active) setSearchIds(rows ? new Set(rows.map((r) => r.id)) : null);
+    }, 250);
+    return () => { active = false; clearTimeout(h); };
+  }, [searchTerm]);
 
   useEffect(() => {
     filterPractitioners();

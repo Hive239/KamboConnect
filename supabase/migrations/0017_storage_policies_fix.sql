@@ -23,17 +23,38 @@ create policy kc_uploads_update on storage.objects
 create policy kc_uploads_delete on storage.objects
   for delete using (bucket_id = 'uploads' and auth.uid() is not null);
 
--- documents: PRIVATE — only the owner (path prefixed with their uid) or an admin
--- may read/write/update/delete. auth.uid() is null for anon → fully denied.
-create policy kc_documents_owner on storage.objects
-  for all
-  using (
+-- documents: PRIVATE. Path is `<owner_uid>/<file>`. auth.uid() is null for anon
+-- → fully denied. READ is allowed to the owner, an admin, OR a practitioner who
+-- has a booking with the owning client (so they can review that client's signed
+-- waiver — see ClientsManagement "View PDF"). WRITES stay owner/admin only.
+create policy kc_documents_read on storage.objects
+  for select using (
+    bucket_id = 'documents' and (
+      (storage.foldername(name))[1] = auth.uid()::text
+      or exists (select 1 from public.profiles p where p.id = auth.uid()::text and p.role = 'admin')
+      or exists (
+        select 1 from public.bookings b
+        join public.practitioners pr on pr.id = b.practitioner_id
+        where b.client_id = (storage.foldername(name))[1] and pr.user_id = auth.uid()::text
+      )
+    )
+  );
+create policy kc_documents_insert on storage.objects
+  for insert with check (
     bucket_id = 'documents' and (
       (storage.foldername(name))[1] = auth.uid()::text
       or exists (select 1 from public.profiles p where p.id = auth.uid()::text and p.role = 'admin')
     )
-  )
-  with check (
+  );
+create policy kc_documents_update on storage.objects
+  for update using (
+    bucket_id = 'documents' and (
+      (storage.foldername(name))[1] = auth.uid()::text
+      or exists (select 1 from public.profiles p where p.id = auth.uid()::text and p.role = 'admin')
+    )
+  );
+create policy kc_documents_delete on storage.objects
+  for delete using (
     bucket_id = 'documents' and (
       (storage.foldername(name))[1] = auth.uid()::text
       or exists (select 1 from public.profiles p where p.id = auth.uid()::text and p.role = 'admin')
