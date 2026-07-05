@@ -7,6 +7,7 @@
  */
 import { Notification, PushSubscription, User } from '@/entities/all';
 import { SendEmail } from '@/integrations/Core';
+import { supabase } from '@/lib/supabase';
 
 export interface NotifyInput {
   userId?: string;
@@ -53,11 +54,12 @@ export async function notify(input: NotifyInput): Promise<void> {
       const subs = await PushSubscription.filter({ user_id: userId }).catch(() => []);
       const web = subs.filter((s: any) => !s?.keys?.platform);
       const native = subs.filter((s: any) => s?.keys?.platform);
+      const token = (await supabase?.auth.getSession())?.data?.session?.access_token;
       const post = (endpoint: string, list: any[]) =>
         list.length
           ? fetch(endpoint, {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
               body: JSON.stringify({ subscriptions: list, title, body, url: link }),
             }).catch(() => {})
           : Promise.resolve();

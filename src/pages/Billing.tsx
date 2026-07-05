@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { User, Practitioner, Booking, Payment, Review, Subscription, Notification } from "@/entities/all";
 import { resolvePractitionerForUser } from "@/lib/practitionerForUser";
-import { startCheckout } from "@/integrations/Payments";
+import { startCheckout, startConnectOnboarding, getConnectStatus } from "@/integrations/Payments";
 import { computeReputation } from "@/lib/reputation";
 import { formatCurrency } from "@/lib/format";
 import { useSeo } from "@/lib/useSeo";
@@ -29,6 +29,19 @@ export default function Billing() {
   const [upgrading, setUpgrading] = useState<string | null>(null);
   const [stats, setStats] = useState({ bookings: 0, earnings: 0, rating: 0, reviews: 0, chart: [] as any[] });
   const [sub, setSub] = useState<any>(null);
+  const [payouts, setPayouts] = useState<{ configured: boolean; charges_enabled?: boolean } | null>(null);
+  const [connecting, setConnecting] = useState(false);
+
+  // Payout (Stripe Connect) status — refresh on load + when returning from onboarding.
+  useEffect(() => {
+    getConnectStatus().then(setPayouts).catch(() => setPayouts({ configured: false }));
+  }, []);
+  const setUpPayouts = async () => {
+    setConnecting(true);
+    const r = await startConnectOnboarding();
+    if (r.configured && r.url) { window.location.href = r.url; return; }
+    setConnecting(false);
+  };
 
   const load = async () => {
     const me = await User.me().catch(() => null);
@@ -108,6 +121,23 @@ export default function Billing() {
           </p>
           <Button size="sm" disabled={!!upgrading} onClick={() => upgrade(TIERS.find((t: any) => t.id === prac.desired_tier))}>
             {upgrading ? "Processing…" : `Activate ${prac.desired_tier}`}
+          </Button>
+        </div>
+      )}
+
+      {/* Payouts (Stripe Connect) — required to receive money from paid sessions. */}
+      {payouts?.configured && (
+        <div className={`mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4 ${payouts.charges_enabled ? "border-success/30 bg-success/5" : "border-warning/40 bg-warning/5"}`}>
+          <div>
+            <p className="font-medium">{payouts.charges_enabled ? "✅ Payouts enabled" : "Set up payouts to get paid"}</p>
+            <p className="text-sm text-muted-foreground">
+              {payouts.charges_enabled
+                ? "You'll receive 95% of each paid session directly to your bank; KamboGuide keeps a 5% platform fee."
+                : "Connect a bank account via Stripe to accept paid bookings. You keep 95% of every session."}
+            </p>
+          </div>
+          <Button size="sm" variant={payouts.charges_enabled ? "outline" : "default"} disabled={connecting} onClick={setUpPayouts}>
+            {connecting ? "Opening…" : payouts.charges_enabled ? "Manage payouts" : "Set up payouts"}
           </Button>
         </div>
       )}

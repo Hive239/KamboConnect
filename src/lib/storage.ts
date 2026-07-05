@@ -20,7 +20,14 @@ export async function uploadToBucket(
 ): Promise<string> {
   if (!supabase) throw new Error('Supabase not configured');
   const name = (file as File).name || 'file';
-  const path = `${crypto.randomUUID()}-${safeName(name)}`;
+  let path = `${crypto.randomUUID()}-${safeName(name)}`;
+  // Private `documents` are owner-scoped by RLS on the first path segment
+  // (`(storage.foldername(name))[1] = auth.uid()`), so prefix with the uid —
+  // otherwise the upload is rejected and cross-user isolation isn't enforced.
+  if (bucket === 'documents') {
+    const uid = (await supabase.auth.getUser()).data?.user?.id;
+    if (uid) path = `${uid}/${path}`;
+  }
   const { error } = await supabase.storage
     .from(bucket)
     .upload(path, file, { upsert: false, contentType: (file as File).type || undefined });

@@ -32,7 +32,8 @@ App id **`com.kamboguide.app`**, name **KamboGuide**. Config: `capacitor.config.
 Android back button, deep links, haptics): `src/lib/native.ts` (called from `main.tsx`, no-ops on web).
 
 - **Android** project is generated (`android/`).
-- **iOS** project is NOT yet generated (needs CocoaPods, macOS only — see below).
+- **iOS** project is generated (`ios/`) and **verified building + running in the iOS Simulator** (iPhone 17 Pro).
+  Deployment target is **iOS 15.0** (Capacitor 8 minimum) — set in both `ios/App/Podfile` and the Xcode project.
 
 ### Dev workflow (every time web code changes)
 ```bash
@@ -43,13 +44,20 @@ node node_modules/.bin/cap open ios             # → Xcode (after iOS is added)
 ```
 (`npx cap …` also works on machines without the `:` in the repo path.)
 
-### First-time iOS setup (on a Mac with Xcode)
+### Run on the iOS Simulator (verified working)
 ```bash
-brew install cocoapods           # or: sudo gem install cocoapods
-node node_modules/.bin/cap add ios
-node node_modules/.bin/cap sync ios
-node node_modules/.bin/cap open ios
+brew install cocoapods                          # one-time (already installed here)
+node node_modules/.bin/cap sync ios             # after any web change
+# Then open in Xcode and press ▶, or run headless:
+xcrun simctl boot "iPhone 17 Pro"
+xcodebuild -workspace ios/App/App.xcworkspace -scheme App -sdk iphonesimulator \
+  -configuration Debug -derivedDataPath /tmp/kg-ios-build \
+  -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
+xcrun simctl install booted /tmp/kg-ios-build/Build/Products/Debug-iphonesimulator/App.app
+xcrun simctl launch booted com.kamboguide.app
 ```
+`ios/App/Podfile` **and** the Xcode project are pinned to **iOS 15.0** (Capacitor 8 minimum). A fresh `cap add ios`
+defaults to 14.0 and will fail to compile until both are bumped to 15.0.
 
 ### App icons + splash for native
 ```bash

@@ -135,7 +135,7 @@ export default function Auth() {
         </div>
 
         {/* ---------- Top bar ---------- */}
-        <header className="relative z-10 mx-auto flex w-full max-w-6xl items-center justify-between px-5 py-5">
+        <header className="safe-t relative z-10 mx-auto flex w-full max-w-6xl items-center justify-between px-5 py-5">
           <Link to="/" className="flex items-center gap-2 font-display text-xl font-semibold">
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 backdrop-blur">
               <Leaf className="h-5 w-5 text-white" weight="duotone" />
@@ -195,7 +195,7 @@ export default function Auth() {
                 <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10">
                   <Leaf className="h-6 w-6 text-primary" weight="duotone" />
                 </div>
-                <h2 className="font-display text-2xl font-semibold">Welcome to KamboGuide</h2>
+                <h2 className="font-display text-2xl font-semibold text-primary">Welcome to KamboGuide</h2>
                 <p className="text-sm text-muted-foreground">Sign in or create an account to continue.</p>
               </div>
 

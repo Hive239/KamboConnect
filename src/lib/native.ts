@@ -12,11 +12,23 @@ export async function initNative(): Promise<void> {
   // Status bar — match the app theme.
   try {
     const { StatusBar, Style } = await import("@capacitor/status-bar");
-    const dark = document.documentElement.classList.contains("dark");
-    await StatusBar.setStyle({ style: dark ? Style.Light : Style.Dark }).catch(() => {});
-    if (Capacitor.getPlatform() === "android") {
-      await StatusBar.setBackgroundColor({ color: dark ? "#0e1512" : "#2f5e46" }).catch(() => {});
-    }
+    // Keep the webview drawing under the status bar (overlay:true, the default) so
+    // the header's own themed background fills the notch area — the `.safe-t`
+    // padding on the headers keeps content below the clock/battery. (overlay:false
+    // would reserve a strip painted with the native bg → a white band in dark mode.)
+    await StatusBar.setOverlaysWebView({ overlay: true }).catch(() => {});
+    const isAndroid = Capacitor.getPlatform() === "android";
+    const applyStatusBar = async () => {
+      // Light content (white text) on dark backgrounds; the Auth screen forces a
+      // dark green background even in light theme, so treat it as dark too.
+      const dark = document.documentElement.classList.contains("dark") || /auth/i.test(location.pathname);
+      // NB: Capacitor's enum is inverted — Style.Dark = LIGHT text (for dark bg), Style.Light = dark text.
+      await StatusBar.setStyle({ style: dark ? Style.Dark : Style.Light }).catch(() => {});
+      if (isAndroid) await StatusBar.setBackgroundColor({ color: dark ? "#0e1512" : "#2f5e46" }).catch(() => {});
+    };
+    await applyStatusBar();
+    // Re-apply whenever the theme class flips (next-themes applies `dark` after mount).
+    new MutationObserver(applyStatusBar).observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
   } catch { /* plugin unavailable */ }
 
   // Hide the splash once the web app is up.

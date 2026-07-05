@@ -6,7 +6,10 @@ const config: CapacitorConfig = {
   webDir: "dist",
   backgroundColor: "#faf8f4",
   ios: {
-    contentInset: "always",
+    // Draw the web content edge-to-edge (under the status bar) so the app's own
+    // themed header fills the notch area. "always" would inset the content and
+    // expose the webview's light background as a band at the top.
+    contentInset: "never",
   },
   plugins: {
     SplashScreen: {

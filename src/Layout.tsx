@@ -211,7 +211,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       <div className="flex min-h-[100dvh] flex-col bg-background text-foreground">
         {/* ---------- Top bar ---------- */}
-        <header className="sticky top-0 z-40 flex h-16 items-center gap-3 border-b border-border bg-card/95 px-3 backdrop-blur-sm sm:px-4">
+        <header className="sticky top-0 z-40 flex h-[calc(4rem+env(safe-area-inset-top))] items-center gap-3 border-b border-border bg-card/95 px-3 pt-[env(safe-area-inset-top)] backdrop-blur-sm sm:px-4">
           {/* Mobile: hamburger opens sheet */}
           <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
@@ -355,7 +355,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   to={item.url}
                   aria-label={item.tKey ? t(item.tKey) : item.title}
                   aria-current={active ? "page" : undefined}
-                  className="relative flex h-16 w-full flex-col items-center justify-center gap-1 rounded-lg transition-transform active:scale-95"
+                  className="relative flex h-16 w-full flex-col items-center justify-start gap-1 rounded-lg px-0.5 pt-2.5 transition-transform active:scale-95"
                 >
                   {active && (
                     <motion.span
@@ -368,7 +368,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     weight={active ? "fill" : "duotone"}
                     className={`relative z-10 h-5 w-5 ${active ? "text-primary" : "text-muted-foreground"}`}
                   />
-                  <span className={`relative z-10 text-[11px] font-medium ${active ? "text-primary" : "text-muted-foreground"}`}>
+                  <span className={`relative z-10 line-clamp-2 text-center text-[10px] font-medium leading-[1.1] ${active ? "text-primary" : "text-muted-foreground"}`}>
                     {item.tKey ? t(item.tKey) : item.title}
                   </span>
                 </Link>

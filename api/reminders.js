@@ -7,9 +7,10 @@
 // with RLS bypassed). No-op if unset. Protected by CRON_SECRET when set.
 
 export default async function handler(req, res) {
-  // Vercel Cron sends a bearer token when CRON_SECRET is configured.
+  // Fail closed: require CRON_SECRET to be configured AND matched. Without this,
+  // an unset secret would let anyone trigger the full reminder fan-out (spam).
   const secret = process.env.CRON_SECRET;
-  if (secret && req.headers.authorization !== `Bearer ${secret}`) {
+  if (!secret || req.headers.authorization !== `Bearer ${secret}`) {
     res.status(401).json({ error: 'unauthorized' }); return;
   }
   const SB_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
@@ -20,8 +21,9 @@ export default async function handler(req, res) {
   const H = { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' };
   const sel = (t, qs) => fetch(`${SB_URL}/rest/v1/${t}?${qs}`, { headers: H }).then((r) => r.json()).catch(() => []);
   const insert = (t, body) => fetch(`${SB_URL}/rest/v1/${t}`, { method: 'POST', headers: { ...H, Prefer: 'return=minimal' }, body: JSON.stringify(body) });
-  const email = (to, subject, body) => fetch(`${origin}/api/send-email`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ to, subject, body }) }).catch(() => {});
-  const push = (subs, title, body, url) => subs.length && fetch(`${origin}/api/push-send`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ subscriptions: subs, title, body, url }) }).catch(() => {});
+  const INT = { 'Content-Type': 'application/json', 'x-internal-secret': process.env.INTERNAL_API_SECRET || '' };
+  const email = (to, subject, body) => fetch(`${origin}/api/send-email`, { method: 'POST', headers: INT, body: JSON.stringify({ to, subject, body }) }).catch(() => {});
+  const push = (subs, title, body, url) => subs.length && fetch(`${origin}/api/push-send`, { method: 'POST', headers: INT, body: JSON.stringify({ subscriptions: subs, title, body, url }) }).catch(() => {});
 
   const now = new Date();
   const from = new Date(now.getTime() + 24 * 3600e3).toISOString();

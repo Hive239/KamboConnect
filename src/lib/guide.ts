@@ -7,6 +7,7 @@
  *   const reply = await askGuide("is kambo safe if I have high blood pressure?", ctx)
  */
 import { scoreMatches } from "@/integrations/Matchmaking";
+import { supabase } from "@/lib/supabase";
 import type { MatchResult, MatchPrefs } from "@/lib/matchScore";
 import {
   CONTRAINDICATIONS, byLevel, LEVEL_META, type ContraLevel,
@@ -175,9 +176,10 @@ function greeting(): GuideReply {
 /** Calls the real AI endpoint. Returns null when the LLM isn't configured/available. */
 async function callGuideLLM(message: string, history?: { role: string; text: string }[]): Promise<string | null> {
   try {
+    const token = (await supabase?.auth.getSession())?.data?.session?.access_token;
     const r = await fetch("/api/guide", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       body: JSON.stringify({ message, history }),
     });
     const j = await r.json().catch(() => ({}));

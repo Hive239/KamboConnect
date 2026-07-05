@@ -6,6 +6,30 @@
 //   SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY (optional) — enables email_events logging.
 // If RESEND_API_KEY is unset the endpoint is a safe no-op (returns skipped:true).
 
+// Authorize the caller: either an internal server-to-server shared secret
+// (used by api/reminders.js) OR a valid Supabase user JWT. Prevents the endpoint
+// from being an open, unauthenticated email relay.
+async function authorize(req) {
+  const internal = process.env.INTERNAL_API_SECRET;
+  if (internal && req.headers['x-internal-secret'] === internal) return true;
+  const auth = req.headers.authorization || '';
+  const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+  const URL_ = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const ANON = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+  if (!token || !URL_) return false;
+  try {
+    const r = await fetch(`${URL_}/auth/v1/user`, { headers: { Authorization: `Bearer ${token}`, apikey: ANON || token } });
+    if (!r.ok) return false;
+    const u = await r.json();
+    return !!u?.id;
+  } catch { return false; }
+}
+
+// Escape HTML so a caller-supplied body can't inject markup into the email.
+function escapeHtml(s) {
+  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 async function logEmail(row) {
   const URL_ = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
   const SRK = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -22,6 +46,9 @@ async function logEmail(row) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'method_not_allowed' });
 
+  // Fail closed: only authenticated users or internal callers may send mail.
+  if (!(await authorize(req))) return res.status(401).json({ error: 'unauthorized' });
+
   const KEY = process.env.RESEND_API_KEY;
   const FROM = process.env.EMAIL_FROM || 'KamboGuide <onboarding@resend.dev>';
   const { to, subject, body } = (typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body) || {};
@@ -33,7 +60,7 @@ export default async function handler(req, res) {
   if (!to || !subject) return res.status(400).json({ error: 'missing_to_or_subject' });
 
   const html = `<div style="font-family:ui-sans-serif,system-ui,-apple-system,sans-serif;line-height:1.6;color:#1a1c1a">
-    ${String(body || '').replace(/\n/g, '<br/>')}
+    ${escapeHtml(body).replace(/\n/g, '<br/>')}
     <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0"/>
     <p style="font-size:12px;color:#6b7280">Sent by KamboGuide. If this wasn't you, you can ignore this email.</p>
   </div>`;

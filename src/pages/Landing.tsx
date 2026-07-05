@@ -177,7 +177,7 @@ export default function Landing() {
     <ThemeProvider attribute="class" forcedTheme="light">
       <div className="min-h-[100dvh] bg-background text-foreground">
         {/* ---------- Top bar ---------- */}
-        <header className="sticky top-0 z-50 border-b border-border/60 bg-background/70 backdrop-blur-md">
+        <header className="safe-t sticky top-0 z-50 border-b border-border/60 bg-background/70 backdrop-blur-md">
           <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3.5">
             <span className="flex items-center gap-2 font-display text-xl font-semibold">
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">

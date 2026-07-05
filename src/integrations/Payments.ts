@@ -10,6 +10,8 @@
  *    synthetic "completed" charge so the whole app (bookings, market, billing)
  *    works end-to-end for demos and local dev.
  */
+import { supabase } from '@/lib/supabase';
+
 export interface CheckoutInput {
   amount: number;
   currency?: string;
@@ -60,9 +62,12 @@ export type StartCheckoutResult =
 export async function startCheckout(input: StartCheckoutInput): Promise<StartCheckoutResult> {
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
   try {
+    // Send the session token — the endpoint requires an authenticated caller and
+    // stamps the verified user id into the payment metadata server-side.
+    const token = (await supabase?.auth.getSession())?.data?.session?.access_token;
     const res = await fetch('/api/stripe-checkout', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       body: JSON.stringify({
         amount: input.amount,
         currency: (input.currency || 'usd').toLowerCase(),
@@ -80,4 +85,31 @@ export async function startCheckout(input: StartCheckoutInput): Promise<StartChe
   return { mode: 'mock', charge: await createCheckout(input) };
 }
 
-export default { createCheckout, startCheckout, isPaymentsConfigured };
+/** Stripe Connect — practitioner payout onboarding. Returns a hosted onboarding URL
+ *  (redirect the browser there) or { configured:false } when Stripe isn't set up. */
+export async function startConnectOnboarding(): Promise<{ configured: boolean; url?: string; reason?: string }> {
+  try {
+    const token = (await supabase?.auth.getSession())?.data?.session?.access_token;
+    const res = await fetch('/api/stripe-connect', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      body: JSON.stringify({ action: 'onboard' }),
+    });
+    return await res.json().catch(() => ({ configured: false }));
+  } catch { return { configured: false }; }
+}
+
+/** Refresh + return the practitioner's payout status from Stripe. */
+export async function getConnectStatus(): Promise<{ configured: boolean; charges_enabled?: boolean; details_submitted?: boolean }> {
+  try {
+    const token = (await supabase?.auth.getSession())?.data?.session?.access_token;
+    const res = await fetch('/api/stripe-connect', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      body: JSON.stringify({ action: 'status' }),
+    });
+    return await res.json().catch(() => ({ configured: false }));
+  } catch { return { configured: false }; }
+}
+
+export default { createCheckout, startCheckout, isPaymentsConfigured, startConnectOnboarding, getConnectStatus };

@@ -31,12 +31,31 @@ export default async function handler(req, res) {
       const paymentId = session.payment_intent || session.id;
       const amount = (session.amount_total || 0) / 100;
       await finalize(md, { paymentId, amount, currency: (session.currency || 'usd').toUpperCase() });
+    } else if (event.type === 'account.updated') {
+      // Practitioner finished (or changed) Connect onboarding — sync payout status.
+      const acct = event.data.object;
+      const pracId = acct?.metadata?.practitioner_id;
+      if (pracId) {
+        await patchTable('practitioners', `id=eq.${pracId}`, { stripe_charges_enabled: !!acct.charges_enabled });
+      }
     }
   } catch (e) {
     // Log but still 200 so Stripe doesn't infinitely retry a malformed row.
     console.error('[stripe-webhook] finalize failed:', e?.message);
   }
   res.status(200).json({ received: true, type: event.type });
+}
+
+// Module-scope PATCH helper (service role) — used by non-checkout events.
+async function patchTable(table, filter, body) {
+  const SB_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const SB_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!SB_URL || !SB_KEY) return;
+  await fetch(`${SB_URL}/rest/v1/${table}?${filter}`, {
+    method: 'PATCH',
+    headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+    body: JSON.stringify(body),
+  });
 }
 
 // Update the pending record (order / booking / subscription) to paid, using the

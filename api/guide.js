@@ -1,6 +1,8 @@
 // Vercel serverless function: real AI answer for "Ask the Guide".
 // Backends, in priority order:
 //   1. ANTHROPIC_API_KEY  → Anthropic Messages API (works on Vercel cloud).
+import { authorizeRequest } from './_auth.js';
+//
 //   2. local `claude` CLI → used when the CLI is installed (local `vercel dev` or a
 //      self-hosted server). No API key needed. NOT available on Vercel's cloud.
 //   3. neither            → { skipped:true }; the client falls back to the built-in
@@ -77,6 +79,7 @@ async function viaCli(message, history) {
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'method_not_allowed' });
+  if (!(await authorizeRequest(req)).ok) return res.status(401).json({ error: 'unauthorized' });
   const { message, history } = (typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body) || {};
   if (!message || typeof message !== 'string') return res.status(400).json({ error: 'missing_message' });
   const msg = message.slice(0, 2000);

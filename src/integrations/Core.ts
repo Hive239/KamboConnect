@@ -4,7 +4,7 @@
  * SendEmail → a transactional email provider.
  */
 
-import { isSupabaseConfigured } from '@/lib/supabase';
+import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 import { uploadToBucket } from '@/lib/storage';
 
 function objectUrl(file: File | Blob) {
@@ -36,9 +36,12 @@ export async function UploadPrivateFile({ file }: { file: File | Blob }): Promis
  */
 export async function SendEmail(args: { to: string; subject: string; body: string }): Promise<{ success: true }> {
   try {
+    // Attach the caller's session token so the endpoint can authenticate the request
+    // (it rejects unauthenticated callers to avoid being an open email relay).
+    const token = (await supabase?.auth.getSession())?.data?.session?.access_token;
     await fetch('/api/send-email', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       body: JSON.stringify(args),
     });
   } catch (e) {

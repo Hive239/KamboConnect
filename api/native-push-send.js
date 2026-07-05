@@ -1,6 +1,7 @@
 // Native push sender (FCM HTTP v1 — Android natively, iOS via FCM+APNs key).
 // Mirrors push-send.js: real once FCM_SERVICE_ACCOUNT is set, otherwise no-ops
 // (sent:0) so notify() never throws. See MOBILE.md.
+import { authorizeRequest } from './_auth.js';
 //
 // Env: FCM_SERVICE_ACCOUNT = the full JSON of a Firebase service-account key
 //   (Firebase Console → Project Settings → Service accounts → Generate new key).
@@ -38,6 +39,7 @@ async function getAccessToken(sa) {
 
 export default async function handler(req, res) {
   if (req.method !== "POST") { res.status(405).json({ error: "Method not allowed" }); return; }
+  if (!(await authorizeRequest(req)).ok) { res.status(401).json({ error: "unauthorized" }); return; }
 
   const { subscriptions = [], title = "KamboGuide", body = "", url = "/" } = req.body || {};
   // Only native subs (tagged with keys.platform). Their endpoint is the FCM/APNs token.

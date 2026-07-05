@@ -26,8 +26,9 @@ export function SegmentedControl<T extends string = string>({
   return (
     <div
       className={cn(
-        "flex w-full items-center gap-1 rounded-xl border border-border/60 bg-muted/70 p-1 backdrop-blur-sm",
-        scroll ? "overflow-x-auto" : "",
+        // Always allow the track to scroll rather than truncate labels when a row
+        // is too narrow to show every full word.
+        "flex w-full items-center gap-1 rounded-xl border border-border/60 bg-muted/70 p-1 backdrop-blur-sm overflow-x-auto",
         className,
       )}
       role="tablist"
@@ -42,15 +43,17 @@ export function SegmentedControl<T extends string = string>({
             aria-selected={on}
             onClick={() => onChange(o.value)}
             className={cn(
-              "inline-flex min-w-0 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
-              scroll ? "shrink-0" : "flex-1",
+              // No min-w-0: a pill must never shrink below its own text (which is
+              // what caused truncation). flex-1 still gives equal widths when they fit.
+              "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+              scroll ? "" : "flex-1",
               on
                 ? "bg-card text-primary shadow-sm ring-2 ring-inset ring-primary/60"
                 : "text-muted-foreground hover:text-foreground",
             )}
           >
             {o.icon && <o.icon className="h-4 w-4" weight={on ? "fill" : "duotone"} />}
-            <span className="truncate">{o.label}</span>
+            <span className="whitespace-nowrap">{o.label}</span>
             {typeof o.count === "number" && (
               <span className={cn("ml-0.5 rounded-full px-1.5 text-xs", on ? "bg-primary/15 text-primary" : "bg-muted-foreground/10 text-muted-foreground")}>
                 {o.count}

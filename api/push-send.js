@@ -1,7 +1,10 @@
 // Web-push sender. Real when VAPID_PUBLIC_KEY + VAPID_PRIVATE_KEY are set;
 // otherwise responds 200 with sent:0 so callers stay non-blocking (mirrors send-email.js).
+import { authorizeRequest } from './_auth.js';
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') { res.status(405).json({ error: 'Method not allowed' }); return; }
+  if (!(await authorizeRequest(req)).ok) { res.status(401).json({ error: 'unauthorized' }); return; }
 
   const PUBLIC = process.env.VAPID_PUBLIC_KEY;
   const PRIVATE = process.env.VAPID_PRIVATE_KEY;

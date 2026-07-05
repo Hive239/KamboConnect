@@ -66,9 +66,13 @@ export default function Market() {
         items: cart.items.map((i) => ({ product_id: i.product_id, title: i.title, quantity: i.quantity, price: i.price })),
         total: cart.total, currency: "USD", status: "pending",
       });
+      // Single-seller cart → route the charge to that practitioner (95/5 split).
+      // Mixed-seller carts stay a platform charge (a single transfer can't split).
+      const sellerIds = Array.from(new Set(cart.items.map((i: any) => i.seller_id).filter(Boolean)));
+      const soleSeller = sellerIds.length === 1 ? sellerIds[0] : undefined;
       const result = await startCheckout({
         amount: cart.total, currency: "USD", description: `${cart.count} item(s)`,
-        metadata: { kind: "order", order_id: orderId, user_id: me.id },
+        metadata: { kind: "order", order_id: orderId, user_id: me.id, ...(soleSeller ? { practitioner_id: soleSeller } : {}) },
         successPath: "/Orders?paid=1", cancelPath: "/Market?canceled=1",
       });
       if (result.mode === "redirect") { window.location.href = result.url; return; } // webhook finalizes

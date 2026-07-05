@@ -80,6 +80,8 @@ export interface Practitioner extends BaseRecord {
   pricing_range?: PricingRange;
   session_price?: number;   // practitioner-set price per session (USD)
   desired_tier?: ListingTier; // tier chosen at signup, applied on admin approval
+  stripe_account_id?: string;      // Stripe Connect (Express) connected account
+  stripe_charges_enabled?: boolean; // payouts onboarding complete
   languages?: string[];
   availability_notes?: string;
   safety_protocols?: string;
