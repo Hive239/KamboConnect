@@ -37,3 +37,6 @@ supabase/.env
 
 # CI workflow — push requires a token with workflow scope; manage on GitHub directly
 .github/workflows/
+
+# local secrets
+VAPID_KEYS.txt

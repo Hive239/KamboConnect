@@ -50,8 +50,11 @@ export default async function handler(req, res) {
   const bookings = await sel('bookings', `slot_start=gte.${from}&slot_start=lt.${to}&status=eq.confirmed&select=id,slot_start,client_id,client_email,client_name,practitioner_id,practitioner_name`);
   for (const bk of bookings || []) {
     const when = new Date(bk.slot_start).toLocaleString();
-    if (bk.client_id) await insert('notifications', { user_id: bk.client_id, title: 'Session reminder', message: `Your session with ${bk.practitioner_name || 'your practitioner'} is tomorrow (${when}).`, type: 'booking', related_id: bk.id, action_url: '/Bookings' });
-    if (bk.client_email) await email(bk.client_email, 'Reminder: your Kambo session is tomorrow', `Hi ${bk.client_name || 'there'},\n\nA reminder that your session is scheduled for ${when}.`);
+    const joinUrl = `${origin}/Session?booking=${bk.id}`;
+    // Remind the client (in-app + email) and the practitioner (in-app), with the video join link.
+    if (bk.client_id) await insert('notifications', { user_id: bk.client_id, title: 'Session reminder', message: `Your session with ${bk.practitioner_name || 'your practitioner'} is tomorrow (${when}). Join: ${joinUrl}`, type: 'booking', related_id: bk.id, action_url: `/Session?booking=${bk.id}` });
+    if (bk.practitioner_id) await insert('notifications', { user_id: bk.practitioner_id, title: 'Session reminder', message: `Your session with ${bk.client_name || 'your client'} is tomorrow (${when}).`, type: 'booking', related_id: bk.id, action_url: `/Session?booking=${bk.id}` });
+    if (bk.client_email) await email(bk.client_email, 'Reminder: your Kambo session is tomorrow', `Hi ${bk.client_name || 'there'},\n\nA reminder that your session is scheduled for ${when}.\n\nJoin your session here: ${joinUrl}\n\nAdd it to your calendar from My Account → Calendar sync.`);
     bookingReminders++;
   }
 
