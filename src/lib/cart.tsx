@@ -8,6 +8,7 @@ export interface CartLine {
   quantity: number;
   image_url?: string;
   seller_name?: string;
+  seller_id?: string; // enables the marketplace 95/5 split for single-seller carts
 }
 
 interface CartValue {
@@ -40,7 +41,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const found = cur.find((i) => i.product_id === p.id);
       const price = Math.max(0, Number(p.price) || 0); // never trust a negative/NaN price
       if (found) return cur.map((i) => (i.product_id === p.id ? { ...i, quantity: clampQty(i.quantity + qty) } : i));
-      return [...cur, { product_id: p.id, title: p.title, price, quantity: clampQty(qty), image_url: p.image_urls?.[0], seller_name: p.seller_name }];
+      return [...cur, { product_id: p.id, title: p.title, price, quantity: clampQty(qty), image_url: p.image_urls?.[0], seller_name: p.seller_name, seller_id: p.seller_id }];
     });
   const remove = (id: string) => setItems((cur) => cur.filter((i) => i.product_id !== id));
   const setQty = (id: string, qty: number) => {

@@ -28,7 +28,7 @@ const FavoritePractitionerCard = ({ favorite, onRemove }) => {
         <CardContent className="p-4">
           <div className="flex items-center gap-4">
             <Avatar className="w-12 h-12">
-              <AvatarImage src={favorite.metadata?.image_url} />
+              <AvatarImage src={favorite.metadata?.image_url} alt={favorite.item_title || "Favorite"} />
               <AvatarFallback>
                 <UserIcon className="w-6 h-6 text-muted-foreground" />
               </AvatarFallback>
@@ -53,6 +53,7 @@ const FavoritePractitionerCard = ({ favorite, onRemove }) => {
               <Button 
                 size="sm" 
                 variant="ghost" 
+                aria-label="Remove from favorites"
                 onClick={() => onRemove(favorite.id)}
                 className="text-red-500 hover:text-destructive hover:bg-destructive/10"
               >
@@ -101,6 +102,7 @@ const FavoriteEventCard = ({ favorite, onRemove }) => {
               <Button 
                 size="sm" 
                 variant="ghost" 
+                aria-label="Remove from favorites"
                 onClick={() => onRemove(favorite.id)}
                 className="text-red-500 hover:text-destructive hover:bg-destructive/10"
               >
@@ -146,6 +148,7 @@ const FavoritePostCard = ({ favorite, onRemove }) => {
               <Button 
                 size="sm" 
                 variant="ghost" 
+                aria-label="Remove from favorites"
                 onClick={() => onRemove(favorite.id)}
                 className="text-red-500 hover:text-destructive hover:bg-destructive/10"
               >
@@ -245,7 +248,7 @@ export default function Favorites() {
   }
 
   return (
-    <div className="bg-muted min-h-[100dvh]">
+    <div className="bg-muted min-h-[100dvh] overflow-x-hidden">
       <div className="p-4 sm:p-6">
         <div className="max-w-4xl mx-auto">
           <PageHeader icon={Heart} kicker="Saved" title="My Favorites" subtitle="Your saved practitioners, events, and posts" className="-mx-4 -mt-4 mb-6 sm:-mx-6 sm:-mt-6" />

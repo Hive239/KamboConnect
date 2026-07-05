@@ -7,9 +7,9 @@ const timeOf = (d) => format(new Date(d), 'p');
 const isImage = (url = '') => /\.(png|jpe?g|gif|webp|avif)(\?|$)/i.test(url);
 
 const SystemMessage = ({ content }) => (
-  <div className="my-3 flex justify-center">
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-muted/80 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
-      <Info className="h-3 w-3" /> {content}
+  <div className="my-3 flex justify-center px-2">
+    <span className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-muted/80 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
+      <Info className="h-3 w-3 shrink-0" /> <span className="break-words min-w-0">{content}</span>
     </span>
   </div>
 );
@@ -57,7 +57,7 @@ export default function MessageBubble({ message, isSender, senderName, senderIma
         )}>
           {isFile
             ? <Attachment url={message.file_url} name={message.content} isSender={isSender} />
-            : <p className="whitespace-pre-wrap leading-relaxed">{message.content}</p>}
+            : <p className="whitespace-pre-wrap leading-relaxed break-words">{message.content}</p>}
         </div>
         <div className="mt-1 flex items-center gap-1 px-1 text-[11px] text-muted-foreground">
           <span>{timeOf(message.created_date)}</span>

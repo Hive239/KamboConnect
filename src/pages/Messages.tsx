@@ -369,7 +369,7 @@ export default function Messages() {
         
         {/* Main Content */}
         {showMessageThread && (
-            <section aria-label="Conversation" className="flex-1 flex flex-col h-full">
+            <section aria-label="Conversation" className="flex-1 min-w-0 flex flex-col h-full">
                 {selectedConversation ? (
                     <MessageThread 
                         conversation={selectedConversation}

@@ -9,12 +9,19 @@ import { authorizeRequest } from './_auth.js';
 const SB_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const SRK = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-async function getPractitioner(id) {
-  const r = await fetch(`${SB_URL}/rest/v1/practitioners?id=eq.${id}&select=id,full_name,email,stripe_account_id`, {
-    headers: { apikey: SRK, Authorization: `Bearer ${SRK}` },
-  });
-  const [row] = r.ok ? await r.json() : [];
-  return row || null;
+// Resolve the caller's practitioner listing, mirroring resolvePractitionerForUser:
+// unified id first, then user_id, then email (legacy/imported rows).
+async function getPractitioner(uid, email) {
+  const H = { apikey: SRK, Authorization: `Bearer ${SRK}` };
+  const cols = 'id,full_name,email,stripe_account_id';
+  const tryQ = async (qs) => {
+    const r = await fetch(`${SB_URL}/rest/v1/practitioners?${qs}&select=${cols}`, { headers: H });
+    const [row] = r.ok ? await r.json() : [];
+    return row || null;
+  };
+  return (await tryQ(`id=eq.${uid}`))
+      || (await tryQ(`user_id=eq.${uid}`))
+      || (email ? await tryQ(`email=eq.${encodeURIComponent(email)}`) : null);
 }
 async function patchPractitioner(id, body) {
   await fetch(`${SB_URL}/rest/v1/practitioners?id=eq.${id}`, {
@@ -41,8 +48,17 @@ export default async function handler(req, res) {
   const { action } = (typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body) || {};
   const origin = req.headers.origin || '';
 
-  const prac = await getPractitioner(uid);
+  // Caller email (for the legacy email-match fallback + Stripe account email).
+  let email;
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/profiles?id=eq.${uid}&select=email`, { headers: { apikey: SRK, Authorization: `Bearer ${SRK}` } });
+    const [p] = r.ok ? await r.json() : [];
+    email = p?.email;
+  } catch { /* optional */ }
+
+  const prac = await getPractitioner(uid, email);
   if (!prac) return res.status(400).json({ error: 'not_a_practitioner' });
+  const pracId = prac.id; // the practitioner ROW id — what checkout + the webhook key on
 
   try {
     let accountId = prac.stripe_account_id;
@@ -51,19 +67,19 @@ export default async function handler(req, res) {
     if (!accountId) {
       const account = await stripe.accounts.create({
         type: 'express',
-        email: prac.email || undefined,
+        email: prac.email || email || undefined,
         business_type: 'individual',
         capabilities: { transfers: { requested: true }, card_payments: { requested: true } },
-        metadata: { practitioner_id: uid },
+        metadata: { practitioner_id: pracId },
       });
       accountId = account.id;
-      await patchPractitioner(uid, { stripe_account_id: accountId });
+      await patchPractitioner(pracId, { stripe_account_id: accountId });
     }
 
     if (action === 'status') {
       const acct = await stripe.accounts.retrieve(accountId);
       const enabled = !!acct.charges_enabled;
-      await patchPractitioner(uid, { stripe_charges_enabled: enabled });
+      await patchPractitioner(pracId, { stripe_charges_enabled: enabled });
       return res.status(200).json({ configured: true, accountId, charges_enabled: enabled, details_submitted: !!acct.details_submitted });
     }
 
