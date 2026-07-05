@@ -1,6 +1,7 @@
 import { User, Practitioner, Booking, Payment, Subscription, Review, Consultation, Event, Order, Message, ConsentRecord, ScreeningResponse, Credential, ActivityEvent, CourseworkEnrollment, ErrorLog, EmailEvent } from "@/entities/all";
 import { TRACKS, allLessons } from "@/data/coursework";
 import { callAnalyticsRpc } from "@/lib/analyticsRpc";
+import { isActiveSub } from "@/lib/subscription";
 
 export interface Delta { value: number; prevValue: number; pct: number | null }
 const delta = (value: number, prevValue: number): Delta => ({
@@ -129,7 +130,7 @@ export async function computePlatformAnalytics(opts?: { sinceDays?: number | nul
   // Revenue
   const sessionFees = Math.round(gmv * PLATFORM_FEE_RATE);
   const practitionerPayouts = Math.round(gmv * (1 - PLATFORM_FEE_RATE));
-  const activeSubs = subs.filter((s: any) => s.status === "active");
+  const activeSubs = subs.filter((s: any) => isActiveSub(s));
   const subscriptionMRR = activeSubs.reduce((s: number, x: any) => s + (x.price || TIER_PRICES[x.tier] || 0), 0)
     || (tierRevenue.preferred + tierRevenue.featured); // fallback from tier counts
   // Coursework revenue — 100% platform revenue (KamboGuide's own courses).

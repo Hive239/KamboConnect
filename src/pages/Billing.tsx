@@ -88,7 +88,7 @@ export default function Billing() {
 
   const cancelPlan = async () => {
     if (!prac || !sub) return;
-    if (!confirm("Cancel your subscription? Your listing reverts to Basic at the end of the period.")) return;
+    if (!confirm("Cancel your subscription? Your listing reverts to Basic now.")) return;
     setUpgrading("cancel");
     try {
       await Subscription.update(sub.id, { status: "cancelled", canceled_at: new Date().toISOString() });

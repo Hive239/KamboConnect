@@ -55,5 +55,20 @@ export default async function handler(req, res) {
     bookingReminders++;
   }
 
-  res.status(200).json({ configured: true, eventReminders, bookingReminders });
+  // ---- SUBSCRIPTION EXPIRY sweep: there is no renewal billing, so an 'active'
+  //      sub whose paid period has ended must be expired and the practitioner's
+  //      premium listing_tier reverted to basic (else it counts active forever). ----
+  let subsExpired = 0;
+  const patch = (t, qs, body) => fetch(`${SB_URL}/rest/v1/${t}?${qs}`, { method: 'PATCH', headers: { ...H, Prefer: 'return=minimal' }, body: JSON.stringify(body) }).catch(() => {});
+  const expiredSubs = await sel('subscriptions', `status=eq.active&current_period_end=lt.${now.toISOString()}&select=id,practitioner_id`);
+  for (const sub of expiredSubs || []) {
+    await patch('subscriptions', `id=eq.${sub.id}`, { status: 'expired' });
+    if (sub.practitioner_id) {
+      const others = await sel('subscriptions', `practitioner_id=eq.${sub.practitioner_id}&status=eq.active&current_period_end=gte.${now.toISOString()}&select=id`);
+      if (!others || others.length === 0) await patch('practitioners', `id=eq.${sub.practitioner_id}`, { listing_tier: 'basic' });
+    }
+    subsExpired++;
+  }
+
+  res.status(200).json({ configured: true, eventReminders, bookingReminders, subsExpired });
 }

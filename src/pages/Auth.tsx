@@ -119,7 +119,7 @@ export default function Auth() {
   };
 
   return (
-    <ThemeProvider attribute="class" forcedTheme="light">
+    <>
       <div className="relative flex min-h-[100dvh] w-full flex-col overflow-hidden bg-[#0b3a2a] text-white grain">
         {/* ---------- Vibrant animated background ---------- */}
         <div aria-hidden className="pointer-events-none absolute inset-0 -z-0">
@@ -190,7 +190,7 @@ export default function Auth() {
 
           {/* Right: auth card */}
           <div className="mx-auto w-full max-w-md">
-            <div className="rounded-3xl border border-white/40 bg-white/95 p-6 text-foreground shadow-2xl backdrop-blur-xl sm:p-8">
+            <div className="rounded-3xl border border-border bg-card/95 p-6 text-card-foreground shadow-2xl backdrop-blur-xl sm:p-8">
               <div className="mb-6 text-center">
                 <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10">
                   <Leaf className="h-6 w-6 text-primary" weight="duotone" />
@@ -232,11 +232,11 @@ export default function Auth() {
                       <Label>I am…</Label>
                       <div className="mt-1 grid grid-cols-2 gap-2">
                         <button type="button" onClick={() => setSignupRole("client")}
-                          className={`rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors ${signupRole === "client" ? "border-white bg-white/15 text-white" : "border-white/25 text-white/70 hover:bg-white/10"}`}>
+                          className={`rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors ${signupRole === "client" ? "border-primary bg-primary/10 text-foreground" : "border-border text-muted-foreground hover:bg-muted"}`}>
                           Seeking Kambo<span className="block text-xs font-normal opacity-70">Client</span>
                         </button>
                         <button type="button" onClick={() => setSignupRole("practitioner")}
-                          className={`rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors ${signupRole === "practitioner" ? "border-white bg-white/15 text-white" : "border-white/25 text-white/70 hover:bg-white/10"}`}>
+                          className={`rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors ${signupRole === "practitioner" ? "border-primary bg-primary/10 text-foreground" : "border-border text-muted-foreground hover:bg-muted"}`}>
                           A practitioner<span className="block text-xs font-normal opacity-70">Offer sessions</span>
                         </button>
                       </div>
@@ -251,12 +251,12 @@ export default function Auth() {
                             { id: "featured", name: "Featured", price: "$49/mo" },
                           ].map((t) => (
                             <button key={t.id} type="button" onClick={() => setDesiredTier(t.id as any)}
-                              className={`rounded-lg border px-2 py-2 text-center text-xs font-medium transition-colors ${desiredTier === t.id ? "border-white bg-white/15 text-white" : "border-white/25 text-white/70 hover:bg-white/10"}`}>
+                              className={`rounded-lg border px-2 py-2 text-center text-xs font-medium transition-colors ${desiredTier === t.id ? "border-primary bg-primary/10 text-foreground" : "border-border text-muted-foreground hover:bg-muted"}`}>
                               {t.name}<span className="block font-normal opacity-70">{t.price}</span>
                             </button>
                           ))}
                         </div>
-                        <p className="mt-1 text-xs text-white/60">You'll complete a short application next. An admin reviews it before you go live.</p>
+                        <p className="mt-1 text-xs text-muted-foreground">You'll complete a short application next. An admin reviews it before you go live.</p>
                       </div>
                     )}
                   </TabsContent>
@@ -299,6 +299,6 @@ export default function Auth() {
           </div>
         </main>
       </div>
-    </ThemeProvider>
+    </>
   );
 }

@@ -52,6 +52,7 @@ export interface User extends BaseRecord {
   profile_image_url?: string;
   preferences?: Record<string, unknown>;
   status?: 'pending' | 'active' | 'suspended' | 'banned' | 'rejected';
+  calendar_token?: string; // token for the personal ICS calendar-subscribe feed
   locale?: string;
   currency?: string;
 }
