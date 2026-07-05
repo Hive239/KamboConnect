@@ -1,3 +1,4 @@
+import { phCapture, phIdentify } from "@/lib/posthog";
 import { ActivityEvent, User } from "@/entities/all";
 
 const KEY = "kc_activity_ts";
@@ -31,6 +32,9 @@ export async function track(
 ): Promise<void> {
   try {
     const me = await User.me().catch(() => null);
+    // Mirror into PostHog (no-op until configured) for product analytics + replay.
+    if (me?.id) phIdentify(me.id, { role: me.role, email: me.email });
+    phCapture(type, { path: opts.path, entity_id: opts.entityId, ...(opts.meta || {}) });
     await ActivityEvent.create({
       user_id: me?.id,
       type,

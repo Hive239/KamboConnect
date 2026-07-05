@@ -1,5 +1,47 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="96" fill="#2f5e46"/>
-  <path fill="#e8dcc8" d="M256 96c-88 0-160 72-160 160 0 88 72 160 160 160 0-88 0-160 0-160 0 0 72 0 128-56C328 116 296 96 256 96z"/>
-  <path fill="none" stroke="#c9a15b" stroke-width="14" stroke-linecap="round" d="M256 416V176"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e9fbef"/>
+      <stop offset="1" stop-color="#c9ead6"/>
+    </linearGradient>
+    <linearGradient id="frog" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#79d497"/>
+      <stop offset="1" stop-color="#2e7b4d"/>
+    </linearGradient>
+    <linearGradient id="kg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a6f7bf"/>
+      <stop offset="0.55" stop-color="#3ea06a"/>
+      <stop offset="1" stop-color="#1b5233"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1024" height="1024" rx="224" fill="url(#bg)"/>
+
+  <!-- webbed back feet -->
+  <ellipse cx="300" cy="815" rx="120" ry="70" fill="#2e7b4d" transform="rotate(-18 300 815)"/>
+  <ellipse cx="724" cy="815" rx="120" ry="70" fill="#2e7b4d" transform="rotate(18 724 815)"/>
+
+  <!-- head / body -->
+  <path d="M512 250
+           C 742 250 872 410 872 610
+           C 872 792 726 866 512 866
+           C 298 866 152 792 152 610
+           C 152 410 282 250 512 250 Z" fill="url(#frog)"/>
+
+  <!-- eyes -->
+  <g>
+    <circle cx="360" cy="298" r="126" fill="url(#frog)"/>
+    <circle cx="664" cy="298" r="126" fill="url(#frog)"/>
+    <circle cx="360" cy="286" r="70" fill="#ffffff"/>
+    <circle cx="664" cy="286" r="70" fill="#ffffff"/>
+    <circle cx="372" cy="294" r="32" fill="#12331e"/>
+    <circle cx="676" cy="294" r="32" fill="#12331e"/>
+  </g>
+
+  <!-- KG monogram: green gradient fill, white outline -->
+  <text x="512" y="720" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-weight="700"
+        font-size="300" letter-spacing="-10"
+        fill="url(#kg)" stroke="#ffffff" stroke-width="22"
+        stroke-linejoin="round" paint-order="stroke">KG</text>
 </svg>

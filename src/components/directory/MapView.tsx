@@ -176,7 +176,7 @@ const MapView = ({
   }
 
   return (
-    <div className={`w-full ${heightClass} relative bg-card rounded-lg border overflow-hidden`}>
+    <div className={`w-full ${heightClass} relative isolate bg-card rounded-lg border overflow-hidden`}>
       <MapContainer 
         center={mapCenter} 
         zoom={practitionersWithCoords.length > 0 ? 10 : 4} 
